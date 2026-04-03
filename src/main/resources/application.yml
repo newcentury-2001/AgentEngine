@@ -1,0 +1,65 @@
+spring:
+  application:
+    name: agent-engine
+  datasource:
+    url: jdbc:postgresql://39.98.125.91:5432/postgres?connectTimeout=1&socketTimeout=1&tcpKeepAlive=true
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: AgentEngineHikariPool
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 300000
+      max-lifetime: 300000
+      connection-timeout: 500
+      validation-timeout: 2000
+  data:
+    redis:
+      host: 39.98.125.91
+      port: 6379
+      password: 123456
+      connect-timeout: 300ms
+      timeout: 500ms
+      lettuce:
+        pool:
+          max-active: 20
+          max-idle: 8
+          min-idle: 2
+          max-wait: 300ms
+          time-between-eviction-runs: 20s
+
+logging:
+  level:
+    root: info
+    com.agentengine: debug
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/agent-engine.log
+
+zhipu:
+  api-key: ${ZHIPU_API_KEY:0245f56efc59438f830de29eb28e1f50.Wb1vKDqPK1cCFg8x}
+  base-url: https://open.bigmodel.cn/api/paas/v4
+  discovery-model: glm-4-flash
+  semantic-model: glm-4.5
+  label-model: glm-4-flash
+  embedding-model: embedding-3
+  connect-timeout-ms: 3000
+  request-timeout-ms: 60000
+  discovery-executor-threads: 4
+  semantic-executor-threads: 8
+  label-executor-threads: 3
+  embedding-executor-threads: 8
+
+skill:
+  preprocess:
+    redis-tool-count-key-pattern: "tool:*:count"
+    redis-scan-count-hint: 50
+    redis-script-batch-size: 50
+    daily-stat-cron: 0 0 3 * * *
+  prompt:
+    tool-cleaning-template-path: "${user.dir}/prompts/tool_cleaning_template.md"
+    tool-compress-template-path: "${user.dir}/prompts/tool_compress_template.md"
+    skill-label-template-path: "${user.dir}/prompts/skill_label_template.md"
