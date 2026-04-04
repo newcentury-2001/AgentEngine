@@ -1,0 +1,28 @@
+﻿server:
+  port: 18080
+
+app:
+  network:
+    wg-host: 10.10.10.1
+
+ops:
+  docker:
+    enabled: true
+    ssh-host: ${app.network.wg-host}
+    ssh-port: 22
+    ssh-username: root
+    ssh-connect-timeout-ms: 3000
+    sql-remote-dir: /opt/agent-ops/sql
+    script-remote-dir: /opt/agent-ops/scripts
+    bootstrap-command: |
+      sh /opt/agent-ops/scripts/bootstrap.sh
+    db-init-command: |
+      sh /opt/agent-ops/scripts/db-init.sh
+    start-xxl-command: |
+      sh /opt/agent-ops/scripts/start-xxl.sh
+    timeout-seconds: 120
+
+logging:
+  level:
+    root: info
+    com.agentops: debug

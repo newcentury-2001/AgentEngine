@@ -1,110 +1,42 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Skill 安装台</title>
+  <title>Agent Engine 首页</title>
   <style>
-    :root { --line:#dbe4ef; --text:#0f172a; --muted:#607086; --ok:#059669; --err:#dc2626; }
+    :root { --line:#dbe4ef; --text:#0f172a; --muted:#607086; }
     *{box-sizing:border-box}
     body{margin:0;padding:20px;font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);background:linear-gradient(120deg,#0f2f4a,#1e75ad)}
-    .app{max-width:1080px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;display:grid;grid-template-columns:380px 1fr;box-shadow:0 14px 44px rgba(4,28,45,.25)}
-    .left{padding:20px;border-right:1px solid var(--line);background:linear-gradient(180deg,#f6fbff,#fff)}
-    .right{padding:20px;display:flex;flex-direction:column;gap:12px}
-    h1{margin:0;font-size:22px}.sub{margin:8px 0 14px;color:var(--muted);font-size:13px;line-height:1.45}
-    label{display:block;margin:8px 0 6px;font-weight:600;font-size:13px}
-    input{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 11px;font-size:14px;outline:none}
-    .btns{display:flex;gap:8px;margin-top:12px}
-    button{border:none;border-radius:10px;padding:9px 13px;font-size:13px;font-weight:700;cursor:pointer}
-    .b-main{background:linear-gradient(135deg,#0ea5a0,#0f766e);color:#fff}.b-warn{background:linear-gradient(135deg,#f59e0b,#ea580c);color:#fff}
-    .status{border:1px solid var(--line);background:#f8fbff;border-radius:10px;padding:10px 12px;font-size:13px;min-height:40px}
-    .status.ok{border-color:#bbf7d0;background:#f0fdf4;color:var(--ok)}.status.err{border-color:#fecaca;background:#fef2f2;color:var(--err)}
-    .grid{display:grid;grid-template-columns:repeat(3,minmax(140px,1fr));gap:10px}
-    .card{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff}.k{font-size:12px;color:#475569;margin-bottom:6px}.v{font-size:14px;font-weight:700;word-break:break-word}
-    .panel{flex:1;min-height:260px;border:1px solid #1f2c3f;border-radius:12px;background:#0d1625;color:#dce8ff;padding:10px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;white-space:pre-wrap;overflow:auto}
-    @media (max-width:980px){.app{grid-template-columns:1fr}.left{border-right:none;border-bottom:1px solid var(--line)}}
+    .app{max-width:900px;margin:60px auto;background:#fff;border-radius:16px;box-shadow:0 14px 44px rgba(4,28,45,.25);padding:28px}
+    h1{margin:0 0 8px;font-size:28px}
+    .sub{color:var(--muted);margin-bottom:24px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:14px}
+    .card{border:1px solid var(--line);border-radius:12px;padding:18px;background:#fff;display:flex;flex-direction:column;gap:10px}
+    .title{font-size:18px;font-weight:700}
+    .desc{font-size:13px;color:var(--muted);line-height:1.5}
+    button{border:none;border-radius:10px;padding:10px 12px;font-size:13px;font-weight:700;cursor:pointer}
+    .main{background:linear-gradient(135deg,#0ea5a0,#0f766e);color:#fff}
+    .ops{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff}
+    @media (max-width:760px){.grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
 <div class="app">
-  <section class="left">
-    <h1>Skill 安装台</h1>
-    <div class="sub">前期只输入 MCP URL，一键安装并直接入库。</div>
-
-    <label>mcpServerUrl</label>
-    <input id="mcpServerUrl" placeholder="https://open.bigmodel.cn/api/mcp-broker/proxy/holiday-inquiry/mcp" />
-
-    <div class="btns">
-      <button class="b-main" id="installBtn">直接安装</button>
-      <button class="b-warn" id="clearBtn">清空结果</button>
+  <h1>Agent Engine</h1>
+  <div class="sub">请选择入口：业务功能在主模块，容器初始化在独立的 agent-ops 模块。</div>
+  <div class="grid">
+    <div class="card">
+      <div class="title">新增技能</div>
+      <div class="desc">输入 MCP JSON，完成技能预处理与安装。</div>
+      <button class="main" onclick="location.href='/skill-add.html'">进入新增技能</button>
     </div>
-  </section>
-
-  <section class="right">
-    <div id="status" class="status">等待操作</div>
-    <div class="grid">
-      <div class="card"><div class="k">Server</div><div id="vServer" class="v">-</div></div>
-      <div class="card"><div class="k">Intent / Action</div><div id="vLabel" class="v">-</div></div>
-      <div class="card"><div class="k">工具数量</div><div id="vTools" class="v">0</div></div>
+    <div class="card">
+      <div class="title">运维模块</div>
+      <div class="desc">请先启动 agent-ops（默认 18080），再执行容器初始化。</div>
+      <button class="ops" onclick="window.open('http://localhost:18080','_blank')">打开 agent-ops</button>
     </div>
-    <div id="resultPanel" class="panel">{
-  "message": "安装结果在这里"
-}</div>
-  </section>
+  </div>
 </div>
-
-<script>
-const $ = (id) => document.getElementById(id);
-function setStatus(t, type=''){ const n=$('status'); n.textContent=t; n.className=`status ${type}`.trim(); }
-function j(x){ try{return JSON.stringify(x,null,2)}catch(e){return String(x)} }
-
-async function install(){
-  const mcpServerUrl = $('mcpServerUrl').value.trim();
-  if(!mcpServerUrl){ setStatus('请输入 mcpServerUrl', 'err'); return; }
-
-  setStatus('安装中...');
-  $('installBtn').disabled = true;
-  try {
-    const resp = await fetch('/api/skills/preprocess', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        serverLabel: null,
-        skillDescription: null,
-        curlExample: null,
-        mcpServerUrl,
-        confirmedIntentTag: null,
-        confirmedActionType: null
-      })
-    });
-    const data = await resp.json();
-    if(!resp.ok){ throw new Error(data.message || `HTTP ${resp.status}`); }
-
-    $('vServer').textContent = data.serverLabel || '-';
-    const it = data.skillLabel?.intentTag || '-';
-    const ac = data.skillLabel?.actionType || '-';
-    const cf = typeof data.skillLabel?.confidence === 'number' ? data.skillLabel.confidence.toFixed(2) : '-';
-    $('vLabel').textContent = `${it} / ${ac} (${cf})`;
-    $('vTools').textContent = Array.isArray(data.tools) ? String(data.tools.length) : '0';
-    $('resultPanel').textContent = j(data);
-    setStatus('安装完成', 'ok');
-  } catch(e) {
-    $('resultPanel').textContent = j({error:e.message || String(e)});
-    setStatus(`安装失败：${e.message || e}`, 'err');
-  } finally {
-    $('installBtn').disabled = false;
-  }
-}
-
-$('installBtn').addEventListener('click', install);
-$('clearBtn').addEventListener('click', ()=>{
-  $('mcpServerUrl').value='';
-  $('vServer').textContent='-'; $('vLabel').textContent='-'; $('vTools').textContent='0';
-  $('resultPanel').textContent='{"message":"安装结果在这里"}';
-  setStatus('已清空');
-});
-
-$('mcpServerUrl').value = 'https://open.bigmodel.cn/api/mcp-broker/proxy/holiday-inquiry/mcp';
-</script>
 </body>
 </html>

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 public record SkillPreprocessResult(
-        String serverLabel,
+        String skillName,
         SkillLabelPrediction skillLabel,
         List<ToolInstallView> tools,
         double[] normalizedSkillVector,

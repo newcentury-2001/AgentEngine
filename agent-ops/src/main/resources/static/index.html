@@ -1,0 +1,220 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Ops 运维中心</title>
+  <style>
+    :root { --line:#dbe4ef; --text:#0f172a; --muted:#607086; --ok:#059669; --err:#dc2626; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: "Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+      color: var(--text);
+      background: linear-gradient(120deg,#0f2f4a,#1e75ad);
+    }
+    .app {
+      max-width: 1080px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 14px 44px rgba(4,28,45,.25);
+      display: grid;
+      grid-template-columns: 360px 1fr;
+    }
+    .left {
+      padding: 20px;
+      border-right: 1px solid var(--line);
+      background: linear-gradient(180deg,#f6fbff,#fff);
+    }
+    .right { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+    h1 { margin: 0; font-size: 24px; }
+    .sub { margin: 8px 0 14px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .tips {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #334155;
+      background: #f8fbff;
+      line-height: 1.6;
+    }
+    .btns { display:flex; gap:8px; margin-top:12px; flex-wrap: wrap; }
+    button { border:none; border-radius:10px; padding:10px 14px; font-size:13px; font-weight:700; cursor:pointer; }
+    .b-main { background: linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; }
+    .b-clear { background: linear-gradient(135deg,#f59e0b,#ea580c); color:#fff; }
+    .status { border:1px solid var(--line); background:#f8fbff; border-radius:10px; padding:10px 12px; font-size:13px; min-height:42px; }
+    .status.ok { border-color:#bbf7d0; background:#f0fdf4; color:var(--ok); }
+    .status.err { border-color:#fecaca; background:#fef2f2; color:var(--err); }
+    .grid { display:grid; grid-template-columns:repeat(3,minmax(140px,1fr)); gap:10px; }
+    .card { border:1px solid var(--line); border-radius:12px; padding:10px; background:#fff; }
+    .k { font-size:12px; color:#475569; margin-bottom:6px; }
+    .v { font-size:14px; font-weight:700; word-break:break-word; }
+    .panel {
+      flex:1; min-height:280px; border:1px solid #1f2c3f; border-radius:12px; background:#0d1625; color:#dce8ff;
+      padding:10px; font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12.5px;
+      white-space:pre-wrap; overflow:auto;
+    }
+    @media (max-width:980px) {
+      .app { grid-template-columns:1fr; }
+      .left { border-right:none; border-bottom:1px solid var(--line); }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <section class="left">
+    <h1>Agent Ops</h1>
+    <div class="sub">容器与中间件一键初始化。执行顺序：基础容器 -> 数据库建表 -> 启动 XXL-Job Admin。</div>
+    <div class="tips">
+      1) 需先在启动进程中设置环境变量 <code>sshpwd</code><br/>
+      2) 本接口会远程 SSH 到运维主机执行命令<br/>
+      3) 先上传 SQL 包与脚本包，再执行初始化<br/>
+      4) RocketMQ 控制台默认地址：<code>http://10.10.10.1:8081</code>
+    </div>
+    <div class="btns">
+      <button class="b-main" id="uploadSqlBundleBtn">上传SQL包</button>
+      <button class="b-main" id="uploadScriptBundleBtn">上传脚本包</button>
+      <button class="b-main" id="runBtn">开始初始化</button>
+      <button class="b-clear" id="clearBtn">清空结果</button>
+    </div>
+  </section>
+  <section class="right">
+    <div id="status" class="status">等待操作</div>
+    <div class="grid">
+      <div class="card"><div class="k">目标主机</div><div id="vHost" class="v">-</div></div>
+      <div class="card"><div class="k">目标端口</div><div id="vPort" class="v">-</div></div>
+      <div class="card"><div class="k">执行步骤</div><div id="vSteps" class="v">0</div></div>
+    </div>
+    <div id="out" class="panel">{"message":"执行结果将显示在这里"}</div>
+  </section>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+function setStatus(text, type = '') {
+  const n = $('status');
+  n.textContent = text;
+  n.className = `status ${type}`.trim();
+}
+function pretty(x) { try { return JSON.stringify(x, null, 2); } catch (e) { return String(x); } }
+
+let running = false;
+let uploadingSqlBundle = false;
+let uploadingScriptBundle = false;
+let lastClickTs = 0;
+const CLICK_DEBOUNCE_MS = 800;
+
+async function runInit() {
+  const now = Date.now();
+  if (now - lastClickTs < CLICK_DEBOUNCE_MS) return;
+  lastClickTs = now;
+  if (running) return;
+
+  running = true;
+  $('runBtn').disabled = true;
+  setStatus('执行中...');
+
+  try {
+    const resp = await fetch('/api/ops/docker/init', { method: 'POST' });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.message || `HTTP ${resp.status}`);
+
+    $('vHost').textContent = data.targetHost || '-';
+    $('vPort').textContent = data.targetPort || '-';
+    $('vSteps').textContent = Array.isArray(data.steps) ? String(data.steps.length) : '0';
+    $('out').textContent = pretty(data);
+    setStatus('执行完成', 'ok');
+  } catch (e) {
+    $('out').textContent = pretty({ error: e.message || String(e) });
+    setStatus(`执行失败: ${e.message || e}`, 'err');
+  } finally {
+    running = false;
+    $('runBtn').disabled = false;
+  }
+}
+
+async function uploadSqlBundle() {
+  const now = Date.now();
+  if (now - lastClickTs < CLICK_DEBOUNCE_MS) return;
+  lastClickTs = now;
+  if (running || uploadingSqlBundle || uploadingScriptBundle) return;
+
+  uploadingSqlBundle = true;
+  $('uploadSqlBundleBtn').disabled = true;
+  $('uploadScriptBundleBtn').disabled = true;
+  $('runBtn').disabled = true;
+  setStatus('上传SQL包中...');
+
+  try {
+    const resp = await fetch('/api/ops/docker/upload-sql-bundle', { method: 'POST' });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.message || `HTTP ${resp.status}`);
+
+    $('vHost').textContent = data.targetHost || '-';
+    $('vPort').textContent = data.targetPort || '-';
+    $('vSteps').textContent = 'sql-bundle';
+    $('out').textContent = pretty(data);
+    setStatus('上传SQL包完成', 'ok');
+  } catch (e) {
+    $('out').textContent = pretty({ error: e.message || String(e) });
+    setStatus(`上传失败: ${e.message || e}`, 'err');
+  } finally {
+    uploadingSqlBundle = false;
+    $('uploadSqlBundleBtn').disabled = false;
+    $('uploadScriptBundleBtn').disabled = false;
+    $('runBtn').disabled = false;
+  }
+}
+
+async function uploadScriptBundle() {
+  const now = Date.now();
+  if (now - lastClickTs < CLICK_DEBOUNCE_MS) return;
+  lastClickTs = now;
+  if (running || uploadingSqlBundle || uploadingScriptBundle) return;
+
+  uploadingScriptBundle = true;
+  $('uploadSqlBundleBtn').disabled = true;
+  $('uploadScriptBundleBtn').disabled = true;
+  $('runBtn').disabled = true;
+  setStatus('上传脚本包中...');
+
+  try {
+    const resp = await fetch('/api/ops/docker/upload-script-bundle', { method: 'POST' });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.message || `HTTP ${resp.status}`);
+
+    $('vHost').textContent = data.targetHost || '-';
+    $('vPort').textContent = data.targetPort || '-';
+    $('vSteps').textContent = 'script-bundle';
+    $('out').textContent = pretty(data);
+    setStatus('上传脚本包完成', 'ok');
+  } catch (e) {
+    $('out').textContent = pretty({ error: e.message || String(e) });
+    setStatus(`上传失败: ${e.message || e}`, 'err');
+  } finally {
+    uploadingScriptBundle = false;
+    $('uploadSqlBundleBtn').disabled = false;
+    $('uploadScriptBundleBtn').disabled = false;
+    $('runBtn').disabled = false;
+  }
+}
+
+function clearResult() {
+  if (running) return;
+  $('vHost').textContent = '-';
+  $('vPort').textContent = '-';
+  $('vSteps').textContent = '0';
+  $('out').textContent = '{"message":"执行结果将显示在这里"}';
+  setStatus('等待操作');
+}
+
+$('runBtn').addEventListener('click', runInit);
+$('uploadSqlBundleBtn').addEventListener('click', uploadSqlBundle);
+$('uploadScriptBundleBtn').addEventListener('click', uploadScriptBundle);
+$('clearBtn').addEventListener('click', clearResult);
+</script>
+</body>
+</html>

@@ -1,22 +1,26 @@
+app:
+  network:
+    wg-host: 10.10.10.1
+
 spring:
   application:
     name: agent-engine
   datasource:
-    url: jdbc:postgresql://39.98.125.91:5432/postgres?connectTimeout=1&socketTimeout=1&tcpKeepAlive=true
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://${app.network.wg-host}:5432/postgres?connectTimeout=1&socketTimeout=1&tcpKeepAlive=true
+    username: root
+    password: 123456
     driver-class-name: org.postgresql.Driver
     hikari:
       pool-name: AgentEngineHikariPool
       minimum-idle: 5
       maximum-pool-size: 20
-      idle-timeout: 300000
+      idle-timeout: 250000
       max-lifetime: 300000
       connection-timeout: 500
       validation-timeout: 2000
   data:
     redis:
-      host: 39.98.125.91
+      host: ${app.network.wg-host}
       port: 6379
       password: 123456
       connect-timeout: 300ms
@@ -48,13 +52,19 @@ zhipu:
   embedding-model: embedding-3
   connect-timeout-ms: 3000
   request-timeout-ms: 60000
-  discovery-executor-threads: 4
-  semantic-executor-threads: 8
-  label-executor-threads: 3
-  embedding-executor-threads: 8
+  io-executor-threads: 12
+  cpu-executor-threads: 4
+  discovery-max-inflight: 4
+  semantic-max-inflight: 6
+  label-max-inflight: 3
+  embedding-max-inflight: 8
+  model-acquire-timeout-ms: 0
+  breaker-failure-threshold: 3
+  breaker-open-ms: 30000
 
 skill:
   preprocess:
+    install-lock-key-prefix: "skill:install:lock:"
     redis-tool-count-key-pattern: "tool:*:count"
     redis-scan-count-hint: 50
     redis-script-batch-size: 50
@@ -63,3 +73,20 @@ skill:
     tool-cleaning-template-path: "${user.dir}/prompts/tool_cleaning_template.md"
     tool-compress-template-path: "${user.dir}/prompts/tool_compress_template.md"
     skill-label-template-path: "${user.dir}/prompts/skill_label_template.md"
+
+xxl:
+  job:
+    admin:
+      addresses: http://${app.network.wg-host}:8080/xxl-job-admin
+    access-token: 123456
+    executor:
+      appname: agent-engine
+      address:
+      ip: 10.10.10.2
+      port: 10002
+      log-path: ./logs/xxl-job
+      log-retention-days: 7
+
+rocketmq:
+  name-server: ${app.network.wg-host}:9876
+  dashboard-url: http://${app.network.wg-host}:8081

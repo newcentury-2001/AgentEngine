@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 public class SkillPreprocessProperties {
 
     private String redisToolCountKeyPattern;
+    private String installLockKeyPrefix;
     private int redisScanCountHint;
     private int redisScriptBatchSize;
     private String dailyStatCron;
@@ -26,6 +27,14 @@ public class SkillPreprocessProperties {
 
     public void setRedisScanCountHint(int redisScanCountHint) {
         this.redisScanCountHint = redisScanCountHint;
+    }
+
+    public String getInstallLockKeyPrefix() {
+        return installLockKeyPrefix;
+    }
+
+    public void setInstallLockKeyPrefix(String installLockKeyPrefix) {
+        this.installLockKeyPrefix = installLockKeyPrefix;
     }
 
     public int getRedisScriptBatchSize() {

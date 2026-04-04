@@ -2,6 +2,7 @@ package com.agentengine.skill.preprocess.service;
 
 import com.agentengine.intent.model.ActionType;
 import com.agentengine.intent.model.IntentTag;
+import com.agentengine.skill.preprocess.aop.CheckRequestAlive;
 import com.agentengine.skill.preprocess.config.ZhipuProperties;
 import com.agentengine.skill.preprocess.model.CleanedToolSemantic;
 import com.agentengine.skill.preprocess.model.SkillLabelPrediction;
@@ -28,6 +29,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 @Service
 public class ZhipuApiService {
@@ -37,42 +43,51 @@ public class ZhipuApiService {
     private final ZhipuProperties properties;
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
+    private final Map<String, Semaphore> modelSemaphores = new ConcurrentHashMap<>();
+    private final Map<String, BreakerState> modelBreakers = new ConcurrentHashMap<>();
 
     public ZhipuApiService(ZhipuProperties properties, ObjectMapper objectMapper, HttpClient zhipuHttpClient) {
         this.properties = properties;
         this.objectMapper = objectMapper;
         this.httpClient = zhipuHttpClient;
+        modelSemaphores.put(properties.getDiscoveryModel(), new Semaphore(Math.max(1, properties.getDiscoveryMaxInflight())));
+        modelSemaphores.put(properties.getSemanticModel(), new Semaphore(Math.max(1, properties.getSemanticMaxInflight())));
+        modelSemaphores.put(properties.getLabelModel(), new Semaphore(Math.max(1, properties.getLabelMaxInflight())));
+        modelSemaphores.put(properties.getEmbeddingModel(), new Semaphore(Math.max(1, properties.getEmbeddingMaxInflight())));
     }
 
+    @CheckRequestAlive
     public List<ToolDescriptor> fetchRawToolsFromMcp(String curlExample) {
-        ensureApiKey();
-        String mcpServerUrl = parseServerUrlFromCurlOrUrl(curlExample);
-        JsonNode normalizedToolsNode = buildMcpToolsConfigNode(curlExample);
+        return executeWithModelGuard(properties.getDiscoveryModel(), () -> {
+            ensureApiKey();
+            String mcpServerUrl = parseServerUrlFromMcpJsonOrThrow(curlExample);
+            JsonNode normalizedToolsNode = buildMcpToolsConfigNode(curlExample);
 
-        Map<String, Object> req = new HashMap<>();
-        req.put("model", properties.getDiscoveryModel());
-        req.put("stream", false);
-        req.put("temperature", 0.1);
-        req.put("messages", List.of(
-                Map.of("role", "user", "content", "Please call mcp_list_tools and return raw tool name, description, input_schema without rewriting.")
-        ));
-        req.put("tools", objectMapper.convertValue(normalizedToolsNode, new TypeReference<List<Map<String, Object>>>() {
-        }));
+            Map<String, Object> req = new HashMap<>();
+            req.put("model", properties.getDiscoveryModel());
+            req.put("stream", false);
+            req.put("temperature", 0.1);
+            req.put("messages", List.of(
+                    Map.of("role", "user", "content", "Please call mcp_list_tools and return raw tool name, description, input_schema without rewriting.")
+            ));
+            req.put("tools", objectMapper.convertValue(normalizedToolsNode, new TypeReference<List<Map<String, Object>>>() {
+            }));
 
-        JsonNode resp = callJsonApi("/chat/completions", req);
-        List<ToolDescriptor> out = extractToolDescriptorsFromModelResponse(resp);
-        if (out.isEmpty()) {
-            String snippet = resp.path("choices").isArray() && !resp.path("choices").isEmpty()
-                    ? resp.path("choices").get(0).path("message").toString()
-                    : resp.toString();
-            if (snippet.length() > 800) {
-                snippet = snippet.substring(0, 800) + "...";
+            JsonNode resp = callJsonApi("/chat/completions", req);
+            List<ToolDescriptor> out = extractToolDescriptorsFromModelResponse(resp);
+            if (out.isEmpty()) {
+                String snippet = resp.path("choices").isArray() && !resp.path("choices").isEmpty()
+                        ? resp.path("choices").get(0).path("message").toString()
+                        : resp.toString();
+                if (snippet.length() > 800) {
+                    snippet = snippet.substring(0, 800) + "...";
+                }
+                throw new IllegalStateException("no tools parsed from mcp_list_tools output, message=" + snippet);
             }
-            throw new IllegalStateException("no tools parsed from mcp_list_tools output, message=" + snippet);
-        }
-        return out.stream()
-                .map(t -> new ToolDescriptor(t.name(), t.description(), t.inputSchema(), mcpServerUrl))
-                .toList();
+            return out.stream()
+                    .map(t -> new ToolDescriptor(t.name(), t.description(), t.inputSchema(), mcpServerUrl))
+                    .toList();
+        });
     }
 
     private JsonNode buildMcpToolsConfigNode(String curlOrUrl) {
@@ -94,140 +109,244 @@ public class ZhipuApiService {
             return tools;
         }
 
-        String payload = extractJsonDataArg(input);
-        JsonNode sourcePayload = readTree(payload);
-        JsonNode toolsNode = sourcePayload.path("tools");
-        if (!toolsNode.isArray() || toolsNode.isEmpty()) {
-            throw new IllegalArgumentException("curl example missing tools.mcp config");
-        }
-        return normalizeMcpHeadersWithConfigApiKey(toolsNode);
+        String serverUrlFromJson = parseServerUrlFromMcpJsonOrThrow(input);
+        String skillName = ServerLabelExtractor.fromServerUrl(serverUrlFromJson);
+        ArrayNode tools = objectMapper.createArrayNode();
+        ObjectNode tool = objectMapper.createObjectNode();
+        ObjectNode mcp = objectMapper.createObjectNode();
+        mcp.put("transport_type", "streamable-http");
+        mcp.put("server_label", skillName);
+        mcp.put("server_url", serverUrlFromJson);
+        ObjectNode headers = objectMapper.createObjectNode();
+        headers.put("Authorization", "Bearer " + properties.getApiKey());
+        mcp.set("headers", headers);
+        tool.set("mcp", mcp);
+        tool.put("type", "mcp");
+        tools.add(tool);
+        return tools;
     }
 
     public String parseServerLabelFromCurlOrUrl(String curlExample) {
-        try {
-            String raw = curlExample == null ? "" : curlExample.trim();
-            if (raw.startsWith("http://") || raw.startsWith("https://")) {
-                return ServerLabelExtractor.fromServerUrl(raw);
-            }
-            String payload = extractJsonDataArg(curlExample);
-            JsonNode sourcePayload = readTree(payload);
-            JsonNode toolsNode = sourcePayload.path("tools");
-            if (!toolsNode.isArray() || toolsNode.isEmpty()) {
-                return "";
-            }
-            JsonNode first = toolsNode.get(0);
-            String skillName = first.path("mcp").path("server_label").asText("");
-            return skillName == null ? "" : skillName.trim();
-        } catch (Exception e) {
-            return "";
+        String raw = curlExample == null ? "" : curlExample.trim();
+        if (raw.startsWith("http://") || raw.startsWith("https://")) {
+            return ServerLabelExtractor.fromServerUrl(raw);
         }
+        String serverUrl = parseServerUrlFromMcpJsonOrThrow(raw);
+        return ServerLabelExtractor.fromServerUrl(serverUrl);
     }
 
     public String parseServerUrlFromCurlOrUrl(String curlExample) {
-        try {
-            String raw = curlExample == null ? "" : curlExample.trim();
-            if (raw.startsWith("http://") || raw.startsWith("https://")) {
-                return raw;
+        String raw = curlExample == null ? "" : curlExample.trim();
+        if (raw.startsWith("http://") || raw.startsWith("https://")) {
+            return raw;
+        }
+        return parseServerUrlFromMcpJsonOrThrow(raw);
+    }
+
+    public String parseServerUrlFromMcpJsonOrThrow(String rawJson) {
+        JsonNode root = tryReadTree(rawJson);
+        if (root == null) {
+            throw new IllegalArgumentException("mcp json invalid");
+        }
+        JsonNode mcpServers = root.path("mcpServers");
+        if (!mcpServers.isObject()) {
+            throw new IllegalArgumentException("mcp json invalid: missing mcpServers");
+        }
+        var fields = mcpServers.fields();
+        while (fields.hasNext()) {
+            var entry = fields.next();
+            JsonNode serverNode = entry.getValue();
+            String url = serverNode.path("url").asText("").trim();
+            if (!url.isBlank()) {
+                return url;
             }
-            String payload = extractJsonDataArg(curlExample);
-            JsonNode sourcePayload = readTree(payload);
-            JsonNode toolsNode = sourcePayload.path("tools");
-            if (!toolsNode.isArray() || toolsNode.isEmpty()) {
+        }
+        throw new IllegalArgumentException("mcp json invalid: missing url");
+    }
+
+    private String findFirstUrlNode(JsonNode node) {
+        if (node == null || node.isNull() || node.isMissingNode()) {
+            return "";
+        }
+        if (node.isObject()) {
+            JsonNode urlNode = node.get("url");
+            if (urlNode != null && urlNode.isTextual() && urlNode.asText("").startsWith("http")) {
+                return urlNode.asText("");
+            }
+            JsonNode serverUrlNode = node.get("server_url");
+            if (serverUrlNode != null && serverUrlNode.isTextual() && serverUrlNode.asText("").startsWith("http")) {
+                return serverUrlNode.asText("");
+            }
+            var fields = node.fields();
+            while (fields.hasNext()) {
+                var entry = fields.next();
+                String found = findFirstUrlNode(entry.getValue());
+                if (!found.isBlank()) {
+                    return found;
+                }
+            }
+            return "";
+        }
+        if (node.isArray()) {
+            for (JsonNode item : node) {
+                String found = findFirstUrlNode(item);
+                if (!found.isBlank()) {
+                    return found;
+                }
+            }
+            return "";
+        }
+        return "";
+    }
+
+    @CheckRequestAlive
+    public double[] embedding(String text) {
+        return executeWithModelGuard(properties.getEmbeddingModel(), () -> {
+            ensureApiKey();
+            Map<String, Object> req = Map.of(
+                    "model", properties.getEmbeddingModel(),
+                    "input", text
+            );
+            JsonNode resp = callJsonApi("/embeddings", req);
+            JsonNode arr = resp.path("data");
+            if (!arr.isArray() || arr.isEmpty()) {
+                throw new IllegalStateException("embedding response missing data");
+            }
+            JsonNode vecNode = arr.get(0).path("embedding");
+            double[] vec = new double[vecNode.size()];
+            for (int i = 0; i < vecNode.size(); i++) {
+                vec[i] = vecNode.get(i).asDouble();
+            }
+            return vec;
+        });
+    }
+
+    @CheckRequestAlive
+    public SkillLabelPrediction classifySkillLabel(String prompt) {
+        return executeWithModelGuard(properties.getLabelModel(), () -> {
+            ensureApiKey();
+            Map<String, Object> req = new HashMap<>();
+            req.put("model", properties.getLabelModel());
+            req.put("stream", false);
+            req.put("temperature", 0.1);
+            req.put("messages", List.of(
+                    Map.of("role", "user", "content", prompt)
+            ));
+            JsonNode resp = callJsonApi("/chat/completions", req);
+            JsonNode choice = resp.path("choices").isArray() && !resp.path("choices").isEmpty() ? resp.path("choices").get(0) : null;
+            if (choice == null) {
+                return new SkillLabelPrediction(IntentTag.QUERY, ActionType.READ, 0.0);
+            }
+            String content = choice.path("message").path("content").asText("");
+            JsonNode node = tryReadTree(content);
+            if (node == null) {
+                return new SkillLabelPrediction(IntentTag.QUERY, ActionType.READ, 0.0);
+            }
+            String intentStr = node.path("intentTag").asText("query");
+            String actionStr = node.path("actionType").asText("read");
+            double confidence = node.path("confidence").asDouble(0.0);
+            IntentTag intentTag = IntentTag.fromCode(intentStr);
+            ActionType actionType = ActionType.fromCode(actionStr);
+            return new SkillLabelPrediction(intentTag, actionType, confidence);
+        });
+    }
+
+    @CheckRequestAlive
+    public CleanedToolSemantic cleanToolSemantic(String cleaningPrompt) {
+        return executeWithModelGuard(properties.getSemanticModel(), () -> {
+            ensureApiKey();
+            Map<String, Object> req = new HashMap<>();
+            req.put("model", properties.getSemanticModel());
+            req.put("stream", false);
+            req.put("temperature", 0.1);
+            req.put("messages", List.of(
+                    Map.of("role", "user", "content", cleaningPrompt)
+            ));
+            JsonNode resp = callJsonApi("/chat/completions", req);
+            JsonNode choice = resp.path("choices").isArray() && !resp.path("choices").isEmpty() ? resp.path("choices").get(0) : null;
+            if (choice == null) {
+                return new CleanedToolSemantic("", "", "{}");
+            }
+            String content = choice.path("message").path("content").asText("");
+            JsonNode node = tryReadTree(content);
+            if (node == null) {
+                return new CleanedToolSemantic("", "", "{}");
+            }
+            String toolName = node.path("tool_name").asText("");
+            String embeddingText = node.path("embedding_text").asText("");
+            return new CleanedToolSemantic(toolName, embeddingText, node.toString());
+        });
+    }
+
+    @CheckRequestAlive
+    public String generateSkillDescription(String prompt) {
+        return executeWithModelGuard(properties.getLabelModel(), () -> {
+            ensureApiKey();
+            Map<String, Object> req = new HashMap<>();
+            req.put("model", properties.getLabelModel());
+            req.put("stream", false);
+            req.put("temperature", 0.2);
+            req.put("messages", List.of(
+                    Map.of("role", "user", "content", prompt)
+            ));
+            JsonNode resp = callJsonApi("/chat/completions", req);
+            JsonNode choice = resp.path("choices").isArray() && !resp.path("choices").isEmpty() ? resp.path("choices").get(0) : null;
+            if (choice == null) {
                 return "";
             }
-            JsonNode first = toolsNode.get(0);
-            String serverUrl = first.path("mcp").path("server_url").asText("");
-            return serverUrl == null ? "" : serverUrl.trim();
-        } catch (Exception e) {
-            return "";
+            return choice.path("message").path("content").asText("").trim();
+        });
+    }
+
+    private <T> T executeWithModelGuard(String model, Supplier<T> action) {
+        Semaphore semaphore = modelSemaphores.computeIfAbsent(model, m -> new Semaphore(1));
+        BreakerState breaker = modelBreakers.computeIfAbsent(model, m -> new BreakerState());
+        long now = System.currentTimeMillis();
+        if (breaker.openUntilEpochMs > now) {
+            throw new IllegalStateException("model circuit open: " + model);
+        }
+        boolean acquired;
+        try {
+            int timeoutMs = Math.max(0, properties.getModelAcquireTimeoutMs());
+            acquired = timeoutMs == 0
+                    ? semaphore.tryAcquire()
+                    : semaphore.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("model acquire interrupted: " + model, e);
+        }
+        if (!acquired) {
+            throw new IllegalStateException("model inflight limit reached: " + model);
+        }
+
+        try {
+            T result = action.get();
+            breaker.onSuccess();
+            return result;
+        } catch (RuntimeException ex) {
+            breaker.onFailure(properties.getBreakerFailureThreshold(), properties.getBreakerOpenMs());
+            throw ex;
+        } finally {
+            semaphore.release();
         }
     }
 
-    public double[] embedding(String text) {
-        ensureApiKey();
-        Map<String, Object> req = Map.of(
-                "model", properties.getEmbeddingModel(),
-                "input", text
-        );
-        JsonNode resp = callJsonApi("/embeddings", req);
-        JsonNode arr = resp.path("data");
-        if (!arr.isArray() || arr.isEmpty()) {
-            throw new IllegalStateException("embedding response missing data");
-        }
-        JsonNode vecNode = arr.get(0).path("embedding");
-        double[] vec = new double[vecNode.size()];
-        for (int i = 0; i < vecNode.size(); i++) {
-            vec[i] = vecNode.get(i).asDouble();
-        }
-        return vec;
-    }
+    private static final class BreakerState {
+        private final AtomicInteger consecutiveFailures = new AtomicInteger(0);
+        private volatile long openUntilEpochMs = 0L;
 
-    public SkillLabelPrediction classifySkillLabel(String prompt) {
-        ensureApiKey();
-        Map<String, Object> req = new HashMap<>();
-        req.put("model", properties.getLabelModel());
-        req.put("stream", false);
-        req.put("temperature", 0.1);
-        req.put("messages", List.of(
-                Map.of("role", "user", "content", prompt)
-        ));
-        JsonNode resp = callJsonApi("/chat/completions", req);
-        JsonNode choice = resp.path("choices").isArray() && !resp.path("choices").isEmpty() ? resp.path("choices").get(0) : null;
-        if (choice == null) {
-            return new SkillLabelPrediction(IntentTag.QUERY, ActionType.READ, 0.0);
+        private void onSuccess() {
+            consecutiveFailures.set(0);
+            openUntilEpochMs = 0L;
         }
-        String content = choice.path("message").path("content").asText("");
-        JsonNode node = tryReadTree(content);
-        if (node == null) {
-            return new SkillLabelPrediction(IntentTag.QUERY, ActionType.READ, 0.0);
-        }
-        String intentStr = node.path("intentTag").asText("query");
-        String actionStr = node.path("actionType").asText("read");
-        double confidence = node.path("confidence").asDouble(0.0);
-        IntentTag intentTag = IntentTag.fromCode(intentStr);
-        ActionType actionType = ActionType.fromCode(actionStr);
-        return new SkillLabelPrediction(intentTag, actionType, confidence);
-    }
 
-    public CleanedToolSemantic cleanToolSemantic(String cleaningPrompt) {
-        ensureApiKey();
-        Map<String, Object> req = new HashMap<>();
-        req.put("model", properties.getSemanticModel());
-        req.put("stream", false);
-        req.put("temperature", 0.1);
-        req.put("messages", List.of(
-                Map.of("role", "user", "content", cleaningPrompt)
-        ));
-        JsonNode resp = callJsonApi("/chat/completions", req);
-        JsonNode choice = resp.path("choices").isArray() && !resp.path("choices").isEmpty() ? resp.path("choices").get(0) : null;
-        if (choice == null) {
-            return new CleanedToolSemantic("", "", "{}");
+        private void onFailure(int threshold, int openMs) {
+            int failCount = consecutiveFailures.incrementAndGet();
+            if (failCount >= Math.max(1, threshold)) {
+                openUntilEpochMs = System.currentTimeMillis() + Math.max(1000, openMs);
+                consecutiveFailures.set(0);
+            }
         }
-        String content = choice.path("message").path("content").asText("");
-        JsonNode node = tryReadTree(content);
-        if (node == null) {
-            return new CleanedToolSemantic("", "", "{}");
-        }
-        String toolName = node.path("tool_name").asText("");
-        String embeddingText = node.path("embedding_text").asText("");
-        return new CleanedToolSemantic(toolName, embeddingText, node.toString());
-    }
-
-    public String generateSkillDescription(String prompt) {
-        ensureApiKey();
-        Map<String, Object> req = new HashMap<>();
-        req.put("model", properties.getLabelModel());
-        req.put("stream", false);
-        req.put("temperature", 0.2);
-        req.put("messages", List.of(
-                Map.of("role", "user", "content", prompt)
-        ));
-        JsonNode resp = callJsonApi("/chat/completions", req);
-        JsonNode choice = resp.path("choices").isArray() && !resp.path("choices").isEmpty() ? resp.path("choices").get(0) : null;
-        if (choice == null) {
-            return "";
-        }
-        return choice.path("message").path("content").asText("").trim();
     }
 
     private JsonNode callJsonApi(String path, Object reqObj) {

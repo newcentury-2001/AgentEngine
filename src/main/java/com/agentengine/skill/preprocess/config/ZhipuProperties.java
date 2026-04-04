@@ -15,10 +15,15 @@ public class ZhipuProperties {
     private String embeddingModel;
     private int connectTimeoutMs;
     private int requestTimeoutMs;
-    private int discoveryExecutorThreads;
-    private int semanticExecutorThreads;
-    private int labelExecutorThreads;
-    private int embeddingExecutorThreads;
+    private int ioExecutorThreads;
+    private int cpuExecutorThreads;
+    private int discoveryMaxInflight;
+    private int semanticMaxInflight;
+    private int labelMaxInflight;
+    private int embeddingMaxInflight;
+    private int modelAcquireTimeoutMs;
+    private int breakerFailureThreshold;
+    private int breakerOpenMs;
 
     public String getApiKey() {
         return apiKey;
@@ -84,35 +89,75 @@ public class ZhipuProperties {
         this.connectTimeoutMs = connectTimeoutMs;
     }
 
-    public int getDiscoveryExecutorThreads() {
-        return discoveryExecutorThreads;
+    public int getIoExecutorThreads() {
+        return ioExecutorThreads;
     }
 
-    public void setDiscoveryExecutorThreads(int discoveryExecutorThreads) {
-        this.discoveryExecutorThreads = discoveryExecutorThreads;
+    public void setIoExecutorThreads(int ioExecutorThreads) {
+        this.ioExecutorThreads = ioExecutorThreads;
     }
 
-    public int getSemanticExecutorThreads() {
-        return semanticExecutorThreads;
+    public int getCpuExecutorThreads() {
+        return cpuExecutorThreads;
     }
 
-    public void setSemanticExecutorThreads(int semanticExecutorThreads) {
-        this.semanticExecutorThreads = semanticExecutorThreads;
+    public void setCpuExecutorThreads(int cpuExecutorThreads) {
+        this.cpuExecutorThreads = cpuExecutorThreads;
     }
 
-    public int getLabelExecutorThreads() {
-        return labelExecutorThreads;
+    public int getDiscoveryMaxInflight() {
+        return discoveryMaxInflight;
     }
 
-    public void setLabelExecutorThreads(int labelExecutorThreads) {
-        this.labelExecutorThreads = labelExecutorThreads;
+    public void setDiscoveryMaxInflight(int discoveryMaxInflight) {
+        this.discoveryMaxInflight = discoveryMaxInflight;
     }
 
-    public int getEmbeddingExecutorThreads() {
-        return embeddingExecutorThreads;
+    public int getSemanticMaxInflight() {
+        return semanticMaxInflight;
     }
 
-    public void setEmbeddingExecutorThreads(int embeddingExecutorThreads) {
-        this.embeddingExecutorThreads = embeddingExecutorThreads;
+    public void setSemanticMaxInflight(int semanticMaxInflight) {
+        this.semanticMaxInflight = semanticMaxInflight;
+    }
+
+    public int getLabelMaxInflight() {
+        return labelMaxInflight;
+    }
+
+    public void setLabelMaxInflight(int labelMaxInflight) {
+        this.labelMaxInflight = labelMaxInflight;
+    }
+
+    public int getEmbeddingMaxInflight() {
+        return embeddingMaxInflight;
+    }
+
+    public void setEmbeddingMaxInflight(int embeddingMaxInflight) {
+        this.embeddingMaxInflight = embeddingMaxInflight;
+    }
+
+    public int getModelAcquireTimeoutMs() {
+        return modelAcquireTimeoutMs;
+    }
+
+    public void setModelAcquireTimeoutMs(int modelAcquireTimeoutMs) {
+        this.modelAcquireTimeoutMs = modelAcquireTimeoutMs;
+    }
+
+    public int getBreakerFailureThreshold() {
+        return breakerFailureThreshold;
+    }
+
+    public void setBreakerFailureThreshold(int breakerFailureThreshold) {
+        this.breakerFailureThreshold = breakerFailureThreshold;
+    }
+
+    public int getBreakerOpenMs() {
+        return breakerOpenMs;
+    }
+
+    public void setBreakerOpenMs(int breakerOpenMs) {
+        this.breakerOpenMs = breakerOpenMs;
     }
 }
