@@ -62,13 +62,11 @@ public class SkillVectorStoreService {
             String skillDescription,
             List<ToolDescriptor> toolDescriptors,
             List<ToolVector> toolVectors,
-            double[] normalizedSkillVector,
-            double[] normalizedToolPackageVector,
-            double[] normalizedFinalSkillVector
+            double[] normalizedSkillVector
     ) {
         saveToolSemantics(skillName, toolDescriptors);
         saveToolVectors(skillName, toolVectors);
-        saveSkillVector(skillName, skillDescription, normalizedSkillVector, normalizedToolPackageVector, normalizedFinalSkillVector);
+        saveSkillVector(skillName, skillDescription, normalizedSkillVector);
     }
 
     public void initSchemaIfNeeded() {
@@ -110,30 +108,24 @@ public class SkillVectorStoreService {
     private void saveSkillVector(
             String skillName,
             String skillDescription,
-            double[] normalizedSkillVector,
-            double[] normalizedToolPackageVector,
-            double[] normalizedFinalSkillVector
+            double[] normalizedSkillVector
     ) {
         String sql = """
                 INSERT INTO skill_vector_snapshot (
-                    skill_name, skill_description, skill_vector, tool_package_vector, final_skill_vector
+                    skill_name, skill_description, skill_vector
                 )
-                VALUES (?, ?, ?::jsonb, ?::jsonb, ?::jsonb)
+                VALUES (?, ?, ?::jsonb)
                 ON CONFLICT (skill_name)
                 DO UPDATE SET
                     skill_description = EXCLUDED.skill_description,
                     skill_vector = EXCLUDED.skill_vector,
-                    tool_package_vector = EXCLUDED.tool_package_vector,
-                    final_skill_vector = EXCLUDED.final_skill_vector,
                     updated_at = NOW()
                 """;
         jdbcTemplate.update(
                 sql,
                 skillName,
                 skillDescription,
-                toJson(normalizedSkillVector),
-                toJson(normalizedToolPackageVector),
-                toJson(normalizedFinalSkillVector)
+                toJson(normalizedSkillVector)
         );
     }
 
@@ -197,8 +189,6 @@ public class SkillVectorStoreService {
                     skill_name VARCHAR(128) PRIMARY KEY,
                     skill_description TEXT NOT NULL DEFAULT '',
                     skill_vector JSONB NOT NULL,
-                    tool_package_vector JSONB NOT NULL,
-                    final_skill_vector JSONB NOT NULL,
                     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
                 )
                 """);
@@ -215,6 +205,14 @@ public class SkillVectorStoreService {
                         ALTER TABLE skill_vector_snapshot RENAME COLUMN server_label TO skill_name;
                     END IF;
                 END $$;
+                """);
+        jdbcTemplate.execute("""
+                ALTER TABLE skill_vector_snapshot
+                DROP COLUMN IF EXISTS tool_package_vector
+                """);
+        jdbcTemplate.execute("""
+                ALTER TABLE skill_vector_snapshot
+                DROP COLUMN IF EXISTS final_skill_vector
                 """);
         jdbcTemplate.execute("""
                 CREATE UNIQUE INDEX IF NOT EXISTS uk_skill_vector_snapshot_skill_name

@@ -1,0 +1,32 @@
+<!DOCTYPE html><html lang="zh-cn"><head><meta charset="utf-8"><meta name="author" content="åäº¬æºè°±åç« ç§æè¡ä»½æéå¬å¸"><meta name="copyright" content="å¤§æ¨¡åå¼æ¾å¹³å°"><meta name="robots" content="all"><meta name="renderer" content="webkit"><meta http-equiv="cache-control" content="no-cache"><meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"><meta name="baidu-site-verification" content="codeva-TxacHBUilJ"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=0,viewport-fit=cover"><meta name="keywords" content="å½åå¤§æ¨¡å,å¤§æ¨¡åç½ç«,LLM,è§è§å¤§æ¨¡å,å¤§æ¨¡åå¹³å°,å¤æ¨¡æ,æºè°±å¼æ¾å¹³å°"><meta name="description" content="æºè°±å¤§æ¨¡åå¼æ¾å¹³å°-æ°ä¸ä»£å½äº§èªä¸»éç¨AIå¤§æ¨¡åå¼æ¾å¹³å°ï¼æ¯å½åå¤§æ¨¡åæåååçå¤§æ¨¡åç½ç«ï¼ç åäºå¤æ¬¾LLMæ¨¡åï¼å¤æ¨¡æè§è§æ¨¡åäº§åï¼è´åäºå°AIäº§åææ¯ä¸è¡ä¸åºæ¯åè½®é©±å¨çä¸­å½åè¿çè®¤ç¥æºè½ææ¯ååè¡ç¾ä¸åºç¨ç¸ç»åï¼æå»ºæ´é«ç²¾åº¦ãé«æçãéç¨åçAIå¼åæ°æ¨¡å¼åä¼ä¸çº§è§£å³æ¹æ¡ï¼å®ç°æºè°±å¤§æ¨¡åçäº§ä¸åï¼å°AIçå¥½å¤å¸¦ç»æ¯ä¸ªäººã"><script src="//g.alicdn.com/frontend-lib/frontend-lib/2.3.74/interfaceacting.js"></script><script src="//g.alicdn.com/frontend-lib/frontend-lib/2.3.74/antidom.js"></script><script src="//o.alicdn.com/frontend-lib/common-lib/jquery.min.js"></script><!--[if IE]><link rel="icon" href="/favicon.ico" /><![endif]--><link rel="stylesheet" href="https://at.alicdn.com/t/c/font_4623769_g7tqllm24ya.css"><link rel="stylesheet" href="https://at.alicdn.com/t/c/font_3037642_i5it0x40hmi.css"><title>æºè°±AIå¼æ¾å¹³å°</title><script>// ç¾åº¦è®¿é®åæä»£ç 
+      var projectEnv = 'production'
+      if (projectEnv === 'production') {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?a1b1a5545a8f11fdd72d54f10971c4ea";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }</script><style>#loader-wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 999999;
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -moz-box;
+        display: flex;
+        -webkit-justify-content: center;
+        -moz-justify-content: center;
+        justify-content: center;
+        -webkit-align-items: center;
+        -moz-align-items: center;
+        align-items: center;
+        background-color: #fafafa;
+      }
+      .logo-loading {
+        width: 120px;
+      }</style><!--[if lte IE 11]><script>window.location.href='/html/ie.html';</script><![endif]--><script src="https://at.alicdn.com/t/c/font_4623769_g7tqllm24ya.js"></script><script src="https://at.alicdn.com/t/c/font_3037642_i5it0x40hmi.js"></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-SF8X67RPF9"></script><link href="/css/chunk-libs.5d47d530.css" rel="stylesheet"><link href="/css/app.16a86dc1.css" rel="stylesheet"><link rel="icon" type="image/png" sizes="32x32" href="/img/icons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/img/icons/favicon-16x16.png"><link rel="manifest" href="/manifest.json"><meta name="theme-color" content="#ffffff"><meta name="apple-mobile-web-app-capable" content="no"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="æºè°±AIå¼æ¾å¹³å°"><link rel="apple-touch-icon" href="/img/icons/apple-touch-icon-152x152.png"><link rel="mask-icon" href="/img/icons/safari-pinned-tab.svg" color="#ffffff"><meta name="msapplication-TileImage" content="/img/icons/msapplication-icon-144x144.png"><meta name="msapplication-TileColor" content="#ffffff"></head><body><noscript><strong>We're sorry but æºè°±AIå¼æ¾å¹³å° doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id="app"><div id="loader-wrapper"><img class="logo-loading" src="/static/images/loading.gif" alt="æºè°±AI"></div></div><script src="/js/runtime.454e5b40.js"></script><script src="/js/chunk-vue.122a5172.js"></script><script src="/js/chunk-elementUI.c89825fa.js"></script><script src="/js/chunk-libs.485e1589.js"></script><script src="/js/app.f6c4d1a4.js"></script></body><script src="https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js" async></script></html>

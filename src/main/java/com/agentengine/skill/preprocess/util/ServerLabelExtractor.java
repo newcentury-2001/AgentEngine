@@ -1,6 +1,12 @@
 package com.agentengine.skill.preprocess.util;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public final class ServerLabelExtractor {
+
+    private static final Pattern PROXY_ENDPOINT_PATTERN =
+            Pattern.compile("/proxy/([^/]+)/(mcp|sse)(?:[/?#]|$)", Pattern.CASE_INSENSITIVE);
 
     private ServerLabelExtractor() {
     }
@@ -10,6 +16,11 @@ public final class ServerLabelExtractor {
             return "";
         }
         String url = serverUrl.trim();
+        Matcher matcher = PROXY_ENDPOINT_PATTERN.matcher(url);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+
         int i = url.indexOf("/proxy/");
         if (i >= 0) {
             String tail = url.substring(i + "/proxy/".length());
@@ -17,13 +28,12 @@ public final class ServerLabelExtractor {
             if (slash > 0) {
                 return tail.substring(0, slash);
             }
-            return tail;
         }
+
         int lastSlash = url.lastIndexOf('/');
         if (lastSlash >= 0 && lastSlash < url.length() - 1) {
-            return url.substring(lastSlash + 1).replace("mcp", "").replaceAll("[-_]+$", "");
+            return url.substring(lastSlash + 1).replaceAll("[-_]+$", "");
         }
         return "unknown-skill";
     }
 }
-

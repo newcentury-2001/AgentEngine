@@ -55,20 +55,24 @@ public class SkillPreprocessService {
         if (persist && !skillVectorStoreService.canInstallSkill(resolvedSkillName)) {
             throw new IllegalStateException("skill already exists or is installing: " + resolvedSkillName);
         }
+
         List<ToolDescriptor> tools = supplyAsyncWithRequestContext(
                 () -> zhipuApiService.fetchRawToolsFromMcp(finalInput),
                 ioModelExecutor
         ).join();
-        CompletableFuture<SkillLabelPrediction> skillLabelFuture = supplyAsyncWithRequestContext(() ->
-                        zhipuApiService.classifySkillLabel(
-                                buildIntentActionPromptFromSkillNameOnly(resolvedSkillName)
+
+        CompletableFuture<SkillLabelPrediction> skillLabelFuture = supplyAsyncWithRequestContext(
+                () -> zhipuApiService.classifySkillLabel(
+                        buildIntentActionPromptFromSkillNameOnly(resolvedSkillName)
                 ),
                 ioModelExecutor
         );
+
         CompletableFuture<HashMap<String, Long>> recent7dCountsFuture = supplyAsyncWithRequestContext(
                 toolCallStatsService::getRecent7dToolCounts,
                 ioModelExecutor
         );
+
         List<CompletableFuture<ToolCleanResult>> toolCleanFutures = new ArrayList<>();
         for (ToolDescriptor tool : tools) {
             toolCleanFutures.add(supplyAsyncWithRequestContext(
@@ -79,14 +83,12 @@ public class SkillPreprocessService {
                     ioModelExecutor
             ));
         }
-        // 第一层：并行完成意图/动作识别、近7日计数读取、每个工具语义清洗。
+
         List<CompletableFuture<?>> layer1 = new ArrayList<>();
         layer1.add(skillLabelFuture);
         layer1.add(recent7dCountsFuture);
         layer1.addAll(toolCleanFutures);
         CompletableFuture.allOf(layer1.toArray(new CompletableFuture[0])).join();
-        //第一层结束
-
 
         SkillLabelPrediction skillLabel = skillLabelFuture.join();
         String generatedSkillDescription = zhipuApiService.generateSkillDescription(
@@ -106,6 +108,7 @@ public class SkillPreprocessService {
                 () -> zhipuApiService.embedding(finalSkillDescription),
                 ioModelExecutor
         );
+
         List<CompletableFuture<ToolProcessResult>> toolVectorFutures = new ArrayList<>();
         for (ToolCleanResult cleanedResult : cleanedResults) {
             toolVectorFutures.add(supplyAsyncWithRequestContext(
@@ -113,22 +116,17 @@ public class SkillPreprocessService {
                     ioModelExecutor
             ));
         }
-        // 第二层：并行完成技能描述向量化，以及每个工具向量化与热度权重计算。
+
         List<CompletableFuture<?>> layer2 = new ArrayList<>();
         layer2.add(skillEmbeddingFuture);
         layer2.addAll(toolVectorFutures);
         CompletableFuture.allOf(layer2.toArray(new CompletableFuture[0])).join();
 
         List<ToolVector> toolVectors = new ArrayList<>();
-        List<double[]> vectors = new ArrayList<>();
-        List<Double> weights = new ArrayList<>();
         for (CompletableFuture<ToolProcessResult> f : toolVectorFutures) {
             ToolProcessResult r = f.join();
             toolVectors.add(r.toolVector());
-            vectors.add(r.normalizedVector());
-            weights.add(r.weight());
         }
-        //第二层
 
         double[] skillEmbedding = skillEmbeddingFuture.join();
         double[] normalizedSkill = CompletableFuture.supplyAsync(
@@ -136,42 +134,21 @@ public class SkillPreprocessService {
                 cpuComputeExecutor
         ).join();
 
-        double[] normalizedToolPackage = CompletableFuture.supplyAsync(() -> {
-                    double[] toolPackageVector = VectorUtils.weightedAverage(vectors, weights);
-                    return VectorUtils.l2Normalize(toolPackageVector);
-                },
-                cpuComputeExecutor
-        ).join();
-
-        double[] normalizedFinal = CompletableFuture.supplyAsync(() -> {
-                    double[] fused = VectorUtils.blend(normalizedSkill, 0.7, normalizedToolPackage, 0.3);
-                    return VectorUtils.l2Normalize(fused);
-                },
-                cpuComputeExecutor
-        ).join();
-
-        // 第三层：将技能向量与工具包向量按权重融合，并归一化得到最终技能向量。
         if (persist) {
-            // 第四层：可选持久化，写入工具语义表、工具向量表、技能向量快照表。
             skillVectorStoreService.save(
                     resolvedSkillName,
                     finalSkillDescription,
                     tools,
                     toolVectors,
-                    normalizedSkill,
-                    normalizedToolPackage,
-                    normalizedFinal
+                    normalizedSkill
             );
         }
 
-        // 第五层：组装返回结果（对外返回精简字段，内部保留计算结果用于后续扩展）。
         return new SkillPreprocessResult(
                 resolvedSkillName,
                 skillLabel,
                 tools.stream().map(t -> new ToolInstallView(t.name(), t.description())).toList(),
                 normalizedSkill,
-                normalizedToolPackage,
-                normalizedFinal,
                 recent7dCounts,
                 toolVectors
         );
@@ -187,7 +164,6 @@ public class SkillPreprocessService {
                 2) intentTag 仅可取：stat、rank、query、alert、execute、none。
                 3) actionType 仅可取：read、write。
                 4) 若无法判断，intentTag=none，actionType=read。
-
                 输出格式：
                 {"intentTag":"query","actionType":"read","confidence":0.0}
                 """.formatted(safe(skillName));
@@ -216,9 +192,9 @@ public class SkillPreprocessService {
     }
 
     private String buildToolFallbackEmbeddingText(ToolDescriptor tool) {
-        return "tool_name: " + tool.name() + "\n" +
-                "description: " + tool.description() + "\n" +
-                "input_schema: " + tool.inputSchema();
+        return "tool_name: " + tool.name() + "\n"
+                + "description: " + tool.description() + "\n"
+                + "input_schema: " + tool.inputSchema();
     }
 
     private String buildToolCleaningPrompt(String skillName, ToolDescriptor tool) {
@@ -243,11 +219,7 @@ public class SkillPreprocessService {
 
     /**
      * 从请求中解析并校验 MCP JSON 输入。
-     * <p>
-     * 要求 {@code mcpServerUrl} 为非空 JSON，且至少包含一个合法的
-     * {@code mcpServers.*.url}。校验通过后返回原始 JSON 字符串。
-     *
-     * @throws IllegalArgumentException MCP JSON 缺失或格式不合法
+     * 要求 mcpServerUrl 为非空 JSON，且至少包含一个合法的 mcpServers.*.url。
      */
     private String resolveMcpInputOrThrow(SkillPreprocessRequest request) {
         String mcpJson = safe(request.mcpServerUrl()).trim();
@@ -260,11 +232,6 @@ public class SkillPreprocessService {
 
     /**
      * 根据 MCP JSON 中的 URL 解析技能名。
-     * <p>
-     * 先从 {@code mcpServerUrl} 提取服务 URL，再按既定规则（如 proxy/{skill}/mcp）
-     * 解析为技能名；解析失败则抛出异常，避免写入无效技能标识。
-     *
-     * @throws IllegalArgumentException MCP JSON 不合法或无法解析技能名
      */
     private String determineSkillName(SkillPreprocessRequest request) {
         String mcpInput = safe(request.mcpServerUrl()).trim();
@@ -291,13 +258,11 @@ public class SkillPreprocessService {
         long w = Math.max(0L, recent7dCounts.getOrDefault(tool.name(), 0L));
         double heat = sigmoid(Math.log10(w + 1.0));
         ToolVector toolVector = new ToolVector(tool.name(), normalizedTool, w, heat);
-        return new ToolProcessResult(toolVector, normalizedTool, heat);
+        return new ToolProcessResult(toolVector);
     }
 
     private record ToolProcessResult(
-            ToolVector toolVector,
-            double[] normalizedVector,
-            double weight
+            ToolVector toolVector
     ) {
     }
 

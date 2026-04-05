@@ -25,11 +25,11 @@ CREATE TABLE IF NOT EXISTS skill_vector_snapshot (
   skill_name VARCHAR(128) PRIMARY KEY,
   skill_description TEXT NOT NULL DEFAULT '',
   skill_vector JSONB NOT NULL,
-  tool_package_vector JSONB NOT NULL,
-  final_skill_vector JSONB NOT NULL,
   updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+ALTER TABLE skill_vector_snapshot DROP COLUMN IF EXISTS tool_package_vector;
+ALTER TABLE skill_vector_snapshot DROP COLUMN IF EXISTS final_skill_vector;
+
 CREATE UNIQUE INDEX IF NOT EXISTS uk_skill_vector_snapshot_skill_name
   ON skill_vector_snapshot(skill_name);
-

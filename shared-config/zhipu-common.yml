@@ -1,0 +1,18 @@
+zhipu:
+  api-key: ${zhipukey:}
+  base-url: https://open.bigmodel.cn/api/paas/v4
+  discovery-model: glm-4-flash
+  semantic-model: glm-4.5
+  label-model: glm-4-flash
+  embedding-model: embedding-3
+  connect-timeout-ms: 3000
+  request-timeout-ms: 60000
+  io-executor-threads: 12
+  cpu-executor-threads: 4
+  discovery-max-inflight: 4
+  semantic-max-inflight: 6
+  label-max-inflight: 3
+  embedding-max-inflight: 8
+  model-acquire-timeout-ms: 0
+  breaker-failure-threshold: 3
+  breaker-open-ms: 30000

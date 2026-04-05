@@ -1,6 +1,13 @@
 ﻿server:
   port: 18080
 
+spring:
+  config:
+    import:
+      - optional:file:./shared-config/zhipu-common.yml
+      - optional:file:../shared-config/zhipu-common.yml
+      - optional:file:../../shared-config/zhipu-common.yml
+
 app:
   network:
     wg-host: 10.10.10.1
@@ -21,6 +28,15 @@ ops:
     start-xxl-command: |
       sh /opt/agent-ops/scripts/start-xxl.sh
     timeout-seconds: 120
+  mcp:
+    enabled: true
+    api-key: ${zhipu.api-key:}
+    base-url: ${zhipu.base-url:https://open.bigmodel.cn/api/paas/v4}
+    model: ${zhipu.discovery-model:glm-4-flash}
+    connect-timeout-ms: ${zhipu.connect-timeout-ms:3000}
+    request-timeout-ms: ${zhipu.request-timeout-ms:30000}
+    source-markdown-path: ../dataset/curl.md
+    output-markdown-path: ../dataset/mcp_tools_list.md
 
 logging:
   level:

@@ -13,6 +13,5 @@ public class AgentEngineApplication {
     public static void main(String[] args) {
         SpringApplication.run(AgentEngineApplication.class, args);
         log.info("AgentEngine started");
-        System.out.println(Runtime.getRuntime().availableProcessors());
     }
 }

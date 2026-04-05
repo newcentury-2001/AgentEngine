@@ -31,4 +31,3 @@ logs/
 # Env / secrets
 .env
 .env.*
-

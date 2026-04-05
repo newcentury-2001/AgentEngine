@@ -22,8 +22,8 @@ public class ToolCallDailyStatXxlJobHandler {
         LocalDate today = LocalDate.now();
         Map<String, Long> todayCounts = statsService.snapshotAndResetToolCounts();
         statsService.saveDailyStats(today, todayCounts);
-        Map<String, Long> recent7d = statsService.getRecent7dToolCounts();
-        XxlJobHelper.log("tool daily stats done, todayCountSize={}, recent7dSize={}",
-                todayCounts.size(), recent7d.size());
+        int updatedTools = statsService.refreshToolHeatOnly();
+        XxlJobHelper.log("tool daily stats done, todayCountSize={}, updatedToolHeatRows={}",
+                todayCounts.size(), updatedTools);
     }
 }

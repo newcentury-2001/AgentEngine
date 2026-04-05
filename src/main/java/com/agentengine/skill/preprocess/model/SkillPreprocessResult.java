@@ -8,8 +8,6 @@ public record SkillPreprocessResult(
         SkillLabelPrediction skillLabel,
         List<ToolInstallView> tools,
         double[] normalizedSkillVector,
-        double[] normalizedToolPackageVector,
-        double[] normalizedFinalSkillVector,
         Map<String, Long> recent7dToolCounts,
         List<ToolVector> toolVectors
 ) {

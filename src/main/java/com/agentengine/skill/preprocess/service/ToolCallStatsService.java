@@ -125,6 +125,38 @@ public class ToolCallStatsService {
         return out;
     }
 
+    /**
+     * 仅回写工具层热度，不更新任何 skill 索引。
+     * 口径：近 7 日调用总次数 recent_7d_count，热度 heat_weight=sigmoid(log10(w+1))。
+     *
+     * @return 受影响的工具向量记录条数
+     */
+    public int refreshToolHeatOnly() {
+        LocalDate end = LocalDate.now();
+        ensureTableAndPartitions(end);
+        LocalDate start = end.minusDays(6);
+        String sql = """
+                WITH recent AS (
+                    SELECT tool_name, COALESCE(SUM(call_count), 0) AS total_count
+                    FROM tool_call_daily_stats
+                    WHERE stat_date BETWEEN ? AND ?
+                    GROUP BY tool_name
+                )
+                UPDATE mcp_tool_vector v
+                SET
+                    recent_7d_count = COALESCE(r.total_count, 0),
+                    heat_weight = 1.0 / (1.0 + EXP(-LOG(10, COALESCE(r.total_count, 0) + 1.0))),
+                    updated_at = NOW()
+                FROM (
+                    SELECT v2.skill_name, v2.tool_name, recent.total_count
+                    FROM mcp_tool_vector v2
+                    LEFT JOIN recent ON recent.tool_name = v2.tool_name
+                ) r
+                WHERE v.skill_name = r.skill_name AND v.tool_name = r.tool_name
+                """;
+        return jdbcTemplate.update(sql, start, end);
+    }
+
     private void runSnapshotBatchScript(List<String> batchKeys, Map<String, Long> aggregate) {
         List<?> raw;
         try {

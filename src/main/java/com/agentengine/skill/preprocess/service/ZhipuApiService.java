@@ -152,16 +152,41 @@ public class ZhipuApiService {
         if (!mcpServers.isObject()) {
             throw new IllegalArgumentException("mcp json invalid: missing mcpServers");
         }
+        List<String> urls = new ArrayList<>();
         var fields = mcpServers.fields();
         while (fields.hasNext()) {
             var entry = fields.next();
             JsonNode serverNode = entry.getValue();
             String url = serverNode.path("url").asText("").trim();
             if (!url.isBlank()) {
+                urls.add(url);
+            }
+        }
+        if (urls.isEmpty()) {
+            throw new IllegalArgumentException("mcp json invalid: missing url");
+        }
+        String preferredMcp = pickByEndpoint(urls, "/mcp");
+        if (!preferredMcp.isBlank()) {
+            return preferredMcp;
+        }
+        String preferredSse = pickByEndpoint(urls, "/sse");
+        if (!preferredSse.isBlank()) {
+            return preferredSse;
+        }
+        return urls.get(0);
+    }
+
+    private String pickByEndpoint(List<String> urls, String endpoint) {
+        for (String url : urls) {
+            if (url == null) {
+                continue;
+            }
+            String normalized = url.toLowerCase();
+            if (normalized.contains(endpoint + "?") || normalized.endsWith(endpoint) || normalized.contains(endpoint + "/")) {
                 return url;
             }
         }
-        throw new IllegalArgumentException("mcp json invalid: missing url");
+        return "";
     }
 
     private String findFirstUrlNode(JsonNode node) {
