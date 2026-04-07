@@ -98,6 +98,8 @@ public class DockerOpsService {
         List<String[]> files = new ArrayList<>();
         files.add(new String[]{"ops-bundle/sql/init_xxl_mysql.sql", resolveSqlRemoteDir() + "/init_xxl_mysql.sql"});
         files.add(new String[]{"ops-bundle/sql/init_skill_pg.sql", resolveSqlRemoteDir() + "/init_skill_pg.sql"});
+        files.add(new String[]{"ops-bundle/sql/init_slot_pg.sql", resolveSqlRemoteDir() + "/init_slot_pg.sql"});
+        files.add(new String[]{"ops-bundle/sql/init_slot_seed_pg.sql", resolveSqlRemoteDir() + "/init_slot_seed_pg.sql"});
         files.add(new String[]{"ops-bundle/scripts/bootstrap.sh", resolveScriptRemoteDir() + "/bootstrap.sh"});
         files.add(new String[]{"ops-bundle/scripts/db-init.sh", resolveScriptRemoteDir() + "/db-init.sh"});
         files.add(new String[]{"ops-bundle/scripts/start-xxl.sh", resolveScriptRemoteDir() + "/start-xxl.sh"});
@@ -111,6 +113,8 @@ public class DockerOpsService {
         List<String[]> files = new ArrayList<>();
         files.add(new String[]{"ops-bundle/sql/init_xxl_mysql.sql", resolveSqlRemoteDir() + "/init_xxl_mysql.sql"});
         files.add(new String[]{"ops-bundle/sql/init_skill_pg.sql", resolveSqlRemoteDir() + "/init_skill_pg.sql"});
+        files.add(new String[]{"ops-bundle/sql/init_slot_pg.sql", resolveSqlRemoteDir() + "/init_slot_pg.sql"});
+        files.add(new String[]{"ops-bundle/sql/init_slot_seed_pg.sql", resolveSqlRemoteDir() + "/init_slot_seed_pg.sql"});
         return uploadBundleEntries(files, false, "sql bundle upload success");
     }
 

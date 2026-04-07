@@ -33,3 +33,11 @@ ALTER TABLE skill_vector_snapshot DROP COLUMN IF EXISTS final_skill_vector;
 
 CREATE UNIQUE INDEX IF NOT EXISTS uk_skill_vector_snapshot_skill_name
   ON skill_vector_snapshot(skill_name);
+
+CREATE TABLE IF NOT EXISTS tool_call_daily_stats (
+  stat_date DATE NOT NULL,
+  tool_name VARCHAR(200) NOT NULL,
+  call_count BIGINT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (stat_date, tool_name)
+) PARTITION BY RANGE (stat_date);

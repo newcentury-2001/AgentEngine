@@ -12,6 +12,7 @@ public class AgentOpsApplication {
 
     /**
      * Agent Ops 启动入口。
+     * 运维前端访问地址（WireGuard 内网）：http://10.10.10.1:18080
      *
      * @param args 启动参数
      */

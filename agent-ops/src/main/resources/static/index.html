@@ -9,52 +9,64 @@
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      padding: 20px;
+      padding: 28px;
       font-family: "Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
       color: var(--text);
       background: linear-gradient(120deg,#0f2f4a,#1e75ad);
     }
     .app {
-      max-width: 1080px;
-      margin: 40px auto;
+      max-width: 1320px;
+      margin: 28px auto;
       background: #fff;
       border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 14px 44px rgba(4,28,45,.25);
       display: grid;
-      grid-template-columns: 360px 1fr;
+      grid-template-columns: 440px 1fr;
     }
     .left {
-      padding: 20px;
+      padding: 24px;
       border-right: 1px solid var(--line);
       background: linear-gradient(180deg,#f6fbff,#fff);
     }
-    .right { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-    h1 { margin: 0; font-size: 24px; }
-    .sub { margin: 8px 0 14px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .right { padding: 24px; display: flex; flex-direction: column; gap: 14px; }
+    h1 { margin: 0; font-size: 30px; letter-spacing: .2px; }
+    .sub { margin: 10px 0 16px; color: var(--muted); font-size: 15px; line-height: 1.6; }
     .tips {
       border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 12px;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
       color: #334155;
       background: #f8fbff;
       line-height: 1.6;
     }
-    .btns { display:flex; gap:8px; margin-top:12px; flex-wrap: wrap; }
-    button { border:none; border-radius:10px; padding:10px 14px; font-size:13px; font-weight:700; cursor:pointer; }
+    .btns { display:flex; gap:10px; margin-top:14px; flex-wrap: wrap; }
+    button { border:none; border-radius:12px; padding:12px 18px; font-size:15px; font-weight:700; cursor:pointer; }
     .b-main { background: linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; }
     .b-clear { background: linear-gradient(135deg,#f59e0b,#ea580c); color:#fff; }
-    .status { border:1px solid var(--line); background:#f8fbff; border-radius:10px; padding:10px 12px; font-size:13px; min-height:42px; }
+    textarea {
+      width: 100%;
+      min-height: 280px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      font-size: 14px;
+      line-height: 1.65;
+      margin-top: 12px;
+    }
+    .status { border:1px solid var(--line); background:#f8fbff; border-radius:12px; padding:12px 14px; font-size:15px; min-height:50px; }
     .status.ok { border-color:#bbf7d0; background:#f0fdf4; color:var(--ok); }
     .status.err { border-color:#fecaca; background:#fef2f2; color:var(--err); }
-    .grid { display:grid; grid-template-columns:repeat(3,minmax(140px,1fr)); gap:10px; }
-    .card { border:1px solid var(--line); border-radius:12px; padding:10px; background:#fff; }
-    .k { font-size:12px; color:#475569; margin-bottom:6px; }
-    .v { font-size:14px; font-weight:700; word-break:break-word; }
+    .grid { display:grid; grid-template-columns:repeat(3,minmax(160px,1fr)); gap:12px; }
+    .card { border:1px solid var(--line); border-radius:14px; padding:12px; background:#fff; }
+    .k { font-size:13px; color:#475569; margin-bottom:6px; }
+    .v { font-size:16px; font-weight:700; word-break:break-word; }
     .panel {
-      flex:1; min-height:280px; border:1px solid #1f2c3f; border-radius:12px; background:#0d1625; color:#dce8ff;
-      padding:10px; font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12.5px;
+      flex:1; min-height:420px; border:1px solid #1f2c3f; border-radius:14px; background:#0d1625; color:#dce8ff;
+      padding:12px; font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:14px;
       white-space:pre-wrap; overflow:auto;
     }
     @media (max-width:980px) {
@@ -78,8 +90,18 @@
       <button class="b-main" id="uploadSqlBundleBtn">上传SQL包</button>
       <button class="b-main" id="uploadScriptBundleBtn">上传脚本包</button>
       <button class="b-main" id="runBtn">开始初始化</button>
+      <button class="b-main" id="exportMcpBtn">导出MCP工具描述</button>
       <button class="b-clear" id="clearBtn">清空结果</button>
     </div>
+    <textarea id="mcpListInput">[
+  {
+    "mcpServers": {
+      "time": {
+        "url": "https://open.bigmodel.cn/api/mcp-broker/proxy/time/mcp?Authorization=YOUR_ZHIPU_API_KEY"
+      }
+    }
+  }
+]</textarea>
   </section>
   <section class="right">
     <div id="status" class="status">等待操作</div>
@@ -104,6 +126,7 @@ function pretty(x) { try { return JSON.stringify(x, null, 2); } catch (e) { retu
 let running = false;
 let uploadingSqlBundle = false;
 let uploadingScriptBundle = false;
+let exportingMcp = false;
 let lastClickTs = 0;
 const CLICK_DEBOUNCE_MS = 800;
 
@@ -111,7 +134,7 @@ async function runInit() {
   const now = Date.now();
   if (now - lastClickTs < CLICK_DEBOUNCE_MS) return;
   lastClickTs = now;
-  if (running) return;
+  if (running || exportingMcp) return;
 
   running = true;
   $('runBtn').disabled = true;
@@ -140,12 +163,13 @@ async function uploadSqlBundle() {
   const now = Date.now();
   if (now - lastClickTs < CLICK_DEBOUNCE_MS) return;
   lastClickTs = now;
-  if (running || uploadingSqlBundle || uploadingScriptBundle) return;
+  if (running || uploadingSqlBundle || uploadingScriptBundle || exportingMcp) return;
 
   uploadingSqlBundle = true;
   $('uploadSqlBundleBtn').disabled = true;
   $('uploadScriptBundleBtn').disabled = true;
   $('runBtn').disabled = true;
+  $('exportMcpBtn').disabled = true;
   setStatus('上传SQL包中...');
 
   try {
@@ -166,6 +190,7 @@ async function uploadSqlBundle() {
     $('uploadSqlBundleBtn').disabled = false;
     $('uploadScriptBundleBtn').disabled = false;
     $('runBtn').disabled = false;
+    $('exportMcpBtn').disabled = false;
   }
 }
 
@@ -173,12 +198,13 @@ async function uploadScriptBundle() {
   const now = Date.now();
   if (now - lastClickTs < CLICK_DEBOUNCE_MS) return;
   lastClickTs = now;
-  if (running || uploadingSqlBundle || uploadingScriptBundle) return;
+  if (running || uploadingSqlBundle || uploadingScriptBundle || exportingMcp) return;
 
   uploadingScriptBundle = true;
   $('uploadSqlBundleBtn').disabled = true;
   $('uploadScriptBundleBtn').disabled = true;
   $('runBtn').disabled = true;
+  $('exportMcpBtn').disabled = true;
   setStatus('上传脚本包中...');
 
   try {
@@ -199,6 +225,64 @@ async function uploadScriptBundle() {
     $('uploadSqlBundleBtn').disabled = false;
     $('uploadScriptBundleBtn').disabled = false;
     $('runBtn').disabled = false;
+    $('exportMcpBtn').disabled = false;
+  }
+}
+
+async function exportMcpTools() {
+  const now = Date.now();
+  if (now - lastClickTs < CLICK_DEBOUNCE_MS) return;
+  lastClickTs = now;
+  if (running || uploadingSqlBundle || uploadingScriptBundle || exportingMcp) return;
+
+  const text = $('mcpListInput').value.trim();
+  if (!text) {
+    setStatus('请输入 List<Object> 的 MCP JSON', 'err');
+    return;
+  }
+
+  let payload;
+  try {
+    payload = JSON.parse(text);
+  } catch (e) {
+    setStatus('JSON 格式不合法', 'err');
+    return;
+  }
+  if (!Array.isArray(payload)) {
+    setStatus('请输入 JSON 数组(List<Object>)', 'err');
+    return;
+  }
+
+  exportingMcp = true;
+  $('exportMcpBtn').disabled = true;
+  $('uploadSqlBundleBtn').disabled = true;
+  $('uploadScriptBundleBtn').disabled = true;
+  $('runBtn').disabled = true;
+  setStatus('导出 MCP 工具描述中...');
+
+  try {
+    const resp = await fetch('/api/ops/mcp/export-tools-md', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.message || `HTTP ${resp.status}`);
+
+    $('vHost').textContent = data.sourcePath || 'requestBody';
+    $('vPort').textContent = data.outputPath || '-';
+    $('vSteps').textContent = String(data.totalServers ?? 0);
+    $('out').textContent = pretty(data);
+    setStatus('导出完成', 'ok');
+  } catch (e) {
+    $('out').textContent = pretty({ error: e.message || String(e) });
+    setStatus(`导出失败: ${e.message || e}`, 'err');
+  } finally {
+    exportingMcp = false;
+    $('exportMcpBtn').disabled = false;
+    $('uploadSqlBundleBtn').disabled = false;
+    $('uploadScriptBundleBtn').disabled = false;
+    $('runBtn').disabled = false;
   }
 }
 
@@ -214,6 +298,7 @@ function clearResult() {
 $('runBtn').addEventListener('click', runInit);
 $('uploadSqlBundleBtn').addEventListener('click', uploadSqlBundle);
 $('uploadScriptBundleBtn').addEventListener('click', uploadScriptBundle);
+$('exportMcpBtn').addEventListener('click', exportMcpTools);
 $('clearBtn').addEventListener('click', clearResult);
 </script>
 </body>

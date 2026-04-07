@@ -13,8 +13,13 @@ public class OpsMcpProperties {
     private String model = "glm-4-flash";
     private int connectTimeoutMs = 3000;
     private int requestTimeoutMs = 30000;
+    private int ioExecutorThreads = 4;
+    private int requestIntervalMs = 1000;
     private String sourceMarkdownPath = "../dataset/curl.md";
     private String outputMarkdownPath = "../dataset/mcp_tools_list.md";
+    private String outputJsonPath = "../dataset/mcp_tools_list_result.json";
+    private String repairSourceJsonPath = "../dataset/mcp_tools_list_result_bck.json";
+    private String repairOutputMarkdownPath = "../dataset/mcp_tools_list_new.md";
 
     public boolean isEnabled() {
         return enabled;
@@ -64,6 +69,22 @@ public class OpsMcpProperties {
         this.requestTimeoutMs = requestTimeoutMs;
     }
 
+    public int getIoExecutorThreads() {
+        return ioExecutorThreads;
+    }
+
+    public void setIoExecutorThreads(int ioExecutorThreads) {
+        this.ioExecutorThreads = ioExecutorThreads;
+    }
+
+    public int getRequestIntervalMs() {
+        return requestIntervalMs;
+    }
+
+    public void setRequestIntervalMs(int requestIntervalMs) {
+        this.requestIntervalMs = requestIntervalMs;
+    }
+
     public String getSourceMarkdownPath() {
         return sourceMarkdownPath;
     }
@@ -79,5 +100,28 @@ public class OpsMcpProperties {
     public void setOutputMarkdownPath(String outputMarkdownPath) {
         this.outputMarkdownPath = outputMarkdownPath;
     }
-}
 
+    public String getOutputJsonPath() {
+        return outputJsonPath;
+    }
+
+    public void setOutputJsonPath(String outputJsonPath) {
+        this.outputJsonPath = outputJsonPath;
+    }
+
+    public String getRepairSourceJsonPath() {
+        return repairSourceJsonPath;
+    }
+
+    public void setRepairSourceJsonPath(String repairSourceJsonPath) {
+        this.repairSourceJsonPath = repairSourceJsonPath;
+    }
+
+    public String getRepairOutputMarkdownPath() {
+        return repairOutputMarkdownPath;
+    }
+
+    public void setRepairOutputMarkdownPath(String repairOutputMarkdownPath) {
+        this.repairOutputMarkdownPath = repairOutputMarkdownPath;
+    }
+}

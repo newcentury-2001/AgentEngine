@@ -33,10 +33,15 @@ ops:
     api-key: ${zhipu.api-key:}
     base-url: ${zhipu.base-url:https://open.bigmodel.cn/api/paas/v4}
     model: ${zhipu.discovery-model:glm-4-flash}
-    connect-timeout-ms: ${zhipu.connect-timeout-ms:3000}
-    request-timeout-ms: ${zhipu.request-timeout-ms:30000}
+    io-executor-threads: 4
+    request-interval-ms: 1000
+    connect-timeout-ms: ${zhipu.connect-timeout-ms:1000}
+    request-timeout-ms: ${zhipu.request-timeout-ms:15000}
     source-markdown-path: ../dataset/curl.md
-    output-markdown-path: ../dataset/mcp_tools_list.md
+    output-markdown-path: ./dataset/mcp_tools_list.md
+    output-json-path: ./dataset/mcp_tools_list_result.json
+    repair-source-json-path: ./dataset/mcp_tools_list_result_bck.json
+    repair-output-markdown-path: ./dataset/mcp_tools_list_new.md
 
 logging:
   level:

@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn test:*)",
+      "Bash(mvn clean:*)",
+      "Bash(mvn exec:java -pl agent-business -Dexec.mainClass=\"com.agentengine.skill.parser.McpJsonParserDemo\")",
+      "Bash(mvn compile:*)",
+      "Bash(mvn -f agent-business/pom.xml dependency:build-classpath -q -Dmdep.outputFile=/dev/stdout)",
+      "Bash(java -cp \"agent-business/target/classes:$\\(mvn -f agent-business/pom.xml dependency:build-classpath -q -Dmdep.outputFile=/dev/stdout\\)\" com.agentengine.skill.parser.McpJsonParserDemo)",
+      "Bash(mvn package:*)",
+      "Bash(mvn compiler:compile -pl agent-business)",
+      "Bash(mvn -f pom.xml dependency:build-classpath -q -DincludeScope=compile)",
+      "Bash(java -cp \"agent-business/target/classes:$\\(mvn -f pom.xml dependency:build-classpath -q -DincludeScope=compile)",
+      "Bash(mvn exec:java -pl agent-business -Dexec.mainClass=\"com.agentengine.skill.parser.SimpleParserTest\" -q)",
+      "Bash(mvn exec:java -pl agent-business -Dexec.mainClass=\"com.agentengine.skill.embedding.EmbeddingDemo\" -q)",
+      "Bash(grep -n \"charset\\\\UTF-8\\\\|Content-Type.*charset\" *)",
+      "Bash(git add:*)"
+    ]
+  }
+}

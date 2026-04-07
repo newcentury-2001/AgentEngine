@@ -1,0 +1,1552 @@
+[
+  {
+    "param": "date",
+    "count": 12,
+    "requiredCount": 11,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "查询的日期，默认当天",
+    "sampleTools": [
+      "flightHappinessIndex",
+      "searchFlightsByDepArr",
+      "searchFlightsByNumber",
+      "searchTrainTickets",
+      "历史上的今天"
+    ]
+  },
+  {
+    "param": "img_url",
+    "count": 10,
+    "requiredCount": 10,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "The url of the input image.",
+    "sampleTools": [
+      "crop",
+      "draw_boxes",
+      "draw_point",
+      "image_reference",
+      "image_search_with_image"
+    ]
+  },
+  {
+    "param": "arr",
+    "count": 6,
+    "requiredCount": 0,
+    "types": [],
+    "sampleDesc": "",
+    "sampleTools": [
+      "flightHappinessIndex",
+      "searchFlightsByDepArr",
+      "searchFlightsByNumber"
+    ]
+  },
+  {
+    "param": "dep",
+    "count": 6,
+    "requiredCount": 0,
+    "types": [],
+    "sampleDesc": "",
+    "sampleTools": [
+      "flightHappinessIndex",
+      "searchFlightsByDepArr",
+      "searchFlightsByNumber"
+    ]
+  },
+  {
+    "param": "query",
+    "count": 6,
+    "requiredCount": 6,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "要提问的问题。",
+    "sampleTools": [
+      "query",
+      "searchTrainStations",
+      "search_image",
+      "web_search"
+    ]
+  },
+  {
+    "param": "symbol",
+    "count": 6,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "国内贵金属品种，仅支持现货AUTD,AGTD和期货的月份合约，详见国内贵金属现货，详见国内贵金属期货",
+    "sampleTools": [
+      "国内贵金属K线",
+      "国内贵金属报价",
+      "国内贵金属期货合约",
+      "国际贵金属K线",
+      "国际贵金属报价"
+    ]
+  },
+  {
+    "param": "destination",
+    "count": 5,
+    "requiredCount": 5,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "目的地经度，纬度，坐标格式为：经度，纬度",
+    "sampleTools": [
+      "maps_direction_bicycling",
+      "maps_direction_driving",
+      "maps_direction_transit_integrated",
+      "maps_direction_walking",
+      "maps_distance"
+    ]
+  },
+  {
+    "param": "arrcity",
+    "count": 4,
+    "requiredCount": 2,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Arrival airport IATA 3-letter code (e.g. SHA for Shanghai, LAX for Los Angeles)",
+    "sampleTools": [
+      "getFlightAndTrainTransferInfo",
+      "getFlightTransferInfo",
+      "searchFlightsByDepArr"
+    ]
+  },
+  {
+    "param": "city",
+    "count": 4,
+    "requiredCount": 2,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "指定查询的城市",
+    "sampleTools": [
+      "maps_direction_transit_integrated",
+      "maps_geo",
+      "maps_text_search",
+      "maps_weather"
+    ]
+  },
+  {
+    "param": "depcity",
+    "count": 4,
+    "requiredCount": 2,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Departure airport IATA 3-letter code (e.g. BJS for Beijing, CAN for Guangzhou)",
+    "sampleTools": [
+      "getFlightAndTrainTransferInfo",
+      "getFlightTransferInfo",
+      "searchFlightsByDepArr"
+    ]
+  },
+  {
+    "param": "fnum",
+    "count": 4,
+    "requiredCount": 4,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Flight number including airline code (e.g. MU2157, CZ3969)",
+    "sampleTools": [
+      "flightHappinessIndex",
+      "searchFlightsByNumber"
+    ]
+  },
+  {
+    "param": "origin",
+    "count": 4,
+    "requiredCount": 4,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "出发点经纬度，坐标格式为：经度，纬度",
+    "sampleTools": [
+      "maps_direction_bicycling",
+      "maps_direction_driving",
+      "maps_direction_transit_integrated",
+      "maps_direction_walking"
+    ]
+  },
+  {
+    "param": "type",
+    "count": 4,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "距离测量类型,1代表驾车距离测量，0代表直线距离测量，3步行距离测量",
+    "sampleTools": [
+      "maps_distance",
+      "国内贵金属K线",
+      "国际贵金属K线",
+      "查询是否中奖"
+    ]
+  },
+  {
+    "param": "address",
+    "count": 3,
+    "requiredCount": 2,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "地址",
+    "sampleTools": [
+      "maps_geo",
+      "地址查询邮编",
+      "快递网点查询V2"
+    ]
+  },
+  {
+    "param": "caipiaoid",
+    "count": 3,
+    "requiredCount": 0,
+    "types": [
+      "integer",
+      "string"
+    ],
+    "sampleDesc": "彩票ID（彩票分类查询接口中获取）",
+    "sampleTools": [
+      "历史开奖信息查询接口",
+      "彩票开奖查询接口",
+      "查询是否中奖"
+    ]
+  },
+  {
+    "param": "issueno",
+    "count": 3,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "期号 不选默认是当前期",
+    "sampleTools": [
+      "历史开奖信息查询接口",
+      "彩票开奖查询接口",
+      "查询是否中奖"
+    ]
+  },
+  {
+    "param": "number",
+    "count": 3,
+    "requiredCount": 2,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "彩票号码 红球",
+    "sampleTools": [
+      "快递单号识别",
+      "快递查询V2",
+      "查询是否中奖"
+    ]
+  },
+  {
+    "param": "ref_name",
+    "count": 3,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "The name for the referenced image. (Optional)",
+    "sampleTools": [
+      "image_reference",
+      "image_zoom_in_search_tool",
+      "person_recognition"
+    ]
+  },
+  {
+    "param": "airport",
+    "count": 2,
+    "requiredCount": 2,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Airport IATA 3-letter code (e.g. PEK for Beijing, SHA for Shanghai, CAN for Guangzhou, HFE for Hefei)",
+    "sampleTools": [
+      "getFutureWeatherByAirport"
+    ]
+  },
+  {
+    "param": "bbox",
+    "count": 2,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "The bounding box for cropping image. In the format of '[x1,y1,x2,y2]', range from 0 to 999.",
+    "sampleTools": [
+      "image_zoom_in_search_tool",
+      "person_recognition"
+    ]
+  },
+  {
+    "param": "color",
+    "count": 2,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Fill color name or hex. Default as red.",
+    "sampleTools": [
+      "draw_boxes",
+      "draw_point"
+    ]
+  },
+  {
+    "param": "depdate",
+    "count": 2,
+    "requiredCount": 2,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Flight date in YYYY-MM-DD format. IMPORTANT: If user input only cotains month and date, you should use getTodayDate tool to get the year. For today's date, use getTodayDate tool instead of hardcoding",
+    "sampleTools": [
+      "getFlightAndTrainTransferInfo",
+      "getFlightTransferInfo"
+    ]
+  },
+  {
+    "param": "ip",
+    "count": 2,
+    "requiredCount": 2,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "IP地址",
+    "sampleTools": [
+      "IP定位查询",
+      "maps_ip_location"
+    ]
+  },
+  {
+    "param": "item",
+    "count": 2,
+    "requiredCount": 0,
+    "types": [
+      "boolean"
+    ],
+    "sampleDesc": "是否需要公共事项在线办理清单，true-需要，此时返回内容中会有recommendationItems字段，false-不需要（非必填，默认为false，不会返回公共事项在线办理清单）",
+    "sampleTools": [
+      "query"
+    ]
+  },
+  {
+    "param": "keyword",
+    "count": 2,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "关键词（公司名称/注册号/统一信用代码/法人/股东/高管等任意关键字）【汉字注意UrlEncode编码】",
+    "sampleTools": [
+      "企业税号查询",
+      "周公解梦接口"
+    ]
+  },
+  {
+    "param": "keywords",
+    "count": 2,
+    "requiredCount": 2,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "查询关键字",
+    "sampleTools": [
+      "maps_around_search",
+      "maps_text_search"
+    ]
+  },
+  {
+    "param": "limit",
+    "count": 2,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "返回条数 默认10",
+    "sampleTools": [
+      "国内贵金属K线",
+      "国际贵金属K线"
+    ]
+  },
+  {
+    "param": "location",
+    "count": 2,
+    "requiredCount": 2,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "中心点经度纬度",
+    "sampleTools": [
+      "maps_around_search",
+      "maps_regeocode"
+    ]
+  },
+  {
+    "param": "policy",
+    "count": 2,
+    "requiredCount": 0,
+    "types": [
+      "boolean"
+    ],
+    "sampleDesc": "是否需要规范性文件清单，true-需要，此时返回内容中会有policyFiles字段，false-不需要（非必填，默认为false，不会返回规范性文件清单）",
+    "sampleTools": [
+      "query"
+    ]
+  },
+  {
+    "param": "radius",
+    "count": 2,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Circle radius in pixels (>=1). Default as 4.",
+    "sampleTools": [
+      "draw_point",
+      "maps_around_search"
+    ]
+  },
+  {
+    "param": "random_string",
+    "count": 2,
+    "requiredCount": 0,
+    "types": [],
+    "sampleDesc": "",
+    "sampleTools": [
+      "getTodayDate"
+    ]
+  },
+  {
+    "param": "search",
+    "count": 2,
+    "requiredCount": 0,
+    "types": [
+      "boolean"
+    ],
+    "sampleDesc": "联网搜索字段，true-开启，false-关闭（非必填项，默认为true，即开启联网搜索）",
+    "sampleTools": [
+      "query"
+    ]
+  },
+  {
+    "param": "target",
+    "count": 2,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "原始链接   【短链接和原始链接至少传入一个】",
+    "sampleTools": [
+      "短链接生成",
+      "短链接统计"
+    ]
+  },
+  {
+    "param": "url",
+    "count": 2,
+    "requiredCount": 2,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "The URL of the website to fetch and read",
+    "sampleTools": [
+      "open_img_url",
+      "webReader"
+    ]
+  },
+  {
+    "param": "year",
+    "count": 2,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "需要查询的年份，默认查询当年的节假日列表",
+    "sampleTools": [
+      "假日列表",
+      "节假日列表"
+    ]
+  },
+  {
+    "param": "amount",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "数量",
+    "sampleTools": [
+      "汇率转换接口"
+    ]
+  },
+  {
+    "param": "anum",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Aircraft number like B2021, B2022, B2023, etc.",
+    "sampleTools": [
+      "getRealtimeLocationByAnum"
+    ]
+  },
+  {
+    "param": "areaName",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "区县",
+    "sampleTools": [
+      "快递网点查询V2"
+    ]
+  },
+  {
+    "param": "areaid",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "integer"
+    ],
+    "sampleDesc": "区域ID",
+    "sampleTools": [
+      "地址查询邮编"
+    ]
+  },
+  {
+    "param": "arrCityCode",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Arrival city 3-letter code (e.g. BJS for Beijing, SHA for Shanghai, CAN for Guangzhou, HFE for Hefei)",
+    "sampleTools": [
+      "searchFlightItineraries"
+    ]
+  },
+  {
+    "param": "arr_city",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Arrival city IATA 3-letter code (e.g. CAN for Guangzhou)",
+    "sampleTools": [
+      "getFlightPriceByCities"
+    ]
+  },
+  {
+    "param": "bank",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "银行编码。工商银行：ICBC ，中国银行：BOC ，农业银行：ABCHINA ，交通银行：BANKCOMM ，建设银行：CCB ，招商银行：CMBCHINA ，光大银行：CEBBANK ，浦发银行：SPDB ，兴业银行：CIB ，中信银行：ECITIC，默认BOC",
+    "sampleTools": [
+      "十大银行的外汇牌价"
+    ]
+  },
+  {
+    "param": "begin",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "起始时间 格式：yyyy-MM-dd HH:mm:ss 或 yyyy-MM-dd",
+    "sampleTools": [
+      "短链接统计"
+    ]
+  },
+  {
+    "param": "box",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Crop box coordinates in thousandths. - Format: [x1, y1, x2, y2], each in 0-999.",
+    "sampleTools": [
+      "crop"
+    ]
+  },
+  {
+    "param": "boxes",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Rectangle coordinates in thousandths. - Format: [[x1, y1, x2, y2][x1, y1, x2, y2]], each in 0-999.",
+    "sampleTools": [
+      "draw_boxes"
+    ]
+  },
+  {
+    "param": "branchFromThought",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "integer"
+    ],
+    "sampleDesc": "Branching point thought number",
+    "sampleTools": [
+      "sequentialThinking"
+    ]
+  },
+  {
+    "param": "branchId",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Branch identifier",
+    "sampleTools": [
+      "sequentialThinking"
+    ]
+  },
+  {
+    "param": "cityId",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "市级行政区ID（市辖区/市辖县），获取区县级行政区",
+    "sampleTools": [
+      "全国行政区划"
+    ]
+  },
+  {
+    "param": "cityName",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "城市",
+    "sampleTools": [
+      "快递网点查询V2"
+    ]
+  },
+  {
+    "param": "cityd",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "公共交通规划终点城市",
+    "sampleTools": [
+      "maps_direction_transit_integrated"
+    ]
+  },
+  {
+    "param": "citylimit",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "boolean"
+    ],
+    "sampleDesc": "是否限制城市范围内搜索，默认不限制",
+    "sampleTools": [
+      "maps_text_search"
+    ]
+  },
+  {
+    "param": "code",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "商品条形码（国内及进口商品、8位商品短码、UPC-A、UPC-E）",
+    "sampleTools": [
+      "商品条码查询"
+    ]
+  },
+  {
+    "param": "countyId",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "区县级行政区ID，获取乡镇（街道）级行政区",
+    "sampleTools": [
+      "全国行政区划"
+    ]
+  },
+  {
+    "param": "crop_box",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Crop box coordinates in thousandths. (Optional)\n- Format: [x1, y1, x2, y2], each in 0-999.",
+    "sampleTools": [
+      "image_reference"
+    ]
+  },
+  {
+    "param": "currency",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "货币（所有货币查询接口中获取）",
+    "sampleTools": [
+      "单个货币查询接口"
+    ]
+  },
+  {
+    "param": "day",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "要查询是否放假的日期，格式YYYYMMDD",
+    "sampleTools": [
+      "节假日查询"
+    ]
+  },
+  {
+    "param": "depCityCode",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Departure city 3-letter code (e.g. BJS for Beijing, SHA for Shanghai, CAN for Guangzhou, HFE for Hefei)",
+    "sampleTools": [
+      "searchFlightItineraries"
+    ]
+  },
+  {
+    "param": "depDate",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Departure city date (format: YYYY-MM-DD, e.g., 2025-07-04).IMPORTANT: If user input only cotains month and date, you should use getTodayDate tool to get the year. For today's date, use getTodayDate tool instead of hardcoding",
+    "sampleTools": [
+      "searchFlightItineraries"
+    ]
+  },
+  {
+    "param": "dep_city",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Departure city IATA 3-letter code (e.g. HFE for Hefei)",
+    "sampleTools": [
+      "getFlightPriceByCities"
+    ]
+  },
+  {
+    "param": "dep_date",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Departure date in YYYY-MM-DD format. IMPORTANT: If user input only cotains month and date, you should use getTodayDate tool to get the year. For today's date, use getTodayDate tool instead of hardcoding",
+    "sampleTools": [
+      "getFlightPriceByCities"
+    ]
+  },
+  {
+    "param": "dlat",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "终点纬度",
+    "sampleTools": [
+      "maps_schema_take_taxi"
+    ]
+  },
+  {
+    "param": "dlon",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "终点经度",
+    "sampleTools": [
+      "maps_schema_take_taxi"
+    ]
+  },
+  {
+    "param": "dname",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "终点名称",
+    "sampleTools": [
+      "maps_schema_take_taxi"
+    ]
+  },
+  {
+    "param": "eff_time",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [],
+    "sampleDesc": "用户输入文本信息中若明确或隐含表达需要所属生效日期范围内检索材料时，则需提供对应的生效日期，最多只能提供一个值。日期格式为：• 只有年：xxxx年 •只有月：xxxx年xx⽉ 只有日：xxxx年xx⽉xx⽇",
+    "sampleTools": [
+      "query"
+    ]
+  },
+  {
+    "param": "end",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "截止时间 格式：yyyy-MM-dd HH:mm:ss 或 yyyy-MM-dd",
+    "sampleTools": [
+      "短链接统计"
+    ]
+  },
+  {
+    "param": "expressCode",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "快递公司编号 例如圆通:YTO，详见产品说明中：快递公司编码对照表     注意：快递公司编号不传时，系统会自动识别快递公司编号，但响应时间会比传递快递编号略长",
+    "sampleTools": [
+      "快递查询V2"
+    ]
+  },
+  {
+    "param": "from",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "要换算的单位（所有货币接口中获取，若为空取CNY或USD）",
+    "sampleTools": [
+      "汇率转换接口"
+    ]
+  },
+  {
+    "param": "from_city",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Departure city name (e.g. 合肥)",
+    "sampleTools": [
+      "searchTrainTickets"
+    ]
+  },
+  {
+    "param": "id",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "关键词搜或者周边搜获取到的POI ID",
+    "sampleTools": [
+      "maps_search_detail"
+    ]
+  },
+  {
+    "param": "isRevision",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "boolean"
+    ],
+    "sampleDesc": "Whether this revises previous thinking",
+    "sampleTools": [
+      "sequentialThinking"
+    ]
+  },
+  {
+    "param": "keep_img_data_url",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "boolean"
+    ],
+    "sampleDesc": "Keep image data URL (true/false), default is false",
+    "sampleTools": [
+      "webReader"
+    ]
+  },
+  {
+    "param": "lat",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "终点纬度",
+    "sampleTools": [
+      "maps_schema_navi"
+    ]
+  },
+  {
+    "param": "lineList",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "array"
+    ],
+    "sampleDesc": "行程列表",
+    "sampleTools": [
+      "maps_schema_personal_map"
+    ]
+  },
+  {
+    "param": "link",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "短链接  【短链接和原始链接至少传入一个】",
+    "sampleTools": [
+      "短链接统计"
+    ]
+  },
+  {
+    "param": "lon",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "终点经度",
+    "sampleTools": [
+      "maps_schema_navi"
+    ]
+  },
+  {
+    "param": "mobile",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "顺丰速运、中通、跨越速运需要传入收/寄件人手机号或后四位手机号",
+    "sampleTools": [
+      "快递查询V2"
+    ]
+  },
+  {
+    "param": "needContent",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "是否返回历史事件的详细内容，1表示需要，0表示不需要",
+    "sampleTools": [
+      "历史上的今天"
+    ]
+  },
+  {
+    "param": "needDesc",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "是否需要返回当日公众日、国际日和我国传统节日的简介，1-返回，默认不返回",
+    "sampleTools": [
+      "节假日详情"
+    ]
+  },
+  {
+    "param": "needMonth",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "是否需要本月运势的数据，1为需要，其他不需要",
+    "sampleTools": [
+      "星座运势查询"
+    ]
+  },
+  {
+    "param": "needTomorrow",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "是否需要明天的数据，1为需要，其他不需要",
+    "sampleTools": [
+      "星座运势查询"
+    ]
+  },
+  {
+    "param": "needWeek",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "是否需要本周运势的数据，1为需要，其他不需要",
+    "sampleTools": [
+      "星座运势查询"
+    ]
+  },
+  {
+    "param": "needYear",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "是否需要本年运势的数据，1为需要，其他不需要",
+    "sampleTools": [
+      "星座运势查询"
+    ]
+  },
+  {
+    "param": "needsMoreThoughts",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "boolean"
+    ],
+    "sampleDesc": "If more thoughts are needed",
+    "sampleTools": [
+      "sequentialThinking"
+    ]
+  },
+  {
+    "param": "nextThoughtNeeded",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "boolean"
+    ],
+    "sampleDesc": "Whether another thought step is needed",
+    "sampleTools": [
+      "sequentialThinking"
+    ]
+  },
+  {
+    "param": "no_cache",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "boolean"
+    ],
+    "sampleDesc": "Disable cache(true/false), default is false",
+    "sampleTools": [
+      "webReader"
+    ]
+  },
+  {
+    "param": "no_gfm",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "boolean"
+    ],
+    "sampleDesc": "Disable GitHub Flavored Markdown (true/false), default is false",
+    "sampleTools": [
+      "webReader"
+    ]
+  },
+  {
+    "param": "num",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "integer"
+    ],
+    "sampleDesc": "获取数量 最大20 默认10",
+    "sampleTools": [
+      "历史开奖信息查询接口"
+    ]
+  },
+  {
+    "param": "orgName",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "行程规划地图小程序名称",
+    "sampleTools": [
+      "maps_schema_personal_map"
+    ]
+  },
+  {
+    "param": "origins",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "起点经度，纬度，可以传多个坐标，使用竖线隔离，比如120,30|120,31，坐标格式为：经度，纬度",
+    "sampleTools": [
+      "maps_distance"
+    ]
+  },
+  {
+    "param": "pageNum",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "当前页数（默认第1页）",
+    "sampleTools": [
+      "企业税号查询"
+    ]
+  },
+  {
+    "param": "pageSize",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "每页条数（默认20条，最大20条）",
+    "sampleTools": [
+      "企业税号查询"
+    ]
+  },
+  {
+    "param": "page_num",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Page index starting from 0. Each page returns 5 results.",
+    "sampleTools": [
+      "web_search"
+    ]
+  },
+  {
+    "param": "point",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Point coordinates in thousandths. - Format: [x, y], each in 0-999.",
+    "sampleTools": [
+      "draw_point"
+    ]
+  },
+  {
+    "param": "province",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "省份",
+    "sampleTools": [
+      "今日油价查询"
+    ]
+  },
+  {
+    "param": "provinceId",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "省级行政区ID（含直辖市），获取市级行政区",
+    "sampleTools": [
+      "全国行政区划"
+    ]
+  },
+  {
+    "param": "provinceName",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "省份",
+    "sampleTools": [
+      "快递网点查询V2"
+    ]
+  },
+  {
+    "param": "refernumber",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "彩票剩余号码 蓝球",
+    "sampleTools": [
+      "查询是否中奖"
+    ]
+  },
+  {
+    "param": "retain_images",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "boolean"
+    ],
+    "sampleDesc": "Retain images (true/false), default is true",
+    "sampleTools": [
+      "webReader"
+    ]
+  },
+  {
+    "param": "return_format",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Reader response content type (markdown or text), default is markdown",
+    "sampleTools": [
+      "webReader"
+    ]
+  },
+  {
+    "param": "revisesThought",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "integer"
+    ],
+    "sampleDesc": "Which thought is being reconsidered",
+    "sampleTools": [
+      "sequentialThinking"
+    ]
+  },
+  {
+    "param": "service_area",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [],
+    "sampleDesc": "用户输入文本信息属于政务办事类，则需提供对应的地域，最多只能提供一个值。",
+    "sampleTools": [
+      "query"
+    ]
+  },
+  {
+    "param": "shipperCode",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "快递公司编码。目前支持顺丰速运：SF、中通快递：STO、圆通快递：YTO、申通快递：STO、韵达快递：YD、极兔速递：JTSD、德邦快递：DBL、邮政平邮：YZPY",
+    "sampleTools": [
+      "快递网点查询V2"
+    ]
+  },
+  {
+    "param": "slat",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "起点纬度",
+    "sampleTools": [
+      "maps_schema_take_taxi"
+    ]
+  },
+  {
+    "param": "slon",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "起点经度",
+    "sampleTools": [
+      "maps_schema_take_taxi"
+    ]
+  },
+  {
+    "param": "sname",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "起点名称",
+    "sampleTools": [
+      "maps_schema_take_taxi"
+    ]
+  },
+  {
+    "param": "sort",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "物流明细排序，desc：倒序，asc：升序，默认asc",
+    "sampleTools": [
+      "快递查询V2"
+    ]
+  },
+  {
+    "param": "sourceTimezone",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Source IANA timezone name",
+    "sampleTools": [
+      "convertTime"
+    ]
+  },
+  {
+    "param": "star",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "十二星座，其值分别为 baiyang jinniu shuangzi juxie shizi chunv tiancheng tianxie sheshou mojie shuiping shuangyu",
+    "sampleTools": [
+      "星座运势查询"
+    ]
+  },
+  {
+    "param": "start",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "起始位置 默认0",
+    "sampleTools": [
+      "历史开奖信息查询接口"
+    ]
+  },
+  {
+    "param": "strategy",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "integer"
+    ],
+    "sampleDesc": "召回策略，0=默认召回策略，1=优先召回扫街榜POI",
+    "sampleTools": [
+      "maps_around_search"
+    ]
+  },
+  {
+    "param": "targetTimezone",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Target IANA timezone name",
+    "sampleTools": [
+      "convertTime"
+    ]
+  },
+  {
+    "param": "thickness",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Outline thickness in pixels (>=1).Default as 3.",
+    "sampleTools": [
+      "draw_boxes"
+    ]
+  },
+  {
+    "param": "thought",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Your current thinking step",
+    "sampleTools": [
+      "sequentialThinking"
+    ]
+  },
+  {
+    "param": "thoughtNumber",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "integer"
+    ],
+    "sampleDesc": "Current thought number",
+    "sampleTools": [
+      "sequentialThinking"
+    ]
+  },
+  {
+    "param": "time",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Time to convert in 24-hour format (HH:MM)",
+    "sampleTools": [
+      "convertTime"
+    ]
+  },
+  {
+    "param": "timeout",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "integer"
+    ],
+    "sampleDesc": "Request timeout(unit is second), default is 20",
+    "sampleTools": [
+      "webReader"
+    ]
+  },
+  {
+    "param": "timezone",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "IANA timezone name (e.g., 'America/New_York', 'Europe/London')",
+    "sampleTools": [
+      "getCurrentTime"
+    ]
+  },
+  {
+    "param": "to",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "换算后的单位（所有货币接口中获取，若为空取CNY或USD）",
+    "sampleTools": [
+      "汇率转换接口"
+    ]
+  },
+  {
+    "param": "to_city",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "Arrival city name (e.g. 北京)",
+    "sampleTools": [
+      "searchTrainTickets"
+    ]
+  },
+  {
+    "param": "totalThoughts",
+    "count": 1,
+    "requiredCount": 1,
+    "types": [
+      "integer"
+    ],
+    "sampleDesc": "Estimated total thoughts needed",
+    "sampleTools": [
+      "sequentialThinking"
+    ]
+  },
+  {
+    "param": "townId",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "乡镇（街道）级行政区ID，获取社区（村）级行政区",
+    "sampleTools": [
+      "全国行政区划"
+    ]
+  },
+  {
+    "param": "villageId",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "社区（村）级行政区ID，获取全部上级行政区",
+    "sampleTools": [
+      "全国行政区划"
+    ]
+  },
+  {
+    "param": "with_images_summary",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "boolean"
+    ],
+    "sampleDesc": "Include images summary (true/false), default is false",
+    "sampleTools": [
+      "webReader"
+    ]
+  },
+  {
+    "param": "with_links_summary",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "boolean"
+    ],
+    "sampleDesc": "Include links summary (true/false), default is false",
+    "sampleTools": [
+      "webReader"
+    ]
+  },
+  {
+    "param": "zipcode",
+    "count": 1,
+    "requiredCount": 0,
+    "types": [
+      "string"
+    ],
+    "sampleDesc": "邮编",
+    "sampleTools": [
+      "邮编查地址"
+    ]
+  }
+]

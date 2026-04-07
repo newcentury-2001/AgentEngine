@@ -1,0 +1,17 @@
+{
+  "generatedAt" : "2026-04-07T17:23:43.316787200",
+  "totalServers" : 1,
+  "successCount" : 1,
+  "failedCount" : 0,
+  "results" : [ {
+    "serverLabel" : "dream-interpretation",
+    "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/dream-interpretation/mcp?Authorization=a0a568242c654099ad5c1fd4e2db048a.5naAs3Cml6OsKNtT",
+    "success" : true,
+    "errorMessage" : "",
+    "tools" : [ {
+      "name" : "周公解梦接口",
+      "description" : "最新、最全的周公解梦大全查询，有人物、动物、植物、物品、活动、生活、自然、鬼神、建筑、孕妇等10分类，5万数据。",
+      "inputSchema" : "{\"properties\":{\"keyword\":{\"description\":\"关键词\",\"type\":\"string\"}},\"required\":[\"keyword\"],\"type\":\"object\"}"
+    } ]
+  } ]
+}

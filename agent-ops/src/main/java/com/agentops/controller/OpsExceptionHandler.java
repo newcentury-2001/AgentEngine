@@ -1,5 +1,6 @@
 package com.agentops.controller;
 
+import com.agentcommon.concurrent.ExecutorSaturatedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,5 +19,14 @@ public class OpsExceptionHandler {
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<Map<String, String>> handleIllegalState(IllegalStateException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ExecutorSaturatedException.class)
+    public ResponseEntity<Map<String, String>> handleExecutorSaturated(ExecutorSaturatedException ex) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(Map.of(
+                        "message", "system busy, retry later",
+                        "traceId", ex.getTraceId()
+                ));
     }
 }

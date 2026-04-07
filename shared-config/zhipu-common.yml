@@ -4,15 +4,49 @@ zhipu:
   discovery-model: glm-4-flash
   semantic-model: glm-4.5
   label-model: glm-4-flash
+  slot-model: glm-4-flash
   embedding-model: embedding-3
-  connect-timeout-ms: 3000
-  request-timeout-ms: 60000
-  io-executor-threads: 12
-  cpu-executor-threads: 4
+  connect-timeout-ms: 1000
+  request-timeout-ms: 15000
   discovery-max-inflight: 4
   semantic-max-inflight: 6
   label-max-inflight: 3
+  slot-max-inflight: 3
   embedding-max-inflight: 8
+  discovery-qps: 4
+  semantic-qps: 3
+  label-qps: 4
+  slot-qps: 4
+  embedding-qps: 8
+  qps-limiter-enabled: true
+  circuit-breaker-enabled: true
+  failure-rate-threshold: 0.5
+  discovery-failure-rate-threshold: 0.6
+  semantic-failure-rate-threshold: 0.55
+  label-failure-rate-threshold: 0.6
+  slot-failure-rate-threshold: 0.6
+  embedding-failure-rate-threshold: 0.5
   model-acquire-timeout-ms: 0
   breaker-failure-threshold: 3
   breaker-open-ms: 30000
+
+thread-pool:
+  llm:
+    discovery:
+      core-size: 2
+    semantic:
+      core-size: 3
+    embedding:
+      core-size: 6
+    label:
+      core-size: 2
+    slot:
+      core-size: 3
+  pg-io:
+    core-cpu-ratio: 0.75
+    daemon: false
+    reject-policy: degrade
+  redis-io:
+    core-cpu-ratio: 0.5
+    daemon: false
+    reject-policy: degrade
