@@ -23,13 +23,14 @@ public class EncodingRepairAspect {
     public Object repairEncoding(ProceedingJoinPoint pjp) throws Throwable {
         Object result = pjp.proceed();
 
-        if (result instanceof String) {
-            String content = (String) result;
+        if (result instanceof EncodingRepairResult) {
+            EncodingRepairResult repairResult = (EncodingRepairResult) result;
+            String content = repairResult.getRepaired();
             if (shouldRepair(content)) {
                 String repaired = CharsetFixUtils.fixMessyCode(content);
-                return EncodingRepairResult.repaired(content, repaired);
+                return EncodingRepairResult.repaired(repairResult.getOriginal(), repaired);
             } else {
-                return EncodingRepairResult.notRepaired(content);
+                return repairResult;
             }
         }
 

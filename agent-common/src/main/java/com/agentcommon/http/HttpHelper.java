@@ -29,13 +29,13 @@ public class HttpHelper {
     }
 
     /**
-     * 发送 GET 请求，返回原始字符串
+     * 发送 GET 请求，返回编码修复结果
      *
      * @param url     请求 URL
      * @param headers 请求头（可为 null）
-     * @return 原始响应字符串
+     * @return 编码修复结果
      */
-    public static String get(String url, Map<String, String> headers) {
+    public static EncodingRepairResult get(String url, Map<String, String> headers) {
         try {
             URL targetUrl = URI.create(url).toURL();
             HttpURLConnection conn = (HttpURLConnection) targetUrl.openConnection();
@@ -56,7 +56,8 @@ public class HttpHelper {
                     throw new IOException("HTTP request failed with status: " + responseCode);
                 }
 
-                return readResponse(conn.getInputStream());
+                String raw = readResponse(conn.getInputStream());
+                return EncodingRepairResult.notRepaired(raw); // AOP 会自动修复
             } finally {
                 conn.disconnect();
             }
@@ -67,10 +68,64 @@ public class HttpHelper {
     }
 
     /**
-     * 发送 GET 请求，返回原始字符串（无自定义请求头）
+     * 发送 GET 请求，返回编码修复结果（无自定义请求头）
      */
-    public static String get(String url) {
+    public static EncodingRepairResult get(String url) {
         return get(url, null);
+    }
+
+    /**
+     * 发送 POST 请求，返回编码修复结果
+     *
+     * @param url     请求 URL
+     * @param body    请求体
+     * @param headers 请求头（可为 null）
+     * @return 编码修复结果
+     */
+    public static EncodingRepairResult post(String url, String body, Map<String, String> headers) {
+        try {
+            URL targetUrl = URI.create(url).toURL();
+            HttpURLConnection conn = (HttpURLConnection) targetUrl.openConnection();
+
+            try {
+                conn.setRequestMethod("POST");
+                conn.setConnectTimeout(CONNECT_TIMEOUT);
+                conn.setReadTimeout(READ_TIMEOUT);
+                conn.setDoOutput(true);
+
+                if (headers != null) {
+                    for (Map.Entry<String, String> entry : headers.entrySet()) {
+                        conn.setRequestProperty(entry.getKey(), entry.getValue());
+                    }
+                }
+
+                // 写入请求体
+                if (body != null && !body.isEmpty()) {
+                    conn.getOutputStream().write(body.getBytes(StandardCharsets.UTF_8));
+                }
+
+                int responseCode = conn.getResponseCode();
+                if (responseCode / 100 != 2) {
+                    String errorBody = readErrorStream(conn.getErrorStream());
+                    throw new IOException("HTTP POST request failed with status: " + responseCode + ", body: " + errorBody);
+                }
+
+                String raw = readResponse(conn.getInputStream());
+                return EncodingRepairResult.notRepaired(raw); // AOP 会自动修复
+            } finally {
+                conn.disconnect();
+            }
+        } catch (IOException e) {
+            log.error("HTTP POST request failed: {}", url, e);
+            throw new RuntimeException("HTTP POST request failed: " + url, e);
+        }
+    }
+
+    /**
+     * 发送 POST 请求，返回编码修复结果（无自定义请求头）
+     */
+    public static EncodingRepairResult post(String url, String body) {
+        return post(url, body, null);
     }
 
     private static String readResponse(InputStream inputStream) throws IOException {
@@ -82,6 +137,23 @@ public class HttpHelper {
                 response.append(line).append("\n");
             }
             return response.toString();
+        }
+    }
+
+    private static String readErrorStream(InputStream errorStream) {
+        if (errorStream == null) {
+            return "";
+        }
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(errorStream, StandardCharsets.UTF_8))) {
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response.append(line).append("\n");
+            }
+            return response.toString();
+        } catch (IOException e) {
+            return "unable to read error stream: " + e.getMessage();
         }
     }
 }

@@ -1,7 +1,8 @@
 package com.agentops.service;
 
 import com.agentcommon.concurrent.NamedTaskRunnable;
-import com.agentcommon.util.CharsetFixUtils;
+import com.agentcommon.http.EncodingRepairResult;
+import com.agentcommon.http.HttpHelper;
 import com.agentops.config.OpsMcpProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,17 +12,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -41,7 +38,6 @@ public class McpToolListOpsService {
 
     private final OpsMcpProperties properties;
     private final ObjectMapper objectMapper;
-    private final HttpClient httpClient;
     private final ExecutorService mcpIoExecutor;
 
     public McpToolListOpsService(
@@ -52,9 +48,6 @@ public class McpToolListOpsService {
         this.properties = properties;
         this.objectMapper = objectMapper;
         this.mcpIoExecutor = mcpIoExecutor;
-        this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofMillis(Math.max(500, properties.getConnectTimeoutMs())))
-                .build();
     }
 
     public Map<String, Object> exportToolsListToMarkdown() {
@@ -134,7 +127,7 @@ public class McpToolListOpsService {
         return results;
     }
 
-    private List<ToolItem> listTools(String serverLabel, String serverUrl) throws IOException, InterruptedException {
+    private List<ToolItem> listTools(String serverLabel, String serverUrl) throws IOException {
         ObjectNode req = objectMapper.createObjectNode();
         req.put("model", safe(properties.getModel(), "glm-4-flash"));
         req.put("stream", false);
@@ -165,19 +158,23 @@ public class McpToolListOpsService {
                 ? properties.getBaseUrl().substring(0, properties.getBaseUrl().length() - 1)
                 : properties.getBaseUrl();
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(base + "/chat/completions"))
-                .timeout(Duration.ofMillis(Math.max(1000, properties.getRequestTimeoutMs())))
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + properties.getApiKey().trim())
-                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(req), StandardCharsets.UTF_8))
-                .build();
+        // 使用 HttpHelper 发送请求
+        Map<String, String> httpHeaders = new HashMap<>();
+        httpHeaders.put("Content-Type", "application/json");
+        httpHeaders.put("Authorization", "Bearer " + properties.getApiKey().trim());
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-        if (response.statusCode() / 100 != 2) {
-            throw new IllegalStateException("http " + response.statusCode() + " " + trim(response.body(), 300));
+        EncodingRepairResult response = HttpHelper.post(
+                base + "/chat/completions",
+                objectMapper.writeValueAsString(req),
+                httpHeaders
+        );
+
+        String responseBody = response.getRepaired();
+        if (!responseBody.startsWith("{") && !responseBody.startsWith("[")) {
+            throw new IllegalStateException("http response not json: " + trim(responseBody, 300));
         }
-        JsonNode root = objectMapper.readTree(response.body());
+
+        JsonNode root = objectMapper.readTree(responseBody);
         List<ToolItem> parsed = extractToolItemsFromToolCalls(root);
         if (parsed.isEmpty()) {
             parsed = extractToolItems(root);
@@ -214,10 +211,10 @@ public class McpToolListOpsService {
                     continue;
                 }
                 for (JsonNode t : tools) {
-                    String name = fixText(text(t, "name", "tool_name", "id"));
-                    String description = fixText(text(t, "description", "tool_description"));
+                    String name = text(t, "name", "tool_name", "id");
+                    String description = text(t, "description", "tool_description");
                     JsonNode schema = t.get("input_schema");
-                    String schemaText = schema == null || schema.isNull() ? "" : fixText(schema.toString());
+                    String schemaText = schema == null || schema.isNull() ? "" : schema.toString();
                     if (name.isBlank()) {
                         continue;
                     }
@@ -243,11 +240,11 @@ public class McpToolListOpsService {
             return;
         }
         if (node.isObject()) {
-            String name = fixText(text(node, "name", "tool_name", "id"));
-            String description = fixText(text(node, "description", "tool_description"));
+            String name = text(node, "name", "tool_name", "id");
+            String description = text(node, "description", "tool_description");
             JsonNode schema = node.get("input_schema");
             if (!name.isBlank() && (!description.isBlank() || schema != null)) {
-                String schemaText = schema == null ? "" : fixText(schema.toString());
+                String schemaText = schema == null ? "" : schema.toString();
                 String key = name + "||" + description + "||" + schemaText;
                 if (dedup.add(key)) {
                     out.add(new ToolItem(name, description, schemaText));
@@ -291,7 +288,7 @@ public class McpToolListOpsService {
                         continue;
                     }
                     mcpServers.fields().forEachRemaining(entry -> {
-                        String label = fixText(entry.getKey());
+                        String label = entry.getKey();
                         String url = normalizeServerUrl(entry.getValue().path("url").asText(""));
                         addServerIfValid(label, url, dedup, out);
                     });
@@ -312,14 +309,14 @@ public class McpToolListOpsService {
             JsonNode mcpServers = root.path("mcpServers");
             if (mcpServers.isObject()) {
                 mcpServers.fields().forEachRemaining(entry -> {
-                    String label = fixText(safeText(entry.getKey()));
+                    String label = safeText(entry.getKey());
                     String url = normalizeServerUrl(entry.getValue().path("url").asText(""));
                     addServerIfValid(label, url, dedup, out);
                 });
                 continue;
             }
 
-            String label = fixText(safeText(root.path("serverLabel").asText("")));
+            String label = safeText(root.path("serverLabel").asText(""));
             String url = normalizeServerUrl(root.path("url").asText(""));
             if (label.isBlank()) {
                 label = extractServerLabelFromUrl(url);
@@ -416,19 +413,19 @@ public class McpToolListOpsService {
             sb.append("- 时间: ").append(LocalDateTime.now()).append("\n");
             sb.append("- 总服务数: ").append(results.size()).append("\n\n");
             for (ResultEntry r : results) {
-                sb.append("## ").append(fixText(r.serverLabel())).append("\n\n");
-                sb.append("- URL: `").append(fixText(r.serverUrl())).append("`\n");
+                sb.append("## ").append(r.serverLabel()).append("\n\n");
+                sb.append("- URL: `").append(r.serverUrl()).append("`\n");
                 sb.append("- 状态: ").append(r.success() ? "成功" : "失败").append("\n");
                 if (!r.success()) {
-                    sb.append("- 错误: ").append(fixText(r.errorMessage())).append("\n\n");
+                    sb.append("- 错误: ").append(r.errorMessage()).append("\n\n");
                     continue;
                 }
                 sb.append("- 工具数: ").append(r.tools().size()).append("\n\n");
                 for (ToolItem t : r.tools()) {
-                    sb.append("### ").append(fixText(t.name())).append("\n\n");
-                    sb.append("- 描述: ").append(t.description().isBlank() ? "(空)" : fixText(t.description())).append("\n");
+                    sb.append("### ").append(t.name()).append("\n\n");
+                    sb.append("- 描述: ").append(t.description().isBlank() ? "(空)" : t.description()).append("\n");
                     sb.append("- input_schema:\n\n");
-                    sb.append("```json\n").append(prettyJsonOrRaw(fixText(t.inputSchema()))).append("\n```\n\n");
+                    sb.append("```json\n").append(prettyJsonOrRaw(t.inputSchema())).append("\n```\n\n");
                 }
             }
             Files.writeString(outputPath, sb.toString(), StandardCharsets.UTF_8);
@@ -536,13 +533,6 @@ public class McpToolListOpsService {
             return t;
         }
         return t.substring(0, n) + "...";
-    }
-
-    private String fixText(String s) {
-        if (s == null || s.isBlank()) {
-            return s == null ? "" : s;
-        }
-        return CharsetFixUtils.fixMessyCode(s);
     }
 
     private record ServerEntry(String serverLabel, String serverUrl) {

@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class SkillEmbeddingController {
 
-    private final SkillEmbeddingOrchestrationService orchestrationService;
+    private final EmbeddingOrchestrationService orchestrationService;
 
     /**
      * 根据技能名称列表生成 embedding（包含入库和日志）
