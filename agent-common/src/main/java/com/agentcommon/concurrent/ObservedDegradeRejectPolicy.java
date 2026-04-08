@@ -10,7 +10,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class ObservedDegradeRejectPolicy implements RejectedExecutionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(ObservedDegradeRejectPolicy.class);
-    private static final String TRACE_ID_KEY = "traceId";
+    private static final String TRACE_ID_KEY = TaskContext.TRACE_ID_KEY;
+    private static final String TASK_ID_KEY = TaskContext.TASK_ID_KEY;
 
     private final ExecutorFactory.PoolType poolType;
 
@@ -21,17 +22,22 @@ public class ObservedDegradeRejectPolicy implements RejectedExecutionHandler {
     @Override
     public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
         String traceId = traceId();
+        String taskId = taskId();
         String serviceName = "-";
         String taskName = "-";
         String serviceMethod = "-";
         if (r instanceof NamedTaskRunnable namedTask) {
             serviceName = safe(namedTask.getServiceName());
-            taskName = safe(namedTask.getTaskName());
+            taskName = safe(namedTask.getMethodName());
             serviceMethod = serviceName + "#" + taskName;
+            if ("-".equals(taskId)) {
+                taskId = safe(namedTask.getTaskId());
+            }
         }
         log.error(
-                "executor rejected, traceId={}, activeCount={}, poolSize={}, peakSize={}, poolType={}, isShutdown={}, serviceMethod={}, serviceName={}, taskName={}",
+                "executor rejected, traceId={}, taskId={}, activeCount={}, poolSize={}, peakSize={}, poolType={}, isShutdown={}, serviceMethod={}, serviceName={}, taskName={}",
                 traceId,
+                taskId,
                 executor.getActiveCount(),
                 executor.getPoolSize(),
                 executor.getLargestPoolSize(),
@@ -50,6 +56,11 @@ public class ObservedDegradeRejectPolicy implements RejectedExecutionHandler {
 
     private String traceId() {
         String id = MDC.get(TRACE_ID_KEY);
+        return (id == null || id.isBlank()) ? "-" : id;
+    }
+
+    private String taskId() {
+        String id = MDC.get(TASK_ID_KEY);
         return (id == null || id.isBlank()) ? "-" : id;
     }
 

@@ -1,9 +1,9 @@
 package com.agentengine.skill.parser;
 
-import com.agentengine.skill.model.InputSlot;
-import com.agentengine.skill.model.McpSkill;
-import com.agentengine.skill.model.McpTool;
-import com.agentengine.skill.model.OutputSlotInferred;
+import com.agentcommon.mcp.model.InputSlot;
+import com.agentcommon.mcp.model.McpSkill;
+import com.agentcommon.mcp.model.McpTool;
+import com.agentcommon.mcp.model.OutputSlotInferred;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * MCP JSON解析工具类
- * 用于解析dataset/mcp_final_summary.json文件
+ * MCP JSON瑙ｆ瀽宸ュ叿绫? * 鐢ㄤ簬瑙ｆ瀽dataset/mcp_final_summary.json鏂囦欢
  */
 @Slf4j
 public class McpJsonParser {
@@ -26,16 +25,14 @@ public class McpJsonParser {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     static {
-        // 配置 ObjectMapper
+        // 閰嶇疆 ObjectMapper
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
 
     /**
-     * 从文件路径解析MCP技能列表
-     *
-     * @param filePath JSON文件路径
-     * @return 技能列表
-     * @throws IOException 读取文件异常
+     * 浠庢枃浠惰矾寰勮В鏋怣CP鎶€鑳藉垪琛?     *
+     * @param filePath JSON鏂囦欢璺緞
+     * @return 鎶€鑳藉垪琛?     * @throws IOException 璇诲彇鏂囦欢寮傚父
      */
     public static List<McpSkill> parseFromFile(String filePath) throws IOException {
         File file = new File(filePath);
@@ -45,54 +42,43 @@ public class McpJsonParser {
         List<McpSkill> skills = objectMapper.readValue(file,
             objectMapper.getTypeFactory().constructCollectionType(List.class, McpSkill.class));
 
-        // 设置工具的所属技能名称
-        setSkillNames(skills);
+        // 璁剧疆宸ュ叿鐨勬墍灞炴妧鑳藉悕绉?        setSkillNames(skills);
 
         log.info("Parsed {} skills from file: {}", skills.size(), filePath);
         return skills;
     }
 
     /**
-     * 从输入流解析MCP技能列表
-     *
-     * @param inputStream 输入流
-     * @return 技能列表
-     * @throws IOException 读取异常
+     * 浠庤緭鍏ユ祦瑙ｆ瀽MCP鎶€鑳藉垪琛?     *
+     * @param inputStream 杈撳叆娴?     * @return 鎶€鑳藉垪琛?     * @throws IOException 璇诲彇寮傚父
      */
     public static List<McpSkill> parseFromStream(InputStream inputStream) throws IOException {
         List<McpSkill> skills = objectMapper.readValue(inputStream,
             objectMapper.getTypeFactory().constructCollectionType(List.class, McpSkill.class));
 
-        // 设置工具的所属技能名称
-        setSkillNames(skills);
+        // 璁剧疆宸ュ叿鐨勬墍灞炴妧鑳藉悕绉?        setSkillNames(skills);
 
         log.info("Parsed {} skills from input stream", skills.size());
         return skills;
     }
 
     /**
-     * 从JSON字符串解析MCP技能列表
-     *
-     * @param jsonString JSON字符串
-     * @return 技能列表
-     * @throws IOException 解析异常
+     * 浠嶫SON瀛楃涓茶В鏋怣CP鎶€鑳藉垪琛?     *
+     * @param jsonString JSON瀛楃涓?     * @return 鎶€鑳藉垪琛?     * @throws IOException 瑙ｆ瀽寮傚父
      */
     public static List<McpSkill> parseFromString(String jsonString) throws IOException {
         List<McpSkill> skills = objectMapper.readValue(jsonString,
             objectMapper.getTypeFactory().constructCollectionType(List.class, McpSkill.class));
 
-        // 设置工具的所属技能名称
-        setSkillNames(skills);
+        // 璁剧疆宸ュ叿鐨勬墍灞炴妧鑳藉悕绉?        setSkillNames(skills);
 
         log.info("Parsed {} skills from JSON string", skills.size());
         return skills;
     }
 
     /**
-     * 设置工具的所属技能名称
-     *
-     * @param skills 技能列表
-     */
+     * 璁剧疆宸ュ叿鐨勬墍灞炴妧鑳藉悕绉?     *
+     * @param skills 鎶€鑳藉垪琛?     */
     private static void setSkillNames(List<McpSkill> skills) {
         for (McpSkill skill : skills) {
             if (skill.getTools() != null) {
@@ -104,10 +90,9 @@ public class McpJsonParser {
     }
 
     /**
-     * 将技能列表转换为扁平化的工具列表
+     * 灏嗘妧鑳藉垪琛ㄨ浆鎹负鎵佸钩鍖栫殑宸ュ叿鍒楄〃
      *
-     * @param skills 技能列表
-     * @return 工具列表
+     * @param skills 鎶€鑳藉垪琛?     * @return 宸ュ叿鍒楄〃
      */
     public static List<McpTool> flattenTools(List<McpSkill> skills) {
         List<McpTool> allTools = new ArrayList<>();
@@ -121,11 +106,9 @@ public class McpJsonParser {
     }
 
     /**
-     * 获取技能名称到技能的映射
+     * 鑾峰彇鎶€鑳藉悕绉板埌鎶€鑳界殑鏄犲皠
      *
-     * @param skills 技能列表
-     * @return 技能名称映射
-     */
+     * @param skills 鎶€鑳藉垪琛?     * @return 鎶€鑳藉悕绉版槧灏?     */
     public static Map<String, McpSkill> buildSkillNameMap(List<McpSkill> skills) {
         Map<String, McpSkill> skillMap = new HashMap<>();
         for (McpSkill skill : skills) {
@@ -135,11 +118,8 @@ public class McpJsonParser {
     }
 
     /**
-     * 获取工具键值（技能名称:工具名称）到工具的映射
-     *
-     * @param skills 技能列表
-     * @return 工具键值映射
-     */
+     * 鑾峰彇宸ュ叿閿€硷紙鎶€鑳藉悕绉?宸ュ叿鍚嶇О锛夊埌宸ュ叿鐨勬槧灏?     *
+     * @param skills 鎶€鑳藉垪琛?     * @return 宸ュ叿閿€兼槧灏?     */
     public static Map<String, McpTool> buildToolKeyMap(List<McpSkill> skills) {
         Map<String, McpTool> toolMap = new HashMap<>();
         for (McpSkill skill : skills) {
@@ -154,10 +134,8 @@ public class McpJsonParser {
     }
 
     /**
-     * 获取所有输入槽位
-     *
-     * @param skills 技能列表
-     * @return 槽位列表
+     * 鑾峰彇鎵€鏈夎緭鍏ユЫ浣?     *
+     * @param skills 鎶€鑳藉垪琛?     * @return 妲戒綅鍒楄〃
      */
     public static List<InputSlot> getAllInputSlots(List<McpSkill> skills) {
         List<InputSlot> allSlots = new ArrayList<>();
@@ -174,10 +152,8 @@ public class McpJsonParser {
     }
 
     /**
-     * 获取所有输出槽位推断
-     *
-     * @param skills 技能列表
-     * @return 槽位列表
+     * 鑾峰彇鎵€鏈夎緭鍑烘Ы浣嶆帹鏂?     *
+     * @param skills 鎶€鑳藉垪琛?     * @return 妲戒綅鍒楄〃
      */
     public static List<OutputSlotInferred> getAllOutputSlots(List<McpSkill> skills) {
         List<OutputSlotInferred> allSlots = new ArrayList<>();
@@ -194,10 +170,9 @@ public class McpJsonParser {
     }
 
     /**
-     * 统计技能和工具数量
+     * 缁熻鎶€鑳藉拰宸ュ叿鏁伴噺
      *
-     * @param skills 技能列表
-     * @return 统计信息
+     * @param skills 鎶€鑳藉垪琛?     * @return 缁熻淇℃伅
      */
     public static Map<String, Integer> getStatistics(List<McpSkill> skills) {
         Map<String, Integer> stats = new HashMap<>();
@@ -229,11 +204,9 @@ public class McpJsonParser {
     }
 
     /**
-     * 将对象转换为JSON字符串
-     *
-     * @param obj 对象
-     * @return JSON字符串
-     * @throws IOException 转换异常
+     * 灏嗗璞¤浆鎹负JSON瀛楃涓?     *
+     * @param obj 瀵硅薄
+     * @return JSON瀛楃涓?     * @throws IOException 杞崲寮傚父
      */
     public static String toJson(Object obj) throws IOException {
         return objectMapper.writeValueAsString(obj);

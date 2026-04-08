@@ -1,0 +1,2 @@
+com.agentcommon.http.HttpEncodingAutoConfiguration
+com.agentcommon.log.LogKafkaAutoConfiguration

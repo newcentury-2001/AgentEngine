@@ -47,6 +47,42 @@ thread-pool:
     daemon: false
     reject-policy: degrade
   redis-io:
+    # 仅用于定时任务（如技能热度统计）中的 Redis 批量/扫描操作。
+    # 在线请求链路不要使用该线程池，避免额外排队与时延放大。
     core-cpu-ratio: 0.5
     daemon: false
     reject-policy: degrade
+
+agent:
+  http:
+    llm:
+      default-connect-timeout-ms: ${zhipu.connect-timeout-ms:1000}
+      default-executor-threads: 8
+      default-model: ${zhipu.discovery-model:glm-4-flash}
+      pools:
+        glm-4-flash:
+          connect-timeout-ms: ${zhipu.connect-timeout-ms:1000}
+          executor-threads: ${zhipu.discovery-max-inflight:4}
+        "glm-4.5":
+          connect-timeout-ms: ${zhipu.connect-timeout-ms:1000}
+          executor-threads: ${zhipu.semantic-max-inflight:6}
+        embedding-3:
+          connect-timeout-ms: ${zhipu.connect-timeout-ms:1000}
+          executor-threads: ${zhipu.embedding-max-inflight:8}
+
+  log:
+    kafka:
+      producer:
+        enabled: false
+        topic: agent.log.events
+        app-name: ${spring.application.name:agent-engine}
+        module-name: ${spring.application.name:agent-engine}
+        env-name: ${app.env:dev}
+
+spring:
+  kafka:
+    bootstrap-servers: ${app.network.wg-host:10.10.10.1}:9092
+    producer:
+      acks: 1
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer

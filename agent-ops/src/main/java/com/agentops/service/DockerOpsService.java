@@ -97,6 +97,7 @@ public class DockerOpsService {
     public Map<String, Object> uploadBundleFiles() {
         List<String[]> files = new ArrayList<>();
         files.add(new String[]{"ops-bundle/sql/init_xxl_mysql.sql", resolveSqlRemoteDir() + "/init_xxl_mysql.sql"});
+        files.add(new String[]{"ops-bundle/sql/init_log_mysql.sql", resolveSqlRemoteDir() + "/init_log_mysql.sql"});
         files.add(new String[]{"ops-bundle/sql/init_skill_pg.sql", resolveSqlRemoteDir() + "/init_skill_pg.sql"});
         files.add(new String[]{"ops-bundle/sql/init_slot_pg.sql", resolveSqlRemoteDir() + "/init_slot_pg.sql"});
         files.add(new String[]{"ops-bundle/sql/init_slot_seed_pg.sql", resolveSqlRemoteDir() + "/init_slot_seed_pg.sql"});
@@ -112,6 +113,7 @@ public class DockerOpsService {
     public Map<String, Object> uploadSqlBundleFiles() {
         List<String[]> files = new ArrayList<>();
         files.add(new String[]{"ops-bundle/sql/init_xxl_mysql.sql", resolveSqlRemoteDir() + "/init_xxl_mysql.sql"});
+        files.add(new String[]{"ops-bundle/sql/init_log_mysql.sql", resolveSqlRemoteDir() + "/init_log_mysql.sql"});
         files.add(new String[]{"ops-bundle/sql/init_skill_pg.sql", resolveSqlRemoteDir() + "/init_skill_pg.sql"});
         files.add(new String[]{"ops-bundle/sql/init_slot_pg.sql", resolveSqlRemoteDir() + "/init_slot_pg.sql"});
         files.add(new String[]{"ops-bundle/sql/init_slot_seed_pg.sql", resolveSqlRemoteDir() + "/init_slot_seed_pg.sql"});

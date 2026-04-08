@@ -1,9 +1,9 @@
 package com.agentengine.skill.parser;
 
-import com.agentengine.skill.model.InputSlot;
-import com.agentengine.skill.model.McpSkill;
-import com.agentengine.skill.model.McpTool;
-import com.agentengine.skill.model.OutputSlotInferred;
+import com.agentcommon.mcp.model.InputSlot;
+import com.agentcommon.mcp.model.McpSkill;
+import com.agentcommon.mcp.model.McpTool;
+import com.agentcommon.mcp.model.OutputSlotInferred;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -16,7 +16,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * MCP JSON解析器测试类
+ * MCP JSON瑙ｆ瀽鍣ㄦ祴璇曠被
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class McpJsonParserTest {
@@ -26,7 +26,7 @@ class McpJsonParserTest {
 
     @BeforeAll
     void setup() throws IOException {
-        // 解析JSON文件
+        // 瑙ｆ瀽JSON鏂囦欢
         File file = new File(JSON_FILE_PATH);
         if (!file.exists()) {
             System.err.println("Warning: JSON file not found at " + JSON_FILE_PATH);
@@ -155,8 +155,7 @@ class McpJsonParserTest {
         assertNotNull(skillMap, "Skill map should not be null");
         assertEquals(skills.size(), skillMap.size(), "Skill map size should match skills size");
 
-        // 测试通过技能名称查找
-        String firstSkillName = skills.get(0).getSkillName();
+        // 娴嬭瘯閫氳繃鎶€鑳藉悕绉版煡鎵?        String firstSkillName = skills.get(0).getSkillName();
         McpSkill foundSkill = skillMap.get(firstSkillName);
         assertNotNull(foundSkill, "Skill should be found by name");
         assertEquals(firstSkillName, foundSkill.getSkillName(), "Found skill should match");
@@ -173,8 +172,7 @@ class McpJsonParserTest {
         Map<String, McpTool> toolMap = McpJsonParser.buildToolKeyMap(skills);
         assertNotNull(toolMap, "Tool map should not be null");
 
-        // 测试通过工具键查找
-        if (!skills.get(0).getTools().isEmpty()) {
+        // 娴嬭瘯閫氳繃宸ュ叿閿煡鎵?        if (!skills.get(0).getTools().isEmpty()) {
             McpSkill firstSkill = skills.get(0);
             McpTool firstTool = firstSkill.getTools().get(0);
             String toolKey = firstSkill.getSkillName() + ":" + firstTool.getToolName();
@@ -234,8 +232,7 @@ class McpJsonParserTest {
 
     @Test
     void testParseFromJsonString() throws IOException {
-        // 创建简单的测试JSON字符串
-        String testJson = "[" +
+        // 鍒涘缓绠€鍗曠殑娴嬭瘯JSON瀛楃涓?        String testJson = "[" +
             "{\"skillName\":\"test\"," +
             "\"skillDescription\":\"test skill\"," +
             "\"intent\":\"query\"," +
@@ -256,7 +253,7 @@ class McpJsonParserTest {
             return;
         }
 
-        // 转换第一个技能为JSON
+        // 杞崲绗竴涓妧鑳戒负JSON
         String json = McpJsonParser.toJson(skills.get(0));
         assertNotNull(json, "JSON string should not be null");
         assertFalse(json.isEmpty(), "JSON string should not be empty");

@@ -1,8 +1,10 @@
 package com.agentops.service;
 
 import com.agentcommon.concurrent.NamedTaskRunnable;
-import com.agentcommon.http.EncodingRepairResult;
-import com.agentcommon.http.HttpHelper;
+import com.agentcommon.concurrent.TaskContext;
+import com.agentcommon.http.HttpRequestClient;
+import com.agentcommon.http.LlmHttpClientRouter;
+import com.agentcommon.http.ZhipuHttpProtocol;
 import com.agentops.config.OpsMcpProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,7 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -39,15 +40,21 @@ public class McpToolListOpsService {
     private final OpsMcpProperties properties;
     private final ObjectMapper objectMapper;
     private final ExecutorService mcpIoExecutor;
+    private final HttpRequestClient httpRequestClient;
+    private final LlmHttpClientRouter llmHttpClientRouter;
 
     public McpToolListOpsService(
             OpsMcpProperties properties,
             ObjectMapper objectMapper,
-            @Qualifier("mcpIoExecutor") ExecutorService mcpIoExecutor
+            @Qualifier("mcpIoExecutor") ExecutorService mcpIoExecutor,
+            HttpRequestClient httpRequestClient,
+            LlmHttpClientRouter llmHttpClientRouter
     ) {
         this.properties = properties;
         this.objectMapper = objectMapper;
         this.mcpIoExecutor = mcpIoExecutor;
+        this.httpRequestClient = httpRequestClient;
+        this.llmHttpClientRouter = llmHttpClientRouter;
     }
 
     public Map<String, Object> exportToolsListToMarkdown() {
@@ -127,7 +134,7 @@ public class McpToolListOpsService {
         return results;
     }
 
-    private List<ToolItem> listTools(String serverLabel, String serverUrl) throws IOException {
+    private List<ToolItem> listTools(String serverLabel, String serverUrl) throws Exception {
         ObjectNode req = objectMapper.createObjectNode();
         req.put("model", safe(properties.getModel(), "glm-4-flash"));
         req.put("stream", false);
@@ -136,7 +143,7 @@ public class McpToolListOpsService {
         ArrayNode messages = objectMapper.createArrayNode();
         ObjectNode user = objectMapper.createObjectNode();
         user.put("role", "user");
-        user.put("content", "仅调用 mcp_list_tools，不要总结，不要改写描述。");
+        user.put("content", "Only call mcp_list_tools. Do not summarize and do not rewrite descriptions.");
         messages.add(user);
         req.set("messages", messages);
 
@@ -148,28 +155,22 @@ public class McpToolListOpsService {
         mcp.put("server_label", serverLabel);
         mcp.put("server_url", serverUrl);
         ObjectNode headers = objectMapper.createObjectNode();
-        headers.put("Authorization", "Bearer " + properties.getApiKey().trim());
+        headers.put("Authorization", ZhipuHttpProtocol.bearerValue(properties.getApiKey()));
         mcp.set("headers", headers);
         tool.set("mcp", mcp);
         tools.add(tool);
         req.set("tools", tools);
 
-        String base = properties.getBaseUrl().endsWith("/")
-                ? properties.getBaseUrl().substring(0, properties.getBaseUrl().length() - 1)
-                : properties.getBaseUrl();
+        Map<String, String> httpHeaders = ZhipuHttpProtocol.jsonHeaders(properties.getApiKey());
 
-        // 使用 HttpHelper 发送请求
-        Map<String, String> httpHeaders = new HashMap<>();
-        httpHeaders.put("Content-Type", "application/json");
-        httpHeaders.put("Authorization", "Bearer " + properties.getApiKey().trim());
-
-        EncodingRepairResult response = HttpHelper.post(
-                base + "/chat/completions",
+        String responseBody = httpRequestClient.post(
+                llmHttpClientRouter.getClient(properties.getModel()),
+                ZhipuHttpProtocol.endpoint(properties.getBaseUrl(), ZhipuHttpProtocol.CHAT_COMPLETIONS_PATH),
                 objectMapper.writeValueAsString(req),
                 httpHeaders
         );
 
-        String responseBody = response.getRepaired();
+
         if (!responseBody.startsWith("{") && !responseBody.startsWith("[")) {
             throw new IllegalStateException("http response not json: " + trim(responseBody, 300));
         }
@@ -433,7 +434,6 @@ public class McpToolListOpsService {
             throw new IllegalStateException("write output markdown failed", e);
         }
     }
-
     private void writeJson(Path outputPath, List<ResultEntry> results) {
         try {
             if (outputPath.getParent() != null) {
@@ -466,6 +466,7 @@ public class McpToolListOpsService {
 
     private <T> CompletableFuture<T> supplyAsyncNamed(String taskName, java.util.function.Supplier<T> supplier) {
         CompletableFuture<T> future = new CompletableFuture<>();
+        TaskContext taskContext = TaskContext.capture("McpToolListOpsService", taskName);
         Runnable delegate = () -> {
             try {
                 future.complete(supplier.get());
@@ -474,7 +475,7 @@ public class McpToolListOpsService {
             }
         };
         try {
-            mcpIoExecutor.execute(new NamedTaskRunnable("McpToolListOpsService", taskName, delegate));
+            mcpIoExecutor.execute(new NamedTaskRunnable(taskContext, delegate));
         } catch (RejectedExecutionException ex) {
             future.completeExceptionally(ex);
         }
@@ -551,4 +552,3 @@ public class McpToolListOpsService {
         }
     }
 }
-

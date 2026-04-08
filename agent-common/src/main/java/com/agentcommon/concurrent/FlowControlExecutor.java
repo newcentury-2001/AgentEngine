@@ -22,7 +22,8 @@ import java.util.concurrent.TimeoutException;
 public class FlowControlExecutor implements ExecutorService {
 
     private static final Logger log = LoggerFactory.getLogger(FlowControlExecutor.class);
-    private static final String TRACE_ID_KEY = "traceId";
+    private static final String TRACE_ID_KEY = TaskContext.TRACE_ID_KEY;
+    private static final String TASK_ID_KEY = TaskContext.TASK_ID_KEY;
 
     private final ExecutorFactory.PoolType poolType;
     private final String poolName;
@@ -151,7 +152,8 @@ public class FlowControlExecutor implements ExecutorService {
     private void acquireOrThrow() {
         if (limiter != null && !limiter.tryAcquire()) {
             String traceId = traceId();
-            log.warn("qps limited, traceId={}, poolType={}, poolName={}", traceId, poolType.name(), poolName);
+            String taskId = taskId();
+            log.warn("qps limited, traceId={}, taskId={}, poolType={}, poolName={}", traceId, taskId, poolType.name(), poolName);
             throw new ExecutorSaturatedException(
                     poolType.name(),
                     poolName,
@@ -168,7 +170,8 @@ public class FlowControlExecutor implements ExecutorService {
         SlidingWindowCircuitBreaker.AcquireDecision decision = circuitBreaker.tryAcquire();
         if (!decision.allowed()) {
             String traceId = traceId();
-            log.warn("circuit breaker open, traceId={}, poolType={}, poolName={}", traceId, poolType.name(), poolName);
+            String taskId = taskId();
+            log.warn("circuit breaker open, traceId={}, taskId={}, poolType={}, poolName={}", traceId, taskId, poolType.name(), poolName);
             throw new ExecutorSaturatedException(
                     poolType.name(),
                     poolName,
@@ -187,6 +190,11 @@ public class FlowControlExecutor implements ExecutorService {
 
     private String traceId() {
         String id = MDC.get(TRACE_ID_KEY);
+        return (id == null || id.isBlank()) ? "-" : id;
+    }
+
+    private String taskId() {
+        String id = MDC.get(TASK_ID_KEY);
         return (id == null || id.isBlank()) ? "-" : id;
     }
 }

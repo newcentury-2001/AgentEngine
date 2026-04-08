@@ -1,0 +1,51 @@
+server:
+  port: 18081
+
+app:
+  network:
+    wg-host: 10.10.10.1
+
+spring:
+  application:
+    name: agent-log-consumer
+  datasource:
+    url: jdbc:mysql://${app.network.wg-host}:3306/xxl_job?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: AgentLogConsumerHikariPool
+      minimum-idle: 2
+      maximum-pool-size: 10
+      connection-timeout: 1000
+      validation-timeout: 2000
+  kafka:
+    bootstrap-servers: ${app.network.wg-host}:9092
+    consumer:
+      group-id: agent-log-consumer-group
+      auto-offset-reset: latest
+      enable-auto-commit: false
+      max-poll-records: 200
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    listener:
+      ack-mode: manual
+
+agent:
+  log:
+    kafka:
+      consumer:
+        enabled: true
+        topic: agent.log.events
+        group-id: ${spring.kafka.consumer.group-id}
+        concurrency: 3
+        batch-size: ${spring.kafka.consumer.max-poll-records}
+    db-executor:
+      queue-size: 500
+      qps-limit-per-partition: 200
+      thread-name-prefix: log-db-persist
+
+logging:
+  level:
+    root: info
+    com.agentlog: info

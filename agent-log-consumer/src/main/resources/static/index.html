@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>日志异常查询</title>
+  <style>
+    :root { --line:#dbe4ef; --text:#0f172a; --muted:#64748b; --primary:#1d4ed8; --bg:#f6f8fb; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; }
+    .wrap { max-width:1200px; margin:24px auto; padding:0 16px; }
+    .card { background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:14px; }
+    h1 { margin:0 0 8px; font-size:24px; }
+    .sub { color:var(--muted); margin-bottom:12px; font-size:14px; }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(180px,1fr)); gap:10px; }
+    .field label { display:block; font-size:12px; color:#334155; margin-bottom:6px; }
+    .field input { width:100%; border:1px solid var(--line); border-radius:8px; padding:8px; font-size:13px; }
+    .btns { margin-top:10px; display:flex; gap:8px; }
+    button { border:0; border-radius:8px; padding:9px 14px; cursor:pointer; font-weight:700; }
+    .b-main { background:var(--primary); color:#fff; }
+    .b-plain { background:#e2e8f0; color:#0f172a; }
+    .meta { margin:8px 0; font-size:13px; color:#334155; }
+    table { width:100%; border-collapse:collapse; background:#fff; }
+    th, td { border-bottom:1px solid var(--line); padding:8px; text-align:left; vertical-align:top; font-size:12px; }
+    th { background:#f8fafc; }
+    .mono { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+    @media (max-width:960px) { .grid { grid-template-columns:repeat(2,minmax(140px,1fr)); } }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>日志异常查询</h1>
+    <div class="sub">查询条件会调用 <code>/api/log-events/errors</code>，默认仅返回异常日志。</div>
+    <div class="grid">
+      <div class="field"><label>traceId</label><input id="traceId" /></div>
+      <div class="field"><label>taskId</label><input id="taskId" /></div>
+      <div class="field"><label>level</label><input id="level" placeholder="ERROR" /></div>
+      <div class="field"><label>eventType</label><input id="eventType" /></div>
+      <div class="field"><label>keyword</label><input id="keyword" /></div>
+      <div class="field"><label>startTimeMs</label><input id="startTimeMs" placeholder="1735689600000" /></div>
+      <div class="field"><label>endTimeMs</label><input id="endTimeMs" placeholder="1735776000000" /></div>
+      <div class="field"><label>size</label><input id="size" value="20" /></div>
+    </div>
+    <div class="btns">
+      <button class="b-main" id="searchBtn">查询</button>
+      <button class="b-plain" id="prevBtn">上一页</button>
+      <button class="b-plain" id="nextBtn">下一页</button>
+    </div>
+    <div class="meta" id="meta">page=1, total=0</div>
+  </div>
+
+  <div class="card">
+    <table>
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>时间</th>
+        <th>级别</th>
+        <th>事件</th>
+        <th>traceId</th>
+        <th>taskId</th>
+        <th>服务/方法</th>
+        <th>消息</th>
+        <th>异常</th>
+      </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+let page = 1;
+function $(id) { return document.getElementById(id); }
+function esc(v) {
+  const s = v == null ? "" : String(v);
+  return s.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+}
+function val(id) { return $(id).value.trim(); }
+function buildQuery() {
+  const q = new URLSearchParams();
+  const fields = ["traceId","taskId","level","eventType","keyword","startTimeMs","endTimeMs","size"];
+  for (const f of fields) {
+    const v = val(f);
+    if (v) q.set(f, v);
+  }
+  q.set("page", String(page));
+  return q.toString();
+}
+async function search() {
+  const resp = await fetch(`/api/log-events/errors?${buildQuery()}`);
+  const data = await resp.json();
+  const items = Array.isArray(data.items) ? data.items : [];
+  $("meta").textContent = `page=${data.page || page}, size=${data.size || 0}, total=${data.total || 0}`;
+  const rows = items.map(it => `
+    <tr>
+      <td>${esc(it.id)}</td>
+      <td>${esc(it.eventTime)}</td>
+      <td>${esc(it.level)}</td>
+      <td>${esc(it.eventType)}</td>
+      <td class="mono">${esc(it.traceId)}</td>
+      <td class="mono">${esc(it.taskId)}</td>
+      <td>${esc((it.serviceName || "") + "#" + (it.methodName || ""))}</td>
+      <td>${esc(it.message)}</td>
+      <td>${esc(it.exceptionClass)}</td>
+    </tr>
+  `).join("");
+  $("rows").innerHTML = rows || `<tr><td colspan="9">暂无数据</td></tr>`;
+}
+$("searchBtn").addEventListener("click", async () => { page = 1; await search(); });
+$("prevBtn").addEventListener("click", async () => { if (page > 1) { page--; await search(); } });
+$("nextBtn").addEventListener("click", async () => { page++; await search(); });
+search().catch(console.error);
+</script>
+</body>
+</html>

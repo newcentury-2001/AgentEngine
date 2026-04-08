@@ -21,6 +21,7 @@
         <module>agent-common</module>
         <module>agent-business</module>
         <module>agent-ops</module>
+        <module>agent-log-consumer</module>
     </modules>
 
     <properties>
