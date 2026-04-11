@@ -6,7 +6,7 @@
                   "toolCount":  88,
                   "toolSlotCount":  142,
                   "commonSlotCount":  19,
-                  "whitelistCount":  142,
+                  "whitelistCount":  147,
                   "commonThreshold":  3
               },
     "commonSlots":  [
@@ -316,6 +316,14 @@
                       "with_images_summary",
                       "with_links_summary",
                       "year",
-                      "zipcode"
-                  ]
+                      "zipcode",
+                      "policy",
+                      "item",
+                      "search",
+                      "lottery_name",
+                      "parent_id"
+                  ],
+    "aliasToCanonical":  {
+
+                         }
 }

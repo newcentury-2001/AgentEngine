@@ -3,7 +3,7 @@
 目标：
 1) 生成工具短描述 description（中文，30字以内，不要模板化语句，不要重复工具名）。
 2) 基于 inputSchema 抽取输入槽位 inputSlots。
-3) 给每个 field 映射 slotKey（优先从全局槽位中选择最接近语义的键；无法匹配时可自定义，但需 snake_case）。
+3) 给每个 field 映射 slotKey（必须从全局槽位中选择最接近语义的键，不允许自定义新键）。
 
 输出格式（只允许 JSON，不要解释文本）：
 {
@@ -23,6 +23,7 @@
 - slotKey 使用小写 snake_case。
 - field 必须对应 inputSchema 中真实存在的参数。
 - 如果 inputSchema 缺失，inputSlots 返回空数组。
+- 如上次输出有未命中白名单的 slotKey，请优先修正这些键并严格落在 globalSlots 中。
 
 输入：
 skillName={{skillName}}
@@ -30,3 +31,4 @@ toolName={{toolName}}
 toolDescription={{toolDescription}}
 inputSchema={{inputSchema}}
 globalSlots={{globalSlots}}
+lastWhitelistMisses={{lastWhitelistMisses}}

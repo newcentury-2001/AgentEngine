@@ -79,6 +79,7 @@ ops:
     clean-system-prompt-path: ./prompts/mcp_clean_system_prompt.txt
     clean-tool-prompt-path: ./prompts/mcp_clean_tool_prompt.txt
     clean-skill-prompt-path: ./prompts/mcp_clean_skill_prompt.txt
+    clean-slot-whitelist-path: ./dataset/slot_whitelist.json
 
 rocketmq:
   name-server: ${app.network.wg-host}:9876

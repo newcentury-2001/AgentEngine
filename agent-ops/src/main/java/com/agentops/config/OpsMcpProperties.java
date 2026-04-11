@@ -25,6 +25,7 @@ public class OpsMcpProperties {
     private String cleanSystemPromptPath = "./prompts/mcp_clean_system_prompt.txt";
     private String cleanToolPromptPath = "./prompts/mcp_clean_tool_prompt.txt";
     private String cleanSkillPromptPath = "./prompts/mcp_clean_skill_prompt.txt";
+    private String cleanSlotWhitelistPath = "./dataset/slot_whitelist.json";
     private int summaryBackupMaxFiles = 20;
 
     public boolean isEnabled() {
@@ -169,6 +170,14 @@ public class OpsMcpProperties {
 
     public void setCleanSkillPromptPath(String cleanSkillPromptPath) {
         this.cleanSkillPromptPath = cleanSkillPromptPath;
+    }
+
+    public String getCleanSlotWhitelistPath() {
+        return cleanSlotWhitelistPath;
+    }
+
+    public void setCleanSlotWhitelistPath(String cleanSlotWhitelistPath) {
+        this.cleanSlotWhitelistPath = cleanSlotWhitelistPath;
     }
 
     public int getSummaryBackupMaxFiles() {

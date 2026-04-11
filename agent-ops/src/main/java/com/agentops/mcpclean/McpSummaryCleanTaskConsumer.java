@@ -74,6 +74,7 @@ public class McpSummaryCleanTaskConsumer implements RocketMQListener<String> {
             retry.setTaskId(message.getTaskId());
             retry.setSkillName(message.getSkillName());
             retry.setPendingToolNames(result.retryToolNames());
+            retry.setSlotMissHints(mergeSlotMissHints(message, result));
             retry.setSkillPending(result.retrySkill() || hasRetryTools);
             retry.setRetryCount(currentRetry + 1);
             retry.setMaxRetry(maxRetry);
@@ -87,11 +88,14 @@ public class McpSummaryCleanTaskConsumer implements RocketMQListener<String> {
                 tryFinalizeTask(retry.getTaskId());
                 return;
             }
+            String retryReason = buildRetryReason(result);
+            log.warn("mcp clean delayed retry scheduled. taskId={}, skill={}, retry={}, reason={}",
+                    retry.getTaskId(), retry.getSkillName(), retry.getRetryCount(), retryReason);
             taskTracker.markRetrying(
                     retry.getTaskId(),
                     retry.getSkillName(),
                     retry.getRetryCount(),
-                    "partial retry scheduled"
+                    retryReason
             );
         } catch (Exception ex) {
             log.error("mcp summary clean consume failed. taskId={}",
@@ -113,12 +117,15 @@ public class McpSummaryCleanTaskConsumer implements RocketMQListener<String> {
         retry.setTaskId(message.getTaskId());
         retry.setSkillName(message.getSkillName());
         retry.setPendingToolNames(message.getPendingToolNames());
+        retry.setSlotMissHints(message.getSlotMissHints());
         retry.setSkillPending(message.getSkillPending());
         retry.setRetryCount(currentRetry + 1);
         retry.setMaxRetry(maxRetry);
         retry.setCreatedAtEpochMs(message.getCreatedAtEpochMs());
         boolean ok = publisher.sendWithDelayRetry(retry, retry.getRetryCount());
         if (ok) {
+            log.warn("mcp clean delayed retry scheduled by exception. taskId={}, skill={}, retry={}, reason={}",
+                    retry.getTaskId(), retry.getSkillName(), retry.getRetryCount(), reason);
             taskTracker.markRetrying(retry.getTaskId(), retry.getSkillName(), retry.getRetryCount(), reason);
         } else {
             taskTracker.markSkillFailed(retry.getTaskId(), retry.getSkillName(), "publish delayed retry failed");
@@ -145,6 +152,58 @@ public class McpSummaryCleanTaskConsumer implements RocketMQListener<String> {
 
     private String safe(String v) {
         return v == null ? "-" : v.trim();
+    }
+
+    private String buildRetryReason(McpSummaryLlmCleanService.TaskProcessResult result) {
+        java.util.List<String> tools = result.retryToolNames() == null ? java.util.List.of() : result.retryToolNames();
+        java.util.Map<String, java.util.List<String>> misses = result.slotMissHints() == null
+                ? java.util.Map.of()
+                : result.slotMissHints();
+        if (tools.isEmpty()) {
+            return "partial retry scheduled";
+        }
+        if (misses.isEmpty()) {
+            return "partial retry scheduled, retryTools=" + tools;
+        }
+        StringBuilder sb = new StringBuilder("slot whitelist miss, retryTools=").append(tools).append(", misses=");
+        int count = 0;
+        for (java.util.Map.Entry<String, java.util.List<String>> entry : misses.entrySet()) {
+            if (count > 0) {
+                sb.append("; ");
+            }
+            sb.append(entry.getKey()).append(":").append(entry.getValue());
+            count++;
+            if (count >= 5) {
+                if (misses.size() > count) {
+                    sb.append(" ...");
+                }
+                break;
+            }
+        }
+        return sb.toString();
+    }
+
+    private java.util.Map<String, java.util.List<String>> mergeSlotMissHints(
+            McpSummaryCleanTaskMessage source,
+            McpSummaryLlmCleanService.TaskProcessResult result) {
+        java.util.Map<String, java.util.List<String>> out = new java.util.LinkedHashMap<>();
+        if (source.getSlotMissHints() != null) {
+            out.putAll(source.getSlotMissHints());
+        }
+        if (result.slotMissHints() != null) {
+            for (java.util.Map.Entry<String, java.util.List<String>> entry : result.slotMissHints().entrySet()) {
+                String tool = entry.getKey();
+                java.util.List<String> misses = entry.getValue();
+                if (tool == null || tool.isBlank() || misses == null || misses.isEmpty()) {
+                    continue;
+                }
+                out.put(tool, misses);
+            }
+        }
+        if (result.retryToolNames() != null && !result.retryToolNames().isEmpty()) {
+            out.keySet().retainAll(new java.util.HashSet<>(result.retryToolNames()));
+        }
+        return out.isEmpty() ? null : out;
     }
 
     private void tryFinalizeTask(String taskId) {

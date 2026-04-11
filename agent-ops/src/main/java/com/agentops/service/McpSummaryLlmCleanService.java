@@ -28,9 +28,13 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -49,8 +53,11 @@ public class McpSummaryLlmCleanService {
     private static final String CTX_TOOL_DESC_HASH_PREFIX = "mcpclean:ctx:tooldesc:";
     private static final String CTX_TOOL_SLOTS_HASH_PREFIX = "mcpclean:ctx:toolslots:";
     private static final String CTX_SKILL_TAGS_HASH_PREFIX = "mcpclean:ctx:skilltags:";
+    private static final String CTX_SLOT_WHITELIST_PREFIX = "mcpclean:ctx:slots:";
+    private static final String CTX_SLOT_ALIAS_PREFIX = "mcpclean:ctx:slot-alias:";
     private static final String CTX_FINALIZED_PREFIX = "mcpclean:ctx:finalized:";
     private static final String CTX_FINALIZING_PREFIX = "mcpclean:ctx:finalizing:";
+    private static final String SUMMARY_WRITE_LOCK_KEY = "mcpclean:summary:write:lock";
 
     private final OpsMcpProperties properties;
     private final ObjectMapper objectMapper;
@@ -135,14 +142,21 @@ public class McpSummaryLlmCleanService {
 
         List<String> pendingToolNames = normalizePendingToolNames(task, skill);
         List<String> retryToolNames = new ArrayList<>();
+        Map<String, List<String>> slotMissHints = new LinkedHashMap<>();
         for (McpTool tool : safeTools(skill)) {
             String toolName = safe(tool.getToolName());
             if (toolName.isBlank() || !pendingToolNames.contains(toolName)) {
                 continue;
             }
-            LlmCleanResult toolDesc = cleanToolDescriptionWithLlm(skill, tool);
+            List<String> previousMisses = findPreviousMisses(task, toolName);
+            LlmCleanResult toolDesc = cleanToolDescriptionWithLlm(task.getTaskId(), skill, tool, previousMisses);
             if (toolDesc.retryable) {
                 retryToolNames.add(toolName);
+                if (toolDesc.invalidSlotKeys != null && !toolDesc.invalidSlotKeys.isEmpty()) {
+                    slotMissHints.put(toolName, toolDesc.invalidSlotKeys);
+                } else if (!previousMisses.isEmpty()) {
+                    slotMissHints.put(toolName, previousMisses);
+                }
                 continue;
             }
             String normalizedToolDesc = normalizeDesc(toolDesc.description);
@@ -156,7 +170,7 @@ public class McpSummaryLlmCleanService {
             }
         }
         if (!retryToolNames.isEmpty()) {
-            return new TaskProcessResult(retryToolNames, false);
+            return new TaskProcessResult(retryToolNames, false, slotMissHints);
         }
 
         boolean retrySkill = false;
@@ -177,7 +191,7 @@ public class McpSummaryLlmCleanService {
                 }
             }
         }
-        return new TaskProcessResult(retryToolNames, retrySkill);
+        return new TaskProcessResult(retryToolNames, retrySkill, slotMissHints);
     }
 
     public boolean finalizeTask(String taskId) {
@@ -304,6 +318,19 @@ public class McpSummaryLlmCleanService {
             stringRedisTemplate.delete(ctxToolDescKey(taskId));
             stringRedisTemplate.delete(ctxToolSlotsKey(taskId));
             stringRedisTemplate.delete(ctxSkillTagsKey(taskId));
+            SlotWhitelistData whitelistData = loadGlobalSlotsFromWhitelistFile();
+            stringRedisTemplate.opsForValue().set(
+                    ctxSlotWhitelistKey(taskId),
+                    objectMapper.writeValueAsString(whitelistData.globalSlots),
+                    Math.max(1, contextTtlHours),
+                    TimeUnit.HOURS
+            );
+            stringRedisTemplate.opsForValue().set(
+                    ctxSlotAliasKey(taskId),
+                    objectMapper.writeValueAsString(whitelistData.aliasToCanonical),
+                    Math.max(1, contextTtlHours),
+                    TimeUnit.HOURS
+            );
             stringRedisTemplate.delete(CTX_FINALIZED_PREFIX + taskId);
         } catch (Exception e) {
             throw new IllegalStateException("init mcp clean task context failed. taskId=" + taskId, e);
@@ -419,6 +446,8 @@ public class McpSummaryLlmCleanService {
         stringRedisTemplate.delete(ctxToolDescKey(taskId));
         stringRedisTemplate.delete(ctxToolSlotsKey(taskId));
         stringRedisTemplate.delete(ctxSkillTagsKey(taskId));
+        stringRedisTemplate.delete(ctxSlotWhitelistKey(taskId));
+        stringRedisTemplate.delete(ctxSlotAliasKey(taskId));
     }
 
     private String ctxBaseKey(String taskId) {
@@ -439,6 +468,14 @@ public class McpSummaryLlmCleanService {
 
     private String ctxSkillTagsKey(String taskId) {
         return CTX_SKILL_TAGS_HASH_PREFIX + safe(taskId);
+    }
+
+    private String ctxSlotWhitelistKey(String taskId) {
+        return CTX_SLOT_WHITELIST_PREFIX + safe(taskId);
+    }
+
+    private String ctxSlotAliasKey(String taskId) {
+        return CTX_SLOT_ALIAS_PREFIX + safe(taskId);
     }
 
     private String toolDescField(String skillName, String toolName) {
@@ -467,25 +504,149 @@ public class McpSummaryLlmCleanService {
         return normalized.isEmpty() ? all : normalized;
     }
 
-    private LlmCleanResult cleanToolDescriptionWithLlm(McpSkill skill, McpTool tool) {
+    private LlmCleanResult cleanToolDescriptionWithLlm(
+            String taskId,
+            McpSkill skill,
+            McpTool tool,
+            List<String> lastWhitelistMisses) {
         try {
+            List<Map<String, String>> globalSlots = loadGlobalSlotsForTask(taskId);
             String promptTemplate = readPromptTemplate(properties.getCleanToolPromptPath());
             String prompt = promptTemplate
                     .replace("{{skillName}}", safe(skill.getSkillName()))
                     .replace("{{toolName}}", safe(tool.getToolName()))
                     .replace("{{toolDescription}}", safe(tool.getToolDescription()))
                     .replace("{{inputSchema}}", toJson(tool.getInputSchema()))
-                    .replace("{{globalSlots}}", toJson(defaultGlobalSlots()));
+                    .replace("{{globalSlots}}", toJson(globalSlots))
+                    .replace("{{lastWhitelistMisses}}", toJson(lastWhitelistMisses == null ? List.of() : lastWhitelistMisses));
             JsonNode cleaned = callLlmForJson(prompt);
             String description = safe(cleaned.path("description").asText(""));
             List<InputSlot> slots = parseInputSlotsNode(cleaned.path("inputSlots"), tool);
-            return new LlmCleanResult(description, slots, List.of(), false);
+            Map<String, String> aliasToCanonical = loadSlotAliasMapForTask(taskId);
+            normalizeSlotKeysWithAlias(slots, aliasToCanonical);
+            Set<String> whitelist = loadGlobalSlotKeySetForTask(taskId);
+            if (!whitelist.isEmpty()) {
+                List<String> invalid = findInvalidSlotKeys(slots, whitelist);
+                if (!invalid.isEmpty()) {
+                    return new LlmCleanResult("", List.of(), List.of(), true, invalid);
+                }
+            }
+            return new LlmCleanResult(description, slots, List.of(), false, List.of());
         } catch (Exception ex) {
             if (isRetryable(ex)) {
-                return new LlmCleanResult("", List.of(), List.of(), true);
+                return new LlmCleanResult("", List.of(), List.of(), true, List.of());
             }
-            return new LlmCleanResult(safe(tool.getToolDescription()), List.of(), List.of(), false);
+            return new LlmCleanResult(safe(tool.getToolDescription()), List.of(), List.of(), false, List.of());
         }
+    }
+
+    private List<Map<String, String>> loadGlobalSlotsForTask(String taskId) {
+        try {
+            String raw = stringRedisTemplate.opsForValue().get(ctxSlotWhitelistKey(taskId));
+            if (raw == null || raw.isBlank()) {
+                return defaultGlobalSlots();
+            }
+            List<Map<String, String>> slots = objectMapper.readValue(raw, new TypeReference<List<Map<String, String>>>() {
+            });
+            if (slots == null || slots.isEmpty()) {
+                return defaultGlobalSlots();
+            }
+            return slots;
+        } catch (Exception e) {
+            return defaultGlobalSlots();
+        }
+    }
+
+    private SlotWhitelistData loadGlobalSlotsFromWhitelistFile() {
+        try {
+            Path whitelistPath = resolvePath(properties.getCleanSlotWhitelistPath());
+            if (!Files.exists(whitelistPath)) {
+                return defaultSlotWhitelistData();
+            }
+            JsonNode root = objectMapper.readTree(Files.newBufferedReader(whitelistPath, StandardCharsets.UTF_8));
+            List<String> keys = new ArrayList<>();
+            JsonNode whitelistNode = root.path("whitelist");
+            if (whitelistNode.isArray()) {
+                for (JsonNode one : whitelistNode) {
+                    String key = safe(one.asText(""));
+                    if (!key.isBlank()) {
+                        keys.add(key);
+                    }
+                }
+            }
+            if (keys.isEmpty()) {
+                JsonNode toolSlotsNode = root.path("toolSlots");
+                if (toolSlotsNode.isArray()) {
+                    for (JsonNode one : toolSlotsNode) {
+                        String key = safe(one.asText(""));
+                        if (!key.isBlank()) {
+                            keys.add(key);
+                        }
+                    }
+                }
+            }
+            if (keys.isEmpty()) {
+                return defaultSlotWhitelistData();
+            }
+            LinkedHashSet<String> canonicalKeys = new LinkedHashSet<>();
+            Map<String, String> aliasToCanonical = new LinkedHashMap<>();
+            for (String key : keys) {
+                String canonical = normalizeSlotKey(key);
+                if (canonical.isBlank()) {
+                    continue;
+                }
+                canonicalKeys.add(canonical);
+                String alias = normalizeSlotKey(key);
+                if (!alias.isBlank()) {
+                    aliasToCanonical.put(alias, canonical);
+                }
+                aliasToCanonical.put(canonical, canonical);
+            }
+            aliasToCanonical.putAll(parseAliasToCanonical(root));
+            if (canonicalKeys.isEmpty()) {
+                return defaultSlotWhitelistData();
+            }
+            List<Map<String, String>> slots = new ArrayList<>();
+            for (String key : canonicalKeys) {
+                slots.add(slotDef(key, ""));
+            }
+            return new SlotWhitelistData(slots, aliasToCanonical);
+        } catch (Exception e) {
+            return defaultSlotWhitelistData();
+        }
+    }
+
+    private SlotWhitelistData defaultSlotWhitelistData() {
+        List<Map<String, String>> slots = defaultGlobalSlots();
+        Map<String, String> aliasToCanonical = new LinkedHashMap<>();
+        for (Map<String, String> one : slots) {
+            String canonical = normalizeSlotKey(one.get("slotKey"));
+            if (!canonical.isBlank()) {
+                aliasToCanonical.put(canonical, canonical);
+            }
+        }
+        return new SlotWhitelistData(slots, aliasToCanonical);
+    }
+
+    private Map<String, String> parseAliasToCanonical(JsonNode root) {
+        if (root == null || root.isMissingNode() || root.isNull()) {
+            return Map.of();
+        }
+        JsonNode aliasNode = root.path("aliasToCanonical");
+        if (!aliasNode.isObject()) {
+            return Map.of();
+        }
+        Map<String, String> out = new LinkedHashMap<>();
+        var fields = aliasNode.fields();
+        while (fields.hasNext()) {
+            Map.Entry<String, JsonNode> entry = fields.next();
+            String alias = normalizeSlotKey(entry.getKey());
+            String canonical = normalizeSlotKey(entry.getValue() == null ? "" : entry.getValue().asText(""));
+            if (!alias.isBlank() && !canonical.isBlank()) {
+                out.put(alias, canonical);
+            }
+        }
+        return out;
     }
 
     private LlmCleanResult cleanSkillDescriptionWithLlm(McpSkill skill) {
@@ -524,10 +685,10 @@ public class McpSummaryLlmCleanService {
             if (intent.isBlank()) {
                 intent = "utility_tools";
             }
-            return new LlmCleanResult(description, List.of(), List.of(intent), false);
+            return new LlmCleanResult(description, List.of(), List.of(intent), false, List.of());
         } catch (Exception ex) {
             if (isRetryable(ex)) {
-                return new LlmCleanResult("", List.of(), List.of(), true);
+                return new LlmCleanResult("", List.of(), List.of(), true, List.of());
             }
             String intent = canonicalizeSkillTag(skill.getIntent());
             if (intent.isBlank()) {
@@ -539,8 +700,109 @@ public class McpSummaryLlmCleanService {
             if (intent.isBlank()) {
                 intent = "utility_tools";
             }
-            return new LlmCleanResult(safe(skill.getSkillDescription()), List.of(), List.of(intent), false);
+            return new LlmCleanResult(safe(skill.getSkillDescription()), List.of(), List.of(intent), false, List.of());
         }
+    }
+
+    private List<String> findPreviousMisses(McpSummaryCleanTaskMessage task, String toolName) {
+        if (task == null || task.getSlotMissHints() == null || task.getSlotMissHints().isEmpty()) {
+            return List.of();
+        }
+        List<String> misses = task.getSlotMissHints().get(toolName);
+        if (misses == null || misses.isEmpty()) {
+            return List.of();
+        }
+        LinkedHashSet<String> normalized = new LinkedHashSet<>();
+        for (String one : misses) {
+            String key = normalizeSlotKey(one);
+            if (!key.isBlank()) {
+                normalized.add(key);
+            }
+        }
+        return normalized.isEmpty() ? List.of() : new ArrayList<>(normalized);
+    }
+
+    private Set<String> loadGlobalSlotKeySetForTask(String taskId) {
+        List<Map<String, String>> slots = loadGlobalSlotsForTask(taskId);
+        if (slots == null || slots.isEmpty()) {
+            return Collections.emptySet();
+        }
+        Set<String> out = new HashSet<>();
+        for (Map<String, String> one : slots) {
+            if (one == null || one.isEmpty()) {
+                continue;
+            }
+            String key = normalizeSlotKey(safe(one.get("slotKey")));
+            if (!key.isBlank()) {
+                out.add(key);
+            }
+        }
+        return out;
+    }
+
+    private Map<String, String> loadSlotAliasMapForTask(String taskId) {
+        try {
+            String raw = stringRedisTemplate.opsForValue().get(ctxSlotAliasKey(taskId));
+            if (raw == null || raw.isBlank()) {
+                return Map.of();
+            }
+            Map<String, String> loaded = objectMapper.readValue(raw, new TypeReference<Map<String, String>>() {
+            });
+            if (loaded == null || loaded.isEmpty()) {
+                return Map.of();
+            }
+            Map<String, String> out = new LinkedHashMap<>();
+            for (Map.Entry<String, String> entry : loaded.entrySet()) {
+                String alias = normalizeSlotKey(entry.getKey());
+                String canonical = normalizeSlotKey(entry.getValue());
+                if (!alias.isBlank() && !canonical.isBlank()) {
+                    out.put(alias, canonical);
+                }
+            }
+            return out;
+        } catch (Exception e) {
+            return Map.of();
+        }
+    }
+
+    private void normalizeSlotKeysWithAlias(List<InputSlot> slots, Map<String, String> aliasToCanonical) {
+        if (slots == null || slots.isEmpty()) {
+            return;
+        }
+        for (InputSlot slot : slots) {
+            if (slot == null) {
+                continue;
+            }
+            String key = normalizeSlotKey(slot.getSlotKey());
+            if (key.isBlank()) {
+                key = normalizeSlotKey(slot.getFieldPath());
+            }
+            if (key.isBlank()) {
+                continue;
+            }
+            String canonical = aliasToCanonical == null ? null : aliasToCanonical.get(key);
+            slot.setSlotKey(canonical == null || canonical.isBlank() ? key : canonical);
+        }
+    }
+
+    private List<String> findInvalidSlotKeys(List<InputSlot> slots, Set<String> whitelist) {
+        if (slots == null || slots.isEmpty() || whitelist == null || whitelist.isEmpty()) {
+            return List.of();
+        }
+        LinkedHashSet<String> invalid = new LinkedHashSet<>();
+        for (InputSlot slot : slots) {
+            if (slot == null) {
+                continue;
+            }
+            String key = normalizeSlotKey(slot.getSlotKey());
+            if (key.isBlank()) {
+                continue;
+            }
+            if (!whitelist.contains(key)) {
+                invalid.add(key);
+            }
+        }
+        return invalid.isEmpty() ? List.of() : new ArrayList<>(invalid);
     }
 
     private String callLlmForDescription(String userPrompt) throws Exception {
@@ -814,10 +1076,13 @@ public class McpSummaryLlmCleanService {
     }
 
     private String normalizeSlotKey(String raw) {
-        String s = safe(raw).toLowerCase();
+        String s = safe(raw);
         if (s.isBlank()) {
             return "";
         }
+        s = s.replaceAll("([A-Z]+)([A-Z][a-z])", "$1_$2");
+        s = s.replaceAll("([a-z0-9])([A-Z])", "$1_$2");
+        s = s.toLowerCase();
         s = s.replaceAll("[^a-z0-9]+", "_");
         s = s.replaceAll("_+", "_");
         s = s.replaceAll("^_|_$", "");
@@ -1053,7 +1318,11 @@ public class McpSummaryLlmCleanService {
     }
 
     private void writeSummaryWithBackup(Path summaryPath, List<McpSkill> skills, String taskId) {
+        String lockToken = UUID.randomUUID().toString();
         try {
+            if (!tryAcquireSummaryWriteLock(lockToken, 30_000, 120)) {
+                throw new IllegalStateException("summary write lock busy");
+            }
             if (summaryPath.getParent() != null) {
                 Files.createDirectories(summaryPath.getParent());
             }
@@ -1068,6 +1337,47 @@ public class McpSummaryLlmCleanService {
             Files.writeString(summaryPath, json, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new IllegalStateException("write summary failed", e);
+        } finally {
+            releaseSummaryWriteLock(lockToken);
+        }
+    }
+
+    private boolean tryAcquireSummaryWriteLock(String token, long maxWaitMs, long sleepMs) {
+        long deadline = System.currentTimeMillis() + Math.max(0, maxWaitMs);
+        long wait = Math.max(20, sleepMs);
+        while (System.currentTimeMillis() <= deadline) {
+            Boolean ok = stringRedisTemplate.opsForValue().setIfAbsent(
+                    SUMMARY_WRITE_LOCK_KEY, token, 2, TimeUnit.MINUTES
+            );
+            if (Boolean.TRUE.equals(ok)) {
+                return true;
+            }
+            sleepSilently(wait);
+        }
+        return false;
+    }
+
+    private void releaseSummaryWriteLock(String token) {
+        if (token == null || token.isBlank()) {
+            return;
+        }
+        try {
+            String cur = stringRedisTemplate.opsForValue().get(SUMMARY_WRITE_LOCK_KEY);
+            if (token.equals(cur)) {
+                stringRedisTemplate.delete(SUMMARY_WRITE_LOCK_KEY);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void sleepSilently(long millis) {
+        if (millis <= 0) {
+            return;
+        }
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -1198,12 +1508,20 @@ public class McpSummaryLlmCleanService {
         return candidates.get(0);
     }
 
-    public record TaskProcessResult(List<String> retryToolNames, boolean retrySkill) {
+    public record TaskProcessResult(List<String> retryToolNames, boolean retrySkill, Map<String, List<String>> slotMissHints) {
         static TaskProcessResult done() {
-            return new TaskProcessResult(List.of(), false);
+            return new TaskProcessResult(List.of(), false, Map.of());
         }
     }
 
-    private record LlmCleanResult(String description, List<InputSlot> inputSlots, List<String> tags, boolean retryable) {
+    private record LlmCleanResult(
+            String description,
+            List<InputSlot> inputSlots,
+            List<String> tags,
+            boolean retryable,
+            List<String> invalidSlotKeys) {
+    }
+
+    private record SlotWhitelistData(List<Map<String, String>> globalSlots, Map<String, String> aliasToCanonical) {
     }
 }

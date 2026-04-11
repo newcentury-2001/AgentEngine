@@ -1,11 +1,13 @@
 package com.agentops.mcpclean.model;
 
 import java.util.List;
+import java.util.Map;
 
 public class McpSummaryCleanTaskMessage {
     private String taskId;
     private String skillName;
     private List<String> pendingToolNames;
+    private Map<String, List<String>> slotMissHints;
     private Boolean skillPending;
     private Integer retryCount;
     private Integer maxRetry;
@@ -33,6 +35,14 @@ public class McpSummaryCleanTaskMessage {
 
     public void setPendingToolNames(List<String> pendingToolNames) {
         this.pendingToolNames = pendingToolNames;
+    }
+
+    public Map<String, List<String>> getSlotMissHints() {
+        return slotMissHints;
+    }
+
+    public void setSlotMissHints(Map<String, List<String>> slotMissHints) {
+        this.slotMissHints = slotMissHints;
     }
 
     public Boolean getSkillPending() {
@@ -67,4 +77,3 @@ public class McpSummaryCleanTaskMessage {
         this.createdAtEpochMs = createdAtEpochMs;
     }
 }
-
