@@ -1,0 +1,302 @@
+{
+    "generatedAt":  "2026-04-09T17:40:40+08:00",
+    "source":  {
+                   "whitelist":  "D:\\develop\\idea\\idea\\idea_workspace\\AgentEngine\\dataset\\slot_whitelist.json",
+                   "toolsListMd":  "D:\\develop\\idea\\idea\\idea_workspace\\AgentEngine\\dataset\\mcp_tools_list.md"
+               },
+    "method":  "semantic-manual-normalization",
+    "note":  "根据工具含义对同义槽位做部分归一；保守合并，避免过度折叠",
+    "normalizationRules":  [
+                               {
+                                   "canonical":  "query",
+                                   "aliases":  [
+                                                   "query",
+                                                   "query_text",
+                                                   "keyword",
+                                                   "keywords",
+                                                   "ref_name"
+                                               ]
+                               },
+                               {
+                                   "canonical":  "url",
+                                   "aliases":  [
+                                                   "url",
+                                                   "link"
+                                               ]
+                               },
+                               {
+                                   "canonical":  "image_url",
+                                   "aliases":  [
+                                                   "img_url",
+                                                   "image_url",
+                                                   "keep_img_data_url"
+                                               ]
+                               },
+                               {
+                                   "canonical":  "origin",
+                                   "aliases":  [
+                                                   "origin",
+                                                   "origins",
+                                                   "from",
+                                                   "from_city",
+                                                   "dep",
+                                                   "dep_city",
+                                                   "depcity"
+                                               ]
+                               },
+                               {
+                                   "canonical":  "destination",
+                                   "aliases":  [
+                                                   "destination",
+                                                   "to",
+                                                   "to_city",
+                                                   "arr",
+                                                   "arr_city",
+                                                   "arrcity"
+                                               ]
+                               },
+                               {
+                                   "canonical":  "departure_date",
+                                   "aliases":  [
+                                                   "dep_date",
+                                                   "depdate"
+                                               ]
+                               },
+                               {
+                                   "canonical":  "date",
+                                   "aliases":  [
+                                                   "date",
+                                                   "day"
+                                               ]
+                               },
+                               {
+                                   "canonical":  "city",
+                                   "aliases":  [
+                                                   "city",
+                                                   "cityName",
+                                                   "cityd"
+                                               ]
+                               },
+                               {
+                                   "canonical":  "org_name",
+                                   "aliases":  [
+                                                   "org_name",
+                                                   "orgName"
+                                               ]
+                               },
+                               {
+                                   "canonical":  "shipper_code",
+                                   "aliases":  [
+                                                   "shipper_code",
+                                                   "shipperCode",
+                                                   "expressCode"
+                                               ]
+                               },
+                               {
+                                   "canonical":  "tracking_number",
+                                   "aliases":  [
+                                                   "express_no",
+                                                   "refernumber"
+                                               ]
+                               },
+                               {
+                                   "canonical":  "issue_no",
+                                   "aliases":  [
+                                                   "issue_no",
+                                                   "issueno",
+                                                   "lottery_number"
+                                               ]
+                               },
+                               {
+                                   "canonical":  "lottery_id",
+                                   "aliases":  [
+                                                   "lottery_id",
+                                                   "caipiaoid"
+                                               ]
+                               },
+                               {
+                                   "canonical":  "flight_no",
+                                   "aliases":  [
+                                                   "flight_no",
+                                                   "fnum",
+                                                   "anum"
+                                               ]
+                               },
+                               {
+                                   "canonical":  "page_num",
+                                   "aliases":  [
+                                                   "page_no",
+                                                   "page_num",
+                                                   "pageNum"
+                                               ]
+                               },
+                               {
+                                   "canonical":  "page_size",
+                                   "aliases":  [
+                                                   "pageSize",
+                                                   "result_limit",
+                                                   "limit"
+                                               ]
+                               },
+                               {
+                                   "canonical":  "line_thickness",
+                                   "aliases":  [
+                                                   "line_thickness",
+                                                   "thickness"
+                                               ]
+                               },
+                               {
+                                   "canonical":  "bbox",
+                                   "aliases":  [
+                                                   "bbox",
+                                                   "crop_bbox",
+                                                   "crop_box",
+                                                   "box",
+                                                   "boxes"
+                                               ]
+                               },
+                               {
+                                   "canonical":  "number",
+                                   "aliases":  [
+                                                   "number",
+                                                   "num"
+                                               ]
+                               },
+                               {
+                                   "canonical":  "start",
+                                   "aliases":  [
+                                                   "start",
+                                                   "begin"
+                                               ]
+                               }
+                           ],
+    "commonSlots":  [
+                        "query",
+                        "name",
+                        "type",
+                        "id",
+                        "code",
+                        "number",
+                        "url",
+                        "image_url",
+                        "city",
+                        "address",
+                        "location",
+                        "origin",
+                        "destination",
+                        "date",
+                        "time",
+                        "timezone",
+                        "amount",
+                        "currency",
+                        "mobile",
+                        "tracking_number"
+                    ],
+    "stableSlots":  [
+                        "address",
+                        "airport",
+                        "amount",
+                        "areaid",
+                        "areaName",
+                        "arr_airport",
+                        "arrCityCode",
+                        "bank",
+                        "bbox",
+                        "branchFromThought",
+                        "branchId",
+                        "city",
+                        "cityId",
+                        "citylimit",
+                        "code",
+                        "color",
+                        "countyId",
+                        "currency",
+                        "date",
+                        "dep_airport",
+                        "departure_date",
+                        "depCityCode",
+                        "destination",
+                        "dlat",
+                        "dlon",
+                        "dname",
+                        "draw_color",
+                        "end",
+                        "flight_no",
+                        "geo_point",
+                        "id",
+                        "image_url",
+                        "ip",
+                        "isRevision",
+                        "issue_no",
+                        "lat",
+                        "line_thickness",
+                        "lineList",
+                        "location",
+                        "lon",
+                        "lottery_id",
+                        "mobile",
+                        "name",
+                        "needContent",
+                        "needDesc",
+                        "needMonth",
+                        "needsMoreThoughts",
+                        "needTomorrow",
+                        "needWeek",
+                        "needYear",
+                        "nextThoughtNeeded",
+                        "no_cache",
+                        "no_gfm",
+                        "number",
+                        "org_code",
+                        "org_name",
+                        "origin",
+                        "page_num",
+                        "page_size",
+                        "poiId",
+                        "point",
+                        "pointInfoList",
+                        "province",
+                        "provinceId",
+                        "provinceName",
+                        "query",
+                        "radius",
+                        "random_string",
+                        "retain_images",
+                        "return_format",
+                        "revisesThought",
+                        "shipper_code",
+                        "slat",
+                        "slon",
+                        "sname",
+                        "sort",
+                        "sort_by",
+                        "sourceTimezone",
+                        "star",
+                        "start",
+                        "strategy",
+                        "symbol",
+                        "target",
+                        "targetTimezone",
+                        "thought",
+                        "thoughtNumber",
+                        "time",
+                        "timeout",
+                        "timezone",
+                        "title",
+                        "totalThoughts",
+                        "townId",
+                        "tracking_number",
+                        "type",
+                        "url",
+                        "villageId",
+                        "with_images_summary",
+                        "with_links_summary",
+                        "year",
+                        "zipcode"
+                    ],
+    "stats":  {
+                  "rawWhitelistCount":  142,
+                  "stableSlotCount":  100,
+                  "commonSlotCount":  20
+              }
+}

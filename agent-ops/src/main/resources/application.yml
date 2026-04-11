@@ -1,12 +1,43 @@
 ﻿server:
   port: 18080
 
+slot:
+  summary:
+    path: file:./dataset/mcp_final_summary.json
+
 spring:
   config:
     import:
       - optional:file:./shared-config/zhipu-common.yml
       - optional:file:../shared-config/zhipu-common.yml
       - optional:file:../../shared-config/zhipu-common.yml
+  datasource:
+    url: jdbc:postgresql://${app.network.wg-host}:5432/postgres?connectTimeout=5&socketTimeout=60&tcpKeepAlive=true
+    username: root
+    password: 123456
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: AgentOpsHikariPool
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 250000
+      max-lifetime: 300000
+      connection-timeout: 500
+      validation-timeout: 2000
+  data:
+    redis:
+      host: ${app.network.wg-host}
+      port: 6379
+      password: 123456
+      connect-timeout: 300ms
+      timeout: 500ms
+      lettuce:
+        pool:
+          max-active: 20
+          max-idle: 8
+          min-idle: 2
+          max-wait: 300ms
+          time-between-eviction-runs: 20s
 
 app:
   network:
@@ -27,7 +58,7 @@ ops:
       sh /opt/agent-ops/scripts/db-init.sh
     start-xxl-command: |
       sh /opt/agent-ops/scripts/start-xxl.sh
-    timeout-seconds: 120
+    timeout-seconds: 600
   mcp:
     enabled: true
     api-key: ${zhipu.api-key:}
@@ -37,11 +68,72 @@ ops:
     request-interval-ms: 1000
     connect-timeout-ms: ${zhipu.connect-timeout-ms:1000}
     request-timeout-ms: ${zhipu.request-timeout-ms:15000}
-    source-markdown-path: ../dataset/curl.md
+    source-markdown-path: ./dataset/curl.md
     output-markdown-path: ./dataset/mcp_tools_list.md
     output-json-path: ./dataset/mcp_tools_list_result.json
     repair-source-json-path: ./dataset/mcp_tools_list_result_bck.json
+    repair-output-json-path: ./dataset/mcp_tools_list_result_new.json
     repair-output-markdown-path: ./dataset/mcp_tools_list_new.md
+    summary-json-path: ./dataset/mcp_final_summary.json
+    summary-backup-max-files: 3
+    clean-system-prompt-path: ./prompts/mcp_clean_system_prompt.txt
+    clean-tool-prompt-path: ./prompts/mcp_clean_tool_prompt.txt
+    clean-skill-prompt-path: ./prompts/mcp_clean_skill_prompt.txt
+
+rocketmq:
+  name-server: ${app.network.wg-host}:9876
+  dashboard-url: http://${app.network.wg-host}:8081
+  producer:
+    group: agent-ops-embedding-producer
+
+embedding:
+  enabled: true
+  base-url: https://open.bigmodel.cn/api/paas/v4
+  api-key: ${zhipukey:}
+  model: embedding-3
+  connect-timeout-ms: 2000
+  request-timeout-ms: 15000
+  max-retries: 2
+  thread-pool-core-size: 6
+  thread-pool-max-size: 12
+  qps-limit: 8
+  failure-rate-threshold: 0.5
+  log-file-path: logs/embedding_results.log
+
+agent:
+  embedding:
+    rocketmq:
+      producer:
+        enabled: true
+        topic: agent_embedding_tasks
+        max-batch-size: 5
+        send-timeout-ms: 3000
+        publish-retry-max-attempts: 3
+        publish-retry-sleep-ms: 200
+        max-retry: 6
+        retry-delay-levels: 2,3,4,5,6,7
+      consumer:
+        enabled: true
+        topic: agent_embedding_tasks
+        group-id: agent-ops-embedding-rmq
+  mcp-cleaner:
+    idempotent:
+      ttl-hours: 24
+    context:
+      ttl-hours: 24
+    rocketmq:
+      producer:
+        enabled: true
+        topic: agent_mcp_summary_clean_tasks
+        send-timeout-ms: 3000
+        max-retry: 6
+        retry-delay-levels: 2,3,4,5,6,7
+        publish-retry-max-attempts: 3
+        publish-retry-sleep-ms: 200
+      consumer:
+        enabled: true
+        topic: agent_mcp_summary_clean_tasks
+        group-id: agent-ops-mcp-cleaner-rmq
 
 logging:
   level:

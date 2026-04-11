@@ -27,9 +27,14 @@
   <div class="sub">请选择入口：业务功能在主模块，容器初始化在独立的 agent-ops 模块。</div>
   <div class="grid">
     <div class="card">
-      <div class="title">新增技能</div>
-      <div class="desc">输入 MCP JSON，完成技能预处理与安装。</div>
-      <button class="main" onclick="location.href='/skill-add.html'">进入新增技能</button>
+      <div class="title">智能助手</div>
+      <div class="desc">进入 agent-business 主链路入口，后续在该页承接对话与工具调用。</div>
+      <button class="main" onclick="location.href='/assistant'">进入智能助手</button>
+    </div>
+    <div class="card">
+      <div class="title">Embedding 运维</div>
+      <div class="desc">技能/工具 embedding 已迁移到 agent-ops。</div>
+      <button class="ops" onclick="window.open('http://' + location.hostname + ':18080/skill-add.html','_blank')">打开 Embedding 页面</button>
     </div>
     <div class="card">
       <div class="title">运维模块</div>

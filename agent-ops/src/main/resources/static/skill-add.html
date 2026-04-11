@@ -1,0 +1,323 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Embedding 运维</title>
+  <style>
+    :root { --line:#dbe4ef; --text:#0f172a; --muted:#607086; --ok:#059669; --err:#dc2626; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: "Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+      color: var(--text);
+      background: linear-gradient(120deg,#0f2f4a,#1e75ad);
+    }
+    .app {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 430px 1fr;
+      box-shadow: 0 14px 44px rgba(4,28,45,.25);
+    }
+    .left { padding: 20px; border-right: 1px solid var(--line); background: linear-gradient(180deg,#f6fbff,#fff); }
+    .right { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+    h1 { margin: 0; font-size: 22px; }
+    .sub { margin: 8px 0 14px; color: var(--muted); font-size: 13px; line-height: 1.45; }
+    label { display:block; margin:8px 0 6px; font-weight:600; font-size:13px; }
+    textarea {
+      width:100%; min-height:220px; border:1px solid var(--line); border-radius:10px;
+      padding:10px 11px; font-size:13px; outline:none; resize:vertical; line-height:1.45;
+      font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    }
+    .btns { display:flex; gap:8px; margin-top:12px; flex-wrap: wrap; }
+    button { border:none; border-radius:10px; padding:9px 13px; font-size:13px; font-weight:700; cursor:pointer; }
+    .b-main { background:linear-gradient(135deg,#0ea5a0,#0f766e); color:#fff; }
+    .b-embed { background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; }
+    .b-warn { background:linear-gradient(135deg,#f59e0b,#ea580c); color:#fff; }
+    .b-back { background:linear-gradient(135deg,#64748b,#475569); color:#fff; }
+    .status { border:1px solid var(--line); background:#f8fbff; border-radius:10px; padding:10px 12px; font-size:13px; min-height:40px; }
+    .status.ok { border-color:#bbf7d0; background:#f0fdf4; color:var(--ok); }
+    .status.err { border-color:#fecaca; background:#fef2f2; color:var(--err); }
+    .grid { display:grid; grid-template-columns:repeat(3,minmax(140px,1fr)); gap:10px; }
+    .card { border:1px solid var(--line); border-radius:12px; padding:10px; background:#fff; }
+    .k { font-size:12px; color:#475569; margin-bottom:6px; }
+    .v { font-size:14px; font-weight:700; word-break:break-word; }
+    .panel {
+      flex:1; min-height:260px; border:1px solid #1f2c3f; border-radius:12px; background:#0d1625; color:#dce8ff;
+      padding:10px; font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12.5px;
+      white-space:pre-wrap; overflow:auto;
+    }
+    .line-input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 13px;
+      outline: none;
+      font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    }
+    @media (max-width:980px) { .app { grid-template-columns:1fr; } .left { border-right:none; border-bottom:1px solid var(--line); } }
+  </style>
+</head>
+<body>
+<div class="app">
+  <section class="left">
+    <h1>Embedding 运维</h1>
+    <div class="sub">此页面仅用于触发技能/工具 embedding 任务与查看任务状态。</div>
+
+    <label>mcpJson</label>
+    <textarea id="mcpInput"></textarea>
+
+    <div class="btns">
+      <button class="b-main" id="installBtn">安装入口已迁移</button>
+      <button class="b-embed" id="embedToolsBtn">工具 Embedding</button>
+      <button class="b-embed" id="embedSkillsBtn">技能 Embedding</button>
+      <button class="b-warn" id="clearBtn">清空结果</button>
+      <button class="b-back" onclick="location.href='/'">返回首页</button>
+    </div>
+
+    <label>安装一个工具（格式：skillName:toolName）</label>
+    <input id="singleToolName" class="line-input" placeholder="例如：exchange-rate:exchange_rate" />
+    <div class="btns">
+      <button class="b-embed" id="embedOneToolBtn">安装一个工具</button>
+    </div>
+
+    <label>安装一个技能（格式：skillName）</label>
+    <input id="singleSkillName" class="line-input" placeholder="例如：exchange-rate" />
+    <div class="btns">
+      <button class="b-embed" id="embedOneSkillBtn">安装一个技能</button>
+    </div>
+  </section>
+
+  <section class="right">
+    <div id="status" class="status">等待操作</div>
+    <div class="grid">
+      <div class="card"><div class="k">Server</div><div id="vServer" class="v">-</div></div>
+      <div class="card"><div class="k">Intent / Action</div><div id="vLabel" class="v">-</div></div>
+      <div class="card"><div class="k">工具数量</div><div id="vTools" class="v">0</div></div>
+    </div>
+    <div id="resultPanel" class="panel">{"message":"安装/Embedding 结果会显示在这里"}</div>
+  </section>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+function setStatus(t, type=''){ const n=$('status'); n.textContent=t; n.className=`status ${type}`.trim(); }
+function j(x){ try{return JSON.stringify(x,null,2)}catch(e){return String(x)} }
+
+let running = false;
+let lastClickTs = 0;
+const CLICK_DEBOUNCE_MS = 800;
+let embeddingWs = null;
+let pendingTaskId = null;
+const taskProgressMap = new Map();
+
+function getProgressState(taskId) {
+  if (!taskProgressMap.has(taskId)) {
+    taskProgressMap.set(taskId, { total: 0, seen: new Set() });
+  }
+  return taskProgressMap.get(taskId);
+}
+
+function formatProgress(data) {
+  const taskId = String(data?.taskId || '');
+  const cur = Number(data?.currentBatchNo || 0);
+  const total = Number(data?.totalBatches || 0);
+  if (!taskId || total <= 0) return '';
+
+  const st = getProgressState(taskId);
+  st.total = total;
+  if (cur > 0) {
+    st.seen.add(cur);
+  }
+  let done = st.seen.size;
+  if (data?.state === 'SUCCEEDED') {
+    done = total;
+  }
+  if (done > total) done = total;
+  if (done < 0) done = 0;
+  if (done > 0 && total > 0) return ` (${done}/${total})`;
+  return '';
+}
+
+function setActionButtonsDisabled(disabled) {
+  $('installBtn').disabled = disabled;
+  $('embedToolsBtn').disabled = disabled;
+  $('embedSkillsBtn').disabled = disabled;
+  $('embedOneToolBtn').disabled = disabled;
+  $('embedOneSkillBtn').disabled = disabled;
+}
+
+function ensureEmbeddingWs() {
+  if (embeddingWs && (embeddingWs.readyState === WebSocket.OPEN || embeddingWs.readyState === WebSocket.CONNECTING)) {
+    return;
+  }
+  const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+  embeddingWs = new WebSocket(`${protocol}://${location.host}/ws/embedding-task`);
+  embeddingWs.onopen = () => {
+    if (pendingTaskId) {
+      subscribeTaskStatus(pendingTaskId);
+    }
+  };
+  embeddingWs.onmessage = (evt) => {
+    try {
+      const msg = JSON.parse(evt.data || '{}');
+      if (msg.type !== 'taskStatus' || !msg.data) return;
+      const data = msg.data;
+      $('resultPanel').textContent = j(data);
+      const progress = formatProgress(data);
+      if (data.state === 'SUCCEEDED') {
+        setStatus(`任务完成${progress}: ${data.taskId}`, 'ok');
+      } else if (data.state === 'FAILED') {
+        setStatus(`任务失败${progress}: ${data.errorMessage || data.taskId}`, 'err');
+      } else {
+        setStatus(`任务${data.state}${progress}: ${data.taskId}`);
+      }
+    } catch (_) {}
+  };
+}
+
+function subscribeTaskStatus(taskId) {
+  pendingTaskId = taskId;
+  taskProgressMap.delete(taskId);
+  ensureEmbeddingWs();
+  if (embeddingWs && embeddingWs.readyState === WebSocket.OPEN) {
+    embeddingWs.send(JSON.stringify({action:'subscribe', taskId}));
+  }
+}
+
+function extractTaskId(message) {
+  if (!message) return null;
+  const m = String(message).match(/taskId=([a-fA-F0-9]+)/);
+  return m ? m[1] : null;
+}
+
+async function runAction(actionName, requestFactory) {
+  const now = Date.now();
+  if (now - lastClickTs < CLICK_DEBOUNCE_MS) return;
+  lastClickTs = now;
+  if (running) return;
+
+  running = true;
+  setActionButtonsDisabled(true);
+  setStatus(`${actionName}执行中...`);
+  try {
+    const req = requestFactory();
+    const resp = await fetch(req.url, req.options || {});
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.message || `HTTP ${resp.status}`);
+    $('resultPanel').textContent = j(data);
+    const taskId = extractTaskId(data.message);
+    if (taskId) {
+      subscribeTaskStatus(taskId);
+      setStatus(`${actionName}已入队，等待推送（taskId=${taskId}）`);
+      return;
+    }
+    setStatus(`${actionName}完成`, 'ok');
+  } catch (e) {
+    $('resultPanel').textContent = j({error:e.message || String(e)});
+    setStatus(`${actionName}失败: ${e.message || e}`, 'err');
+  } finally {
+    running = false;
+    setActionButtonsDisabled(false);
+  }
+}
+
+async function install(){
+  setStatus('安装能力不在本页面，请使用独立安装链路', 'err');
+}
+
+function embedTools(){
+  return runAction('工具Embedding', () => ({
+    url: '/api/embedding/generate-all?forceRegenerate=false',
+    options: { method: 'POST' }
+  }));
+}
+
+function embedSkills(){
+  return runAction('技能Embedding', () => ({
+    url: '/api/skill-embedding/generate-all?includeTools=true&forceRegenerate=false',
+    options: { method: 'POST' }
+  }));
+}
+
+function embedOneTool(){
+  const toolName = $('singleToolName').value.trim();
+  if (!toolName) {
+    setStatus('请输入一个工具名，格式 skillName:toolName', 'err');
+    return Promise.resolve();
+  }
+  return runAction('安装一个工具', () => ({
+    url: '/api/embedding/generate',
+    options: {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        toolNames: [toolName],
+        forceRegenerate: false
+      })
+    }
+  }));
+}
+
+function embedOneSkill(){
+  const skillName = $('singleSkillName').value.trim();
+  if (!skillName) {
+    setStatus('请输入一个技能名，例如 exchange-rate', 'err');
+    return Promise.resolve();
+  }
+  return runAction('安装一个技能', () => ({
+    url: '/api/skill-embedding/generate',
+    options: {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        skillNames: [skillName],
+        forceRegenerate: false,
+        includeTools: true
+      })
+    }
+  }));
+}
+
+$('installBtn').addEventListener('click', install);
+$('embedToolsBtn').addEventListener('click', embedTools);
+$('embedSkillsBtn').addEventListener('click', embedSkills);
+$('embedOneToolBtn').addEventListener('click', embedOneTool);
+$('embedOneSkillBtn').addEventListener('click', embedOneSkill);
+$('clearBtn').addEventListener('click', ()=>{
+  $('mcpInput').value='';
+  $('vServer').textContent='-';
+  $('vLabel').textContent='-';
+  $('vTools').textContent='0';
+  $('singleToolName').value='';
+  $('singleSkillName').value='';
+  $('resultPanel').textContent='{"message":"安装/Embedding 结果会显示在这里"}';
+  setStatus('已清空');
+});
+
+$('mcpInput').value = `{
+  "mcpServers": {
+    "exchange-rate": {
+      "url": "https://open.bigmodel.cn/api/mcp-broker/proxy/exchange-rate/mcp?Authorization=YOUR_ZHIPU_API_KEY"
+    }
+  }
+}`;
+$('singleToolName').value = 'exchange-rate:exchange_rate';
+$('singleSkillName').value = 'exchange-rate';
+
+const mode = new URLSearchParams(location.search).get('mode');
+if (mode === 'tool') {
+  setTimeout(() => embedTools(), 0);
+}
+if (mode === 'skill') {
+  setTimeout(() => embedSkills(), 0);
+}
+</script>
+</body>
+</html>

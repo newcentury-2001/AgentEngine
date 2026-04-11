@@ -54,10 +54,10 @@ public class TestParser {
         try {
             // 尝试不同的路径
             String[] possiblePaths = {
-                "dataset/mcp_final_summary.json",
-                "slot/mcp_final_summary.json",
-                "./dataset/mcp_final_summary.json",
-                "../dataset/mcp_final_summary.json"
+                "dataset/mcp_final_summary_bck.json",
+                "slot/mcp_final_summary_bck.json",
+                "./dataset/mcp_final_summary_bck.json",
+                "../dataset/mcp_final_summary_bck.json"
             };
 
             File jsonFile = null;

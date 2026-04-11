@@ -16,7 +16,7 @@ spring:
   application:
     name: agent-engine
   datasource:
-    url: jdbc:postgresql://${app.network.wg-host}:5432/postgres?connectTimeout=1&socketTimeout=1&tcpKeepAlive=true
+    url: jdbc:postgresql://${app.network.wg-host}:5432/postgres?connectTimeout=5&socketTimeout=60&tcpKeepAlive=true
     username: root
     password: 123456
     driver-class-name: org.postgresql.Driver
@@ -42,7 +42,6 @@ spring:
           min-idle: 2
           max-wait: 300ms
           time-between-eviction-runs: 20s
-
 logging:
   level:
     root: info
@@ -74,21 +73,7 @@ xxl:
       log-path: ./logs/xxl-job
       log-retention-days: 7
 
-rocketmq:
-  name-server: ${app.network.wg-host}:9876
-  dashboard-url: http://${app.network.wg-host}:8081
-
-embedding:
-  enabled: true
-  base-url: https://open.bigmodel.cn/api/paas/v4
-  api-key: ${zhipukey:}
-  model: embedding-3
-  connect-timeout-ms: 1000
-  request-timeout-ms: 15000
-  max-retries: 2
-  thread-pool-core-size: 6
-  thread-pool-max-size: 12
-  qps-limit: 8
-  failure-rate-threshold: 0.5
-  log-file-path: logs/embedding_results.log
-
+agent:
+  assistant:
+    intent-slot-whitelist:
+      path: dataset/assistant_intent_slot_whitelist.json

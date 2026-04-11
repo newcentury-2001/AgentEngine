@@ -33,10 +33,11 @@ CREATE TABLE IF NOT EXISTS tool_output_slot_inferred (
   skill_name VARCHAR(128) NOT NULL,
   tool_name  VARCHAR(200) NOT NULL,
   slot_key   VARCHAR(128) NOT NULL,
-  confidence VARCHAR(16)  NOT NULL,
   created_at TIMESTAMP    NOT NULL DEFAULT NOW(),
   PRIMARY KEY (skill_name, tool_name, slot_key),
   CONSTRAINT fk_tool_output_slot_inferred_slot_key
     FOREIGN KEY (slot_key) REFERENCES slot_definition(slot_key)
 );
 
+ALTER TABLE tool_output_slot_inferred
+  DROP COLUMN IF EXISTS confidence;

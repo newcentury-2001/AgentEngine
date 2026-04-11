@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
 public class McpToolListOpsService {
 
     private static final Pattern JSON_BLOCK = Pattern.compile("```json\\s*(\\{[\\s\\S]*?\\})\\s*```");
+    private static final String API_KEY_PLACEHOLDER = "YOUR_ZHIPU_API_KEY";
 
     private final OpsMcpProperties properties;
     private final ObjectMapper objectMapper;
@@ -123,7 +124,7 @@ public class McpToolListOpsService {
                     List<ToolItem> tools = listTools(entry.serverLabel(), entry.serverUrl());
                     return ResultEntry.success(entry.serverLabel(), entry.serverUrl(), tools);
                 } catch (Exception e) {
-                    return ResultEntry.failure(entry.serverLabel(), entry.serverUrl(), trim(e.getMessage(), 300));
+                    return ResultEntry.failure(entry.serverLabel(), entry.serverUrl(), trim(maskSecrets(e.getMessage()), 300));
                 }
             });
             results.add(future.join());
@@ -413,7 +414,8 @@ public class McpToolListOpsService {
             sb.append("# MCP tools/list 导出结果\n\n");
             sb.append("- 时间: ").append(LocalDateTime.now()).append("\n");
             sb.append("- 总服务数: ").append(results.size()).append("\n\n");
-            for (ResultEntry r : results) {
+            List<ResultEntry> safeResults = sanitizeResults(results);
+            for (ResultEntry r : safeResults) {
                 sb.append("## ").append(r.serverLabel()).append("\n\n");
                 sb.append("- URL: `").append(r.serverUrl()).append("`\n");
                 sb.append("- 状态: ").append(r.success() ? "成功" : "失败").append("\n");
@@ -439,17 +441,73 @@ public class McpToolListOpsService {
             if (outputPath.getParent() != null) {
                 Files.createDirectories(outputPath.getParent());
             }
+            List<ResultEntry> safeResults = sanitizeResults(results);
             Map<String, Object> payload = new LinkedHashMap<>();
             payload.put("generatedAt", LocalDateTime.now().toString());
-            payload.put("totalServers", results.size());
-            payload.put("successCount", results.stream().filter(ResultEntry::success).count());
-            payload.put("failedCount", results.stream().filter(r -> !r.success()).count());
-            payload.put("results", results);
+            payload.put("totalServers", safeResults.size());
+            payload.put("successCount", safeResults.stream().filter(ResultEntry::success).count());
+            payload.put("failedCount", safeResults.stream().filter(r -> !r.success()).count());
+            payload.put("results", safeResults);
             String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(payload);
             Files.writeString(outputPath, json, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new IllegalStateException("write output json failed", e);
         }
+    }
+
+    private List<ResultEntry> sanitizeResults(List<ResultEntry> results) {
+        List<ResultEntry> safe = new ArrayList<>(results.size());
+        for (ResultEntry r : results) {
+            safe.add(new ResultEntry(
+                    r.serverLabel(),
+                    maskServerUrl(r.serverUrl()),
+                    r.success(),
+                    maskSecrets(r.errorMessage()),
+                    r.tools()
+            ));
+        }
+        return safe;
+    }
+
+    private String maskSecrets(String text) {
+        String out = text == null ? "" : text;
+        String apiKey = safeText(properties.getApiKey());
+        if (!apiKey.isBlank()) {
+            out = out.replace(apiKey, API_KEY_PLACEHOLDER);
+            out = out.replace(URLEncoder.encode(apiKey, StandardCharsets.UTF_8), API_KEY_PLACEHOLDER);
+            out = out.replace(ZhipuHttpProtocol.bearerValue(apiKey), "Bearer " + API_KEY_PLACEHOLDER);
+        }
+        return out;
+    }
+
+    private String maskServerUrl(String rawUrl) {
+        String url = safeText(rawUrl);
+        if (url.isBlank()) {
+            return url;
+        }
+        String masked = maskSecrets(url);
+        int q = masked.indexOf('?');
+        if (q < 0) {
+            return masked;
+        }
+        String base = masked.substring(0, q);
+        String query = masked.substring(q + 1);
+        if (query.isBlank()) {
+            return masked;
+        }
+        String[] pairs = query.split("&");
+        for (int i = 0; i < pairs.length; i++) {
+            String pair = pairs[i];
+            if (pair.isBlank()) {
+                continue;
+            }
+            int eq = pair.indexOf('=');
+            String key = eq >= 0 ? pair.substring(0, eq) : pair;
+            if ("Authorization".equalsIgnoreCase(key)) {
+                pairs[i] = key + "=" + API_KEY_PLACEHOLDER;
+            }
+        }
+        return base + "?" + String.join("&", pairs);
     }
 
     private String prettyJsonOrRaw(String text) {
@@ -500,12 +558,34 @@ public class McpToolListOpsService {
         if (p.isAbsolute()) {
             return p.normalize();
         }
-        Path cwd = Path.of(System.getProperty("user.dir"));
-        Path byCwd = cwd.resolve(p).normalize();
-        if (Files.exists(byCwd) || !raw.startsWith("..")) {
-            return byCwd;
+        Path cwd = Path.of(System.getProperty("user.dir")).normalize();
+        String rel = raw.replace("\\", "/");
+        if (rel.startsWith("./")) {
+            rel = rel.substring(2);
         }
-        return cwd.resolve("..").resolve(p).normalize();
+        List<Path> candidates = new ArrayList<>();
+        candidates.add(cwd.resolve(p).normalize());
+        if (rel.startsWith("AgentEngine/")) {
+            candidates.add(cwd.resolve(rel.substring("AgentEngine/".length())).normalize());
+        } else {
+            candidates.add(cwd.resolve("AgentEngine").resolve(rel).normalize());
+        }
+        candidates.add(cwd.resolve("..").resolve(p).normalize());
+        if (!rel.startsWith("AgentEngine/")) {
+            candidates.add(cwd.resolve("..").resolve("AgentEngine").resolve(rel).normalize());
+        }
+        for (Path one : candidates) {
+            if (Files.exists(one)) {
+                return one;
+            }
+        }
+        for (Path one : candidates) {
+            Path parent = one.getParent();
+            if (parent != null && Files.exists(parent)) {
+                return one;
+            }
+        }
+        return candidates.get(0);
     }
 
     private void ensureEnabledAndApiKey() {

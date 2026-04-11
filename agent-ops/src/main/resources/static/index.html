@@ -92,6 +92,9 @@
       <button class="b-main" id="uploadScriptBundleBtn">上传脚本包</button>
       <button class="b-main" id="runBtn">开始初始化</button>
       <button class="b-main" id="exportMcpBtn">导出MCP工具描述</button>
+      <button class="b-main" id="cleanMcpBtn">语义清洗描述</button>
+      <button class="b-main" id="openToolEmbeddingBtn">工具Embedding</button>
+      <button class="b-main" id="openSkillEmbeddingBtn">技能Embedding</button>
       <button class="b-clear" id="clearBtn">清空结果</button>
     </div>
     <textarea id="mcpListInput">[
@@ -128,8 +131,51 @@ let running = false;
 let uploadingSqlBundle = false;
 let uploadingScriptBundle = false;
 let exportingMcp = false;
+let cleaningMcp = false;
 let lastClickTs = 0;
 const CLICK_DEBOUNCE_MS = 800;
+let mcpCleanWs = null;
+
+function closeMcpCleanWs() {
+  if (mcpCleanWs && (mcpCleanWs.readyState === WebSocket.OPEN || mcpCleanWs.readyState === WebSocket.CONNECTING)) {
+    mcpCleanWs.close();
+  }
+  mcpCleanWs = null;
+}
+
+function subscribeMcpCleanTask(taskId) {
+  if (!taskId) return;
+  closeMcpCleanWs();
+  const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+  mcpCleanWs = new WebSocket(`${protocol}://${location.host}/ws/mcp-clean-task`);
+  mcpCleanWs.onopen = () => {
+    mcpCleanWs.send(JSON.stringify({ action: 'subscribe', taskId }));
+  };
+  mcpCleanWs.onmessage = (evt) => {
+    try {
+      const msg = JSON.parse(evt.data || '{}');
+      if (msg.type !== 'mcpCleanTaskStatus' || !msg.data) return;
+      const d = msg.data;
+      const total = Number(d.totalSkills || 0);
+      const done = Number(d.processedSkills || 0);
+      $('vHost').textContent = d.taskId || '-';
+      $('vPort').textContent = `${done}/${total}`;
+      $('vSteps').textContent = String(done);
+      $('out').textContent = pretty(d);
+
+      const state = d.state || 'RUNNING';
+      if (state === 'SUCCEEDED') {
+        setStatus(`语义清洗完成 (${done}/${total})`, 'ok');
+      } else if (state === 'PARTIAL_FAILED' || state === 'FAILED') {
+        setStatus(`语义清洗部分失败 (${done}/${total})`, 'err');
+      } else {
+        setStatus(`语义清洗进行中 (${done}/${total})`);
+      }
+    } catch (e) {
+      // ignore bad frame
+    }
+  };
+}
 
 async function runInit() {
   const now = Date.now();
@@ -164,13 +210,14 @@ async function uploadSqlBundle() {
   const now = Date.now();
   if (now - lastClickTs < CLICK_DEBOUNCE_MS) return;
   lastClickTs = now;
-  if (running || uploadingSqlBundle || uploadingScriptBundle || exportingMcp) return;
+  if (running || uploadingSqlBundle || uploadingScriptBundle || exportingMcp || cleaningMcp) return;
 
   uploadingSqlBundle = true;
   $('uploadSqlBundleBtn').disabled = true;
   $('uploadScriptBundleBtn').disabled = true;
   $('runBtn').disabled = true;
   $('exportMcpBtn').disabled = true;
+  $('cleanMcpBtn').disabled = true;
   setStatus('上传SQL包中...');
 
   try {
@@ -192,6 +239,7 @@ async function uploadSqlBundle() {
     $('uploadScriptBundleBtn').disabled = false;
     $('runBtn').disabled = false;
     $('exportMcpBtn').disabled = false;
+    $('cleanMcpBtn').disabled = false;
   }
 }
 
@@ -199,13 +247,14 @@ async function uploadScriptBundle() {
   const now = Date.now();
   if (now - lastClickTs < CLICK_DEBOUNCE_MS) return;
   lastClickTs = now;
-  if (running || uploadingSqlBundle || uploadingScriptBundle || exportingMcp) return;
+  if (running || uploadingSqlBundle || uploadingScriptBundle || exportingMcp || cleaningMcp) return;
 
   uploadingScriptBundle = true;
   $('uploadSqlBundleBtn').disabled = true;
   $('uploadScriptBundleBtn').disabled = true;
   $('runBtn').disabled = true;
   $('exportMcpBtn').disabled = true;
+  $('cleanMcpBtn').disabled = true;
   setStatus('上传脚本包中...');
 
   try {
@@ -227,6 +276,7 @@ async function uploadScriptBundle() {
     $('uploadScriptBundleBtn').disabled = false;
     $('runBtn').disabled = false;
     $('exportMcpBtn').disabled = false;
+    $('cleanMcpBtn').disabled = false;
   }
 }
 
@@ -234,7 +284,7 @@ async function exportMcpTools() {
   const now = Date.now();
   if (now - lastClickTs < CLICK_DEBOUNCE_MS) return;
   lastClickTs = now;
-  if (running || uploadingSqlBundle || uploadingScriptBundle || exportingMcp) return;
+  if (running || uploadingSqlBundle || uploadingScriptBundle || exportingMcp || cleaningMcp) return;
 
   const text = $('mcpListInput').value.trim();
   if (!text) {
@@ -256,6 +306,7 @@ async function exportMcpTools() {
 
   exportingMcp = true;
   $('exportMcpBtn').disabled = true;
+  $('cleanMcpBtn').disabled = true;
   $('uploadSqlBundleBtn').disabled = true;
   $('uploadScriptBundleBtn').disabled = true;
   $('runBtn').disabled = true;
@@ -281,6 +332,45 @@ async function exportMcpTools() {
   } finally {
     exportingMcp = false;
     $('exportMcpBtn').disabled = false;
+    $('cleanMcpBtn').disabled = false;
+    $('uploadSqlBundleBtn').disabled = false;
+    $('uploadScriptBundleBtn').disabled = false;
+    $('runBtn').disabled = false;
+  }
+}
+
+async function cleanMcpSummary() {
+  const now = Date.now();
+  if (now - lastClickTs < CLICK_DEBOUNCE_MS) return;
+  lastClickTs = now;
+  if (running || uploadingSqlBundle || uploadingScriptBundle || exportingMcp || cleaningMcp) return;
+
+  cleaningMcp = true;
+  $('cleanMcpBtn').disabled = true;
+  $('exportMcpBtn').disabled = true;
+  $('uploadSqlBundleBtn').disabled = true;
+  $('uploadScriptBundleBtn').disabled = true;
+  $('runBtn').disabled = true;
+  setStatus('语义清洗任务入队中...');
+
+  try {
+    const resp = await fetch('/api/ops/mcp/normalize-summary-llm', { method: 'POST' });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.message || `HTTP ${resp.status}`);
+
+    $('vHost').textContent = data.taskId || '-';
+    $('vPort').textContent = data.totalSkills ?? '-';
+    $('vSteps').textContent = String(data.enqueuedCount ?? 0);
+    $('out').textContent = pretty(data);
+    setStatus('语义清洗已入队', 'ok');
+    subscribeMcpCleanTask(data.taskId);
+  } catch (e) {
+    $('out').textContent = pretty({ error: e.message || String(e) });
+    setStatus(`语义清洗失败: ${e.message || e}`, 'err');
+  } finally {
+    cleaningMcp = false;
+    $('cleanMcpBtn').disabled = false;
+    $('exportMcpBtn').disabled = false;
     $('uploadSqlBundleBtn').disabled = false;
     $('uploadScriptBundleBtn').disabled = false;
     $('runBtn').disabled = false;
@@ -300,6 +390,13 @@ $('runBtn').addEventListener('click', runInit);
 $('uploadSqlBundleBtn').addEventListener('click', uploadSqlBundle);
 $('uploadScriptBundleBtn').addEventListener('click', uploadScriptBundle);
 $('exportMcpBtn').addEventListener('click', exportMcpTools);
+$('cleanMcpBtn').addEventListener('click', cleanMcpSummary);
+$('openToolEmbeddingBtn').addEventListener('click', () => {
+  location.href = '/skill-add.html?mode=tool';
+});
+$('openSkillEmbeddingBtn').addEventListener('click', () => {
+  location.href = '/skill-add.html?mode=skill';
+});
 $('clearBtn').addEventListener('click', clearResult);
 </script>
 </body>

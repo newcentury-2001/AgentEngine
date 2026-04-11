@@ -1,10 +1,13 @@
 package com.agentcommon.mcp.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class McpSkill {
 
     @JsonProperty("skillName")
@@ -14,6 +17,7 @@ public class McpSkill {
     private String skillDescription;
 
     @JsonProperty("serverUrl")
+    @JsonAlias("url")
     private String serverUrl;
 
     private String intent;

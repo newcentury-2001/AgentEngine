@@ -92,7 +92,10 @@ docker run -d \
   -p 10.10.10.1:10911:10911 \
   -p 10.10.10.1:10909:10909 \
   apache/rocketmq:5.3.1 \
-  sh mqbroker -n rmqnamesrv:9876 --enable-proxy
+  sh -c "cat > /home/rocketmq/rocketmq-5.3.1/conf/broker.conf <<EOF
+brokerIP1=10.10.10.1
+EOF
+mqbroker -n rmqnamesrv:9876 -c /home/rocketmq/rocketmq-5.3.1/conf/broker.conf --enable-proxy"
 ```
 
 ## 6. 检查

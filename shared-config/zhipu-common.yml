@@ -6,7 +6,7 @@ zhipu:
   label-model: glm-4-flash
   slot-model: glm-4-flash
   embedding-model: embedding-3
-  connect-timeout-ms: 1000
+  connect-timeout-ms: 2000
   request-timeout-ms: 15000
   discovery-max-inflight: 4
   semantic-max-inflight: 6
@@ -56,18 +56,18 @@ thread-pool:
 agent:
   http:
     llm:
-      default-connect-timeout-ms: ${zhipu.connect-timeout-ms:1000}
+      default-connect-timeout-ms: ${zhipu.connect-timeout-ms:2000}
       default-executor-threads: 8
       default-model: ${zhipu.discovery-model:glm-4-flash}
       pools:
         glm-4-flash:
-          connect-timeout-ms: ${zhipu.connect-timeout-ms:1000}
+          connect-timeout-ms: ${zhipu.connect-timeout-ms:2000}
           executor-threads: ${zhipu.discovery-max-inflight:4}
         "glm-4.5":
-          connect-timeout-ms: ${zhipu.connect-timeout-ms:1000}
+          connect-timeout-ms: ${zhipu.connect-timeout-ms:2000}
           executor-threads: ${zhipu.semantic-max-inflight:6}
         embedding-3:
-          connect-timeout-ms: ${zhipu.connect-timeout-ms:1000}
+          connect-timeout-ms: ${zhipu.connect-timeout-ms:2000}
           executor-threads: ${zhipu.embedding-max-inflight:8}
 
   log:

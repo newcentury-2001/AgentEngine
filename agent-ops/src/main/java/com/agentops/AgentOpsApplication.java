@@ -5,7 +5,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {
+        "com.agentops",
+        "com.agentcommon",
+        "com.agentengine.skill.embedding"
+})
 public class AgentOpsApplication {
 
     private static final Logger log = LoggerFactory.getLogger(AgentOpsApplication.class);

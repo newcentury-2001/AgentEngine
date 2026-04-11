@@ -1,2 +1,3 @@
 com.agentcommon.http.HttpEncodingAutoConfiguration
 com.agentcommon.log.LogKafkaAutoConfiguration
+com.agentcommon.embedding.kafka.EmbeddingKafkaAutoConfiguration

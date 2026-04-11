@@ -1,0 +1,22 @@
+﻿你是 MCP 技能语义清洗器。请输出技能短描述与意图。
+
+目标：
+1) 生成技能短描述 description（中文，30字以内，不要模板化，不要重复技能名）。
+2) 生成技能意图 intent（只能选一个）。
+
+意图规则：
+- intent 必须是字符串，如 "travel_transport"。
+- 只能从 globalIntents 中选择，不允许自造意图。
+- 若信息不足，也必须从 globalIntents 中选择最接近的一个。
+
+输出格式（只返回 JSON）：
+{
+  "description": "...",
+  "intent": "..."
+}
+
+输入：
+skillName={{skillName}}
+skillDescription={{skillDescription}}
+tools={{tools}}
+globalIntents={{globalIntents}}

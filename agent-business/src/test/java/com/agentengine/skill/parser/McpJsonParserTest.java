@@ -16,8 +16,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * MCP JSON瑙ｆ瀽鍣ㄦ祴璇曠被
- */
+ * MCP JSON鐟欙絾鐎介崳銊︾ゴ鐠囨洜琚? */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class McpJsonParserTest {
 
@@ -26,7 +25,7 @@ class McpJsonParserTest {
 
     @BeforeAll
     void setup() throws IOException {
-        // 瑙ｆ瀽JSON鏂囦欢
+        // Parse JSON file
         File file = new File(JSON_FILE_PATH);
         if (!file.exists()) {
             System.err.println("Warning: JSON file not found at " + JSON_FILE_PATH);
@@ -155,7 +154,8 @@ class McpJsonParserTest {
         assertNotNull(skillMap, "Skill map should not be null");
         assertEquals(skills.size(), skillMap.size(), "Skill map size should match skills size");
 
-        // 娴嬭瘯閫氳繃鎶€鑳藉悕绉版煡鎵?        String firstSkillName = skills.get(0).getSkillName();
+        // Verify skill map lookup by first skill name
+        String firstSkillName = skills.get(0).getSkillName();
         McpSkill foundSkill = skillMap.get(firstSkillName);
         assertNotNull(foundSkill, "Skill should be found by name");
         assertEquals(firstSkillName, foundSkill.getSkillName(), "Found skill should match");
@@ -172,7 +172,8 @@ class McpJsonParserTest {
         Map<String, McpTool> toolMap = McpJsonParser.buildToolKeyMap(skills);
         assertNotNull(toolMap, "Tool map should not be null");
 
-        // 娴嬭瘯閫氳繃宸ュ叿閿煡鎵?        if (!skills.get(0).getTools().isEmpty()) {
+        // Verify tool map lookup by skillName:toolName key
+        if (!skills.get(0).getTools().isEmpty()) {
             McpSkill firstSkill = skills.get(0);
             McpTool firstTool = firstSkill.getTools().get(0);
             String toolKey = firstSkill.getSkillName() + ":" + firstTool.getToolName();
@@ -232,7 +233,8 @@ class McpJsonParserTest {
 
     @Test
     void testParseFromJsonString() throws IOException {
-        // 鍒涘缓绠€鍗曠殑娴嬭瘯JSON瀛楃涓?        String testJson = "[" +
+        // Build a minimal JSON string for parser smoke test
+        String testJson = "[" +
             "{\"skillName\":\"test\"," +
             "\"skillDescription\":\"test skill\"," +
             "\"intent\":\"query\"," +
@@ -253,7 +255,7 @@ class McpJsonParserTest {
             return;
         }
 
-        // 杞崲绗竴涓妧鑳戒负JSON
+        // 鏉烆剚宕茬粭顑跨娑擃亝濡ч懗鎴掕礋JSON
         String json = McpJsonParser.toJson(skills.get(0));
         assertNotNull(json, "JSON string should not be null");
         assertFalse(json.isEmpty(), "JSON string should not be empty");

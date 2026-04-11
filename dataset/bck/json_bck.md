@@ -31,10 +31,9 @@
   {
     "mcpServers": {
       "gaode-map": {
-        "url": "https://open.bigmodel.cn/api/mcp-broker/proxy/gaode-map/mcp?Authorization=YOUR_Zhipu_API_Key"
+        "url": "https://open.bigmodel.cn/api/mcp-broker/proxy/gaode-map/mcp?Authorization=Your Zhipu API Key"
       }
     }
-  },
   },
   {
     "mcpServers": {
@@ -74,14 +73,14 @@
   {
     "mcpServers": {
       "this-day-in-history": {
-        "url": "https://open.bigmodel.cn/api/mcp-broker/proxy/this-day-in-history/mcp?Authorization=YOUR_Zhipu_API_Key"
+        "url": "https://open.bigmodel.cn/api/mcp-broker/proxy/this-day-in-history/mcp?Authorization=Your Zhipu API Key"
       }
     }
   },
   {
     "mcpServers": {
       "exchange-rate": {
-        "url": "https://open.bigmodel.cn/api/mcp-broker/proxy/exchange-rate/mcp?Authorization=YOUR Zhipu API Key"
+        "url": "https://open.bigmodel.cn/api/mcp-broker/proxy/exchange-rate/mcp?Authorization=Your Zhipu API Key"
       }
     }
   },
@@ -95,7 +94,7 @@
   {
     "mcpServers": {
       "constellation": {
-        "url": "https://open.bigmodel.cn/api/mcp-broker/proxy/constellation/mcp?Authorization=YOUR API Key"
+        "url": "https://open.bigmodel.cn/api/mcp-broker/proxy/constellation/mcp?Authorization=Your Zhipu API Key"
       }
     }
   },
@@ -119,7 +118,6 @@
         "url": "https://open.bigmodel.cn/api/mcp-broker/proxy/aviation/mcp?Authorization=Your Zhipu API Key"
       }
     }
-  },
   },
   {
     "mcpServers": {
@@ -145,21 +143,21 @@
   {
     "mcpServers": {
       "delivery-inquiry": {
-        "url": "https://open.bigmodel.cn/api/mcp-broker/proxy/delivery-inquiry/mcp?Authorization=YOUR Zhipu API Key"
+        "url": "https://open.bigmodel.cn/api/mcp-broker/proxy/delivery-inquiry/mcp?Authorization=Your Zhipu API Key"
       }
     }
   },
   {
     "mcpServers": {
       "agricultural-product-data": {
-        "url": "https://open.bigmodel.cn/api/mcp-broker/proxy/product-barcode-query/mcp?Authorization=YOUR_Zhipu_API_Key"
+        "url": "https://open.bigmodel.cn/api/mcp-broker/proxy/product-barcode-query/mcp?Authorization=Your Zhipu API Key"
       }
     }
   },
   {
     "mcpServers": {
       "lunar-calendar": {
-        "url": "https://open.bigmodel.cn/api/mcp-broker/proxy/lunar-calendar/mcp?Authorization=YOUR_Zhipu_API_Key"
+        "url": "https://open.bigmodel.cn/api/mcp-broker/proxy/lunar-calendar/mcp?Authorization=Your Zhipu API Key"
       }
     }
   },
@@ -180,14 +178,14 @@
   {
     "mcpServers": {
       "fuel-price": {
-        "url": "https://open.bigmodel.cn/api/mcp-broker/proxy/fuel-price/mcp?Authorization=YOUR_Zhipu_API_Key"
+        "url": "https://open.bigmodel.cn/api/mcp-broker/proxy/fuel-price/mcp?Authorization=Your Zhipu API Key"
       }
     }
   },
   {
     "mcpServers": {
       "ip-address": {
-        "url": "https://open.bigmodel.cn/api/mcp-broker/proxy/ip-address/mcp?Authorization=YOUR Zhipu API Key"
+        "url": "https://open.bigmodel.cn/api/mcp-broker/proxy/ip-address/mcp?Authorization=Your Zhipu API Key"
       }
     }
   },

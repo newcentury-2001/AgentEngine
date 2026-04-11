@@ -1,0 +1,230 @@
+[
+    {
+        "slotKey":  "address"
+    },
+    {
+        "slotKey":  "airport"
+    },
+    {
+        "slotKey":  "amount"
+    },
+    {
+        "slotKey":  "areaid"
+    },
+    {
+        "slotKey":  "areaName"
+    },
+    {
+        "slotKey":  "arr_airport"
+    },
+    {
+        "slotKey":  "arrCityCode"
+    },
+    {
+        "slotKey":  "bank"
+    },
+    {
+        "slotKey":  "bbox"
+    },
+    {
+        "slotKey":  "city"
+    },
+    {
+        "slotKey":  "cityId"
+    },
+    {
+        "slotKey":  "citylimit"
+    },
+    {
+        "slotKey":  "code"
+    },
+    {
+        "slotKey":  "color"
+    },
+    {
+        "slotKey":  "countyId"
+    },
+    {
+        "slotKey":  "currency"
+    },
+    {
+        "slotKey":  "date"
+    },
+    {
+        "slotKey":  "dep_airport"
+    },
+    {
+        "slotKey":  "departure_date"
+    },
+    {
+        "slotKey":  "depCityCode"
+    },
+    {
+        "slotKey":  "destination"
+    },
+    {
+        "slotKey":  "dlat"
+    },
+    {
+        "slotKey":  "dlon"
+    },
+    {
+        "slotKey":  "dname"
+    },
+    {
+        "slotKey":  "draw_color"
+    },
+    {
+        "slotKey":  "end"
+    },
+    {
+        "slotKey":  "flight_no"
+    },
+    {
+        "slotKey":  "geo_point"
+    },
+    {
+        "slotKey":  "id"
+    },
+    {
+        "slotKey":  "image_url"
+    },
+    {
+        "slotKey":  "ip"
+    },
+    {
+        "slotKey":  "issue_no"
+    },
+    {
+        "slotKey":  "lat"
+    },
+    {
+        "slotKey":  "line_thickness"
+    },
+    {
+        "slotKey":  "location"
+    },
+    {
+        "slotKey":  "lon"
+    },
+    {
+        "slotKey":  "lottery_id"
+    },
+    {
+        "slotKey":  "mobile"
+    },
+    {
+        "slotKey":  "name"
+    },
+    {
+        "slotKey":  "number"
+    },
+    {
+        "slotKey":  "org_code"
+    },
+    {
+        "slotKey":  "org_name"
+    },
+    {
+        "slotKey":  "origin"
+    },
+    {
+        "slotKey":  "page_num"
+    },
+    {
+        "slotKey":  "page_size"
+    },
+    {
+        "slotKey":  "poiId"
+    },
+    {
+        "slotKey":  "point"
+    },
+    {
+        "slotKey":  "province"
+    },
+    {
+        "slotKey":  "provinceId"
+    },
+    {
+        "slotKey":  "provinceName"
+    },
+    {
+        "slotKey":  "query"
+    },
+    {
+        "slotKey":  "radius"
+    },
+    {
+        "slotKey":  "random_string"
+    },
+    {
+        "slotKey":  "shipper_code"
+    },
+    {
+        "slotKey":  "slat"
+    },
+    {
+        "slotKey":  "slon"
+    },
+    {
+        "slotKey":  "sname"
+    },
+    {
+        "slotKey":  "sort"
+    },
+    {
+        "slotKey":  "sort_by"
+    },
+    {
+        "slotKey":  "sourceTimezone"
+    },
+    {
+        "slotKey":  "star"
+    },
+    {
+        "slotKey":  "start"
+    },
+    {
+        "slotKey":  "strategy"
+    },
+    {
+        "slotKey":  "symbol"
+    },
+    {
+        "slotKey":  "target"
+    },
+    {
+        "slotKey":  "targetTimezone"
+    },
+    {
+        "slotKey":  "time"
+    },
+    {
+        "slotKey":  "timezone"
+    },
+    {
+        "slotKey":  "title"
+    },
+    {
+        "slotKey":  "townId"
+    },
+    {
+        "slotKey":  "tracking_number"
+    },
+    {
+        "slotKey":  "type"
+    },
+    {
+        "slotKey":  "url"
+    },
+    {
+        "slotKey":  "villageId"
+    },
+    {
+        "slotKey":  "year"
+    },
+    {
+        "slotKey":  "zipcode"
+    }
+]

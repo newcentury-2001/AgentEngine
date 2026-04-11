@@ -6,6 +6,7 @@ import java.util.Map;
 public record McpEncodingRepairResult(
         String message,
         String sourceJsonPath,
+        String outputJsonPath,
         String outputMarkdownPath,
         String detectedCharset,
         int totalServers,
@@ -18,6 +19,7 @@ public record McpEncodingRepairResult(
         Map<String, Object> out = new LinkedHashMap<>();
         out.put("message", message);
         out.put("sourceJsonPath", sourceJsonPath);
+        out.put("outputJsonPath", outputJsonPath);
         out.put("outputMarkdownPath", outputMarkdownPath);
         out.put("detectedCharset", detectedCharset);
         out.put("totalServers", totalServers);

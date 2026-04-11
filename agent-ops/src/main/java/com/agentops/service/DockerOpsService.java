@@ -104,6 +104,7 @@ public class DockerOpsService {
         files.add(new String[]{"ops-bundle/scripts/bootstrap.sh", resolveScriptRemoteDir() + "/bootstrap.sh"});
         files.add(new String[]{"ops-bundle/scripts/db-init.sh", resolveScriptRemoteDir() + "/db-init.sh"});
         files.add(new String[]{"ops-bundle/scripts/start-xxl.sh", resolveScriptRemoteDir() + "/start-xxl.sh"});
+        files.add(new String[]{"ops-bundle/scripts/broker.conf", resolveScriptRemoteDir() + "/broker.conf"});
         return uploadBundleEntries(files, true, "bundle upload success");
     }
 
@@ -128,6 +129,7 @@ public class DockerOpsService {
         files.add(new String[]{"ops-bundle/scripts/bootstrap.sh", resolveScriptRemoteDir() + "/bootstrap.sh"});
         files.add(new String[]{"ops-bundle/scripts/db-init.sh", resolveScriptRemoteDir() + "/db-init.sh"});
         files.add(new String[]{"ops-bundle/scripts/start-xxl.sh", resolveScriptRemoteDir() + "/start-xxl.sh"});
+        files.add(new String[]{"ops-bundle/scripts/broker.conf", resolveScriptRemoteDir() + "/broker.conf"});
         return uploadBundleEntries(files, true, "script bundle upload success");
     }
 

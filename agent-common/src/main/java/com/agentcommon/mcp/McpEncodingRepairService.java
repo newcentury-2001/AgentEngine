@@ -23,6 +23,7 @@ public final class McpEncodingRepairService {
 
     public static McpEncodingRepairResult repairBackupToMarkdown(
             Path src,
+            Path outJson,
             Path out,
             ObjectMapper objectMapper
     ) {
@@ -33,27 +34,32 @@ public final class McpEncodingRepairService {
         byte[] raw = readAllBytes(src);
         String jsonText = decode(raw);
         JsonNode root = parseJson(jsonText, objectMapper);
-        JsonNode results = root.path("results");
+        JsonNode repairedRoot = repairJsonTree(root, null, objectMapper);
+        JsonNode results = repairedRoot.path("results");
         if (!results.isArray()) {
             throw new IllegalStateException("repair source json missing results array");
         }
 
         int beforeMessy = countMessySegments(jsonText);
+        String repairedJsonText = toPrettyJson(repairedRoot, objectMapper);
+        int afterMessyJson = countMessySegments(repairedJsonText);
         String markdown = buildMarkdown(results, objectMapper);
         int afterMessy = countMessySegments(markdown);
+        writeString(outJson, repairedJsonText);
         writeString(out, markdown);
 
         int successCount = countSuccess(results);
         return new McpEncodingRepairResult(
                 "repair markdown generated",
                 src.toString(),
+                outJson.toString(),
                 out.toString(),
                 "UTF-8",
                 results.size(),
                 successCount,
                 results.size() - successCount,
                 beforeMessy,
-                afterMessy
+                Math.min(afterMessy, afterMessyJson)
         );
     }
 
@@ -195,6 +201,14 @@ public final class McpEncodingRepairService {
         return new String(raw, StandardCharsets.UTF_8);
     }
 
+    private static String toPrettyJson(JsonNode root, ObjectMapper objectMapper) {
+        try {
+            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(root);
+        } catch (Exception e) {
+            throw new IllegalStateException("serialize repaired json failed", e);
+        }
+    }
+
     private static JsonNode parseJson(String text, ObjectMapper objectMapper) {
         try {
             return objectMapper.readTree(text);
@@ -218,7 +232,7 @@ public final class McpEncodingRepairService {
             }
             Files.writeString(path, text, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new IllegalStateException("write repaired markdown failed: " + path, e);
+            throw new IllegalStateException("write repaired file failed: " + path, e);
         }
     }
 }
