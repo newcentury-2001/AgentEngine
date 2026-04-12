@@ -4,6 +4,11 @@
 1) 生成工具短描述 description（中文，30字以内，不要模板化语句，不要重复工具名）。
 2) 基于 inputSchema 抽取输入槽位 inputSlots。
 3) 给每个 field 映射 slotKey（必须从全局槽位中选择最接近语义的键，不允许自定义新键）。
+4) 判定参数约束类型：
+   - HARD_REQUIRED（无条件必填）
+   - CONDITIONAL_REQUIRED（条件必填）
+   - OPTIONAL（可选/有默认值/可自动推断）
+5) 表达“或关系/至少一个”参数组 requiredGroups。
 
 输出格式（只允许 JSON，不要解释文本）：
 {
@@ -11,18 +16,30 @@
   "inputSlots": [
     {
       "field": "原参数名",
+      "fieldPath": "原参数名",
       "slotKey": "归一化槽位名",
       "type": "string|number|integer|boolean|array|object",
-      "required": true
+      "required": true,
+      "requirement": "HARD_REQUIRED|CONDITIONAL_REQUIRED|OPTIONAL",
+      "condition": "当 requirement=CONDITIONAL_REQUIRED 时填写条件，否则空字符串",
+      "defaultValueHint": "可选，若有默认值或可自动推断则填写",
+      "reason": "简短判定理由"
     }
+  ],
+  "requiredGroups": [
+    ["paramA", "paramB"]
   ]
 }
 
 约束：
 - inputSlots 仅包含输入参数，不要输出无关字段。
 - slotKey 使用小写 snake_case。
-- field 必须对应 inputSchema 中真实存在的参数。
-- 如果 inputSchema 缺失，inputSlots 返回空数组。
+- field/fieldPath 必须对应 inputSchema 中真实存在的参数。
+- required 字段用于向后兼容：仅当 requirement=HARD_REQUIRED 时填 true，其余填 false。
+- 对“可自动识别/不传也可用/有默认值”的字段，优先标 OPTIONAL。
+- 对“仅某些快递公司/场景需要”的字段，标 CONDITIONAL_REQUIRED 并写 condition。
+- 对“二选一/至少一个”这类关系，写入 requiredGroups，不要把整组都标 HARD_REQUIRED。
+- 如果 inputSchema 缺失，inputSlots 返回空数组，requiredGroups 返回空数组。
 - 如上次输出有未命中白名单的 slotKey，请优先修正这些键并严格落在 globalSlots 中。
 
 输入：

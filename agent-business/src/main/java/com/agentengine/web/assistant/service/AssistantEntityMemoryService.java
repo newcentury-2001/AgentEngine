@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -36,6 +37,44 @@ public class AssistantEntityMemoryService {
         } catch (Exception e) {
             log.warn("failed to merge entity memory. taskId={}", taskId, e);
         }
+    }
+
+    public Map<String, String> getAll(String taskId) {
+        if (blank(taskId)) {
+            return Map.of();
+        }
+        try {
+            Map<Object, Object> raw = stringRedisTemplate.opsForHash().entries(key(taskId));
+            if (raw == null || raw.isEmpty()) {
+                return Map.of();
+            }
+            Map<String, String> result = new LinkedHashMap<>();
+            raw.forEach((k, v) -> {
+                String key = k == null ? "" : k.toString().trim();
+                String value = v == null ? "" : v.toString().trim();
+                if (!key.isEmpty() && !value.isEmpty()) {
+                    result.put(key, value);
+                }
+            });
+            return result;
+        } catch (Exception e) {
+            log.warn("failed to load entity memory. taskId={}", taskId, e);
+            return Map.of();
+        }
+    }
+
+    public void clear(String taskId) {
+        if (blank(taskId)) {
+            return;
+        }
+        stringRedisTemplate.delete(key(taskId));
+    }
+
+    public void touch(String taskId) {
+        if (blank(taskId)) {
+            return;
+        }
+        stringRedisTemplate.expire(key(taskId), ttlMinutes, TimeUnit.MINUTES);
     }
 
     private String key(String taskId) {

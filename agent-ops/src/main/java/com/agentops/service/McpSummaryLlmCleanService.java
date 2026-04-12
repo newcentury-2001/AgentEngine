@@ -920,12 +920,20 @@ public class McpSummaryLlmCleanService {
             if (type.isBlank()) {
                 type = "string";
             }
+            String requirement = normalizeSlotRequirement(item.path("requirement").asText(""));
             boolean required = item.path("required").asBoolean(false);
+            if (requirement.isBlank()) {
+                requirement = required ? "HARD_REQUIRED" : "OPTIONAL";
+            }
             InputSlot slot = new InputSlot();
             slot.setFieldPath(field);
             slot.setSlotKey(slotKey);
             slot.setFieldType(type.toLowerCase());
-            slot.setRequired(required);
+            slot.setRequired("HARD_REQUIRED".equals(requirement));
+            slot.setRequirement(requirement);
+            slot.setCondition(safe(item.path("condition").asText("")));
+            slot.setDefaultValueHint(safe(item.path("defaultValueHint").asText("")));
+            slot.setReason(safe(item.path("reason").asText("")));
             out.add(slot);
         }
         return out.isEmpty() ? fallbackSlotsFromInputSchema(tool) : out;
@@ -1069,10 +1077,23 @@ public class McpSummaryLlmCleanService {
             slot.setFieldPath(field);
             slot.setSlotKey(normalizeSlotKey(field));
             slot.setFieldType(type);
-            slot.setRequired(requiredFields.contains(field));
+            boolean required = requiredFields.contains(field);
+            slot.setRequired(required);
+            slot.setRequirement(required ? "HARD_REQUIRED" : "OPTIONAL");
+            slot.setCondition("");
+            slot.setDefaultValueHint("");
+            slot.setReason("");
             out.add(slot);
         }
         return out;
+    }
+
+    private String normalizeSlotRequirement(String raw) {
+        String value = safe(raw).toUpperCase();
+        return switch (value) {
+            case "HARD_REQUIRED", "CONDITIONAL_REQUIRED", "OPTIONAL" -> value;
+            default -> "";
+        };
     }
 
     private String normalizeSlotKey(String raw) {

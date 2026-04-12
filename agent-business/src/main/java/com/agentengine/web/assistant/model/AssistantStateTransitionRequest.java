@@ -10,8 +10,14 @@ public class AssistantStateTransitionRequest {
     private String userId;
     private LlmAgentState nextState;
     private String lastMessage;
-    private String lastToolName;
+    private String intent;
+    private String skillName;
     private List<String> missingSlots;
     private String errorMessage;
-    private Integer lastEmbeddingDim;
+    private Boolean needClarification;
+    private String clarificationType;
+    private String clarificationQuestion;
+    private List<IntentCandidate> intentCandidatesTop3;
+    private String assistantReply;
+    private Integer activeTurnCount;
 }

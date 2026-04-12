@@ -1,7 +1,6 @@
 package com.agentengine.web.assistant.controller;
 
 import com.agentengine.web.assistant.model.AssistantAgentProcessRequest;
-import com.agentengine.web.assistant.model.AssistantUserState;
 import com.agentengine.web.assistant.service.AssistantAgentOrchestrationService;
 import com.agentengine.web.assistant.service.AssistantStateMachineService;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +25,7 @@ public class AssistantStateController {
     @PostMapping("/execute")
     public ResponseEntity<?> execute(@RequestBody AssistantAgentProcessRequest request) {
         try {
-            AssistantUserState state = orchestrationService.execute(request);
-            return ResponseEntity.ok(state);
+            return ResponseEntity.ok(orchestrationService.execute(request));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (IllegalStateException e) {

@@ -3,7 +3,6 @@ package com.agentengine.web.assistant.service.stage;
 import com.agentengine.web.assistant.model.AssistantAgentProcessRequest;
 import com.agentengine.web.assistant.model.AssistantInferenceResult;
 import com.agentengine.web.assistant.model.AssistantUserState;
-import com.agentengine.web.assistant.model.LlmAgentState;
 import com.agentengine.web.assistant.service.AssistantEntityMemoryService;
 import com.agentengine.web.assistant.service.AssistantInferenceService;
 import lombok.RequiredArgsConstructor;
@@ -17,14 +16,14 @@ public class SlotClarificationStageInputService implements AssistantStageInputSe
     private final AssistantEntityMemoryService assistantEntityMemoryService;
 
     @Override
-    public LlmAgentState stage() {
-        return LlmAgentState.SLOT_CLARIFICATION;
+    public AssistantStage stage() {
+        return AssistantStage.SLOT_CLARIFICATION;
     }
 
     @Override
     public void prepare(AssistantUserState current, AssistantAgentProcessRequest request, String message) {
         AssistantInferenceResult inference = assistantInferenceService.inferForSlotFill(
-                LlmAgentState.SLOT_CLARIFICATION,
+                AssistantStage.SLOT_CLARIFICATION,
                 current.getMissingSlots(),
                 message
         );
@@ -37,7 +36,6 @@ public class SlotClarificationStageInputService implements AssistantStageInputSe
         request.setAnswerReady(inference.isAnswerReady());
         request.setToolName(inference.getToolName());
         request.setMissingSlots(inference.getMissingSlots());
-        request.setEmbeddingDim(inference.getEmbeddingDim());
         if (blank(request.getErrorMessage())) {
             request.setErrorMessage(inference.getErrorMessage());
         }

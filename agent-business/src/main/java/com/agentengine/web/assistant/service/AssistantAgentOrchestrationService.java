@@ -1,65 +1,115 @@
 package com.agentengine.web.assistant.service;
 
-import com.agentengine.web.assistant.handler.AssistantStateHandler;
 import com.agentengine.web.assistant.model.AssistantAgentProcessRequest;
 import com.agentengine.web.assistant.model.AssistantStateStartRequest;
 import com.agentengine.web.assistant.model.AssistantStateTransitionRequest;
 import com.agentengine.web.assistant.model.AssistantUserState;
 import com.agentengine.web.assistant.model.LlmAgentState;
-import com.agentengine.web.assistant.service.stage.AssistantStageInputService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class AssistantAgentOrchestrationService {
 
     private final AssistantStateMachineService stateMachineService;
-    private final Map<LlmAgentState, AssistantStateHandler> handlers = new EnumMap<>(LlmAgentState.class);
-    private final Map<LlmAgentState, AssistantStageInputService> stageInputServices = new EnumMap<>(LlmAgentState.class);
 
-    public AssistantAgentOrchestrationService(AssistantStateMachineService stateMachineService,
-                                              List<AssistantStateHandler> stateHandlers,
-                                              List<AssistantStageInputService> stageServices) {
-        this.stateMachineService = stateMachineService;
-        for (AssistantStateHandler handler : stateHandlers) {
-            handlers.put(handler.state(), handler);
-        }
-        for (AssistantStageInputService service : stageServices) {
-            stageInputServices.put(service.stage(), service);
-        }
-    }
-
+    /**
+     * Main entry for assistant state flow.
+     * Current simplified model has two states only: IDLE and ACTIVE.
+     */
     public AssistantUserState execute(AssistantAgentProcessRequest request) {
         AssistantUserState current = resolveState(request);
         String message = safe(request.getMessage());
-        if (!message.isBlank()) {
-            if (current.getState() == LlmAgentState.FINAL_ANSWER) {
-                current = toIntentRecognition(current, message, null);
-            }
-            if (current.getState() == LlmAgentState.INIT) {
-                current = toIntentRecognition(current, message, null);
-            }
-            AssistantStageInputService stageService = stageInputServices.get(current.getState());
-            if (stageService != null) {
-                // 按阶段补齐信号（抽槽结果/向量维度等）到 request，供后续状态处理器使用。
-                stageService.prepare(current, request, message);
-            }
-            // 保留用户原始输入，供后续状态迁移和审计字段使用。
-            request.setMessage(message);
+
+        if (current.getState() == null) {
+            current = transition(current, LlmAgentState.IDLE, t -> {
+                t.setLastMessage(message);
+                t.setAssistantReply("");
+            });
         }
 
-        AssistantStateHandler handler = handlers.get(current.getState());
-        if (handler == null) {
-            throw new IllegalStateException("no handler found for state: " + current.getState());
+        if (current.getState() == LlmAgentState.IDLE) {
+            return executeIdle(current, request, message);
         }
-        log.debug("assistant execute. userId={}, taskId={}, currentState={}",
-                current.getUserId(), current.getTaskId(), current.getState());
-        return handler.handle(current, request);
+        return executeActive(current, request, message);
+    }
+
+    private AssistantUserState executeIdle(AssistantUserState current,
+                                           AssistantAgentProcessRequest request,
+                                           String message) {
+        String selectedIntent = safe(request.getSelectedIntent());
+        if (selectedIntent.isBlank()) {
+            return transition(current, LlmAgentState.IDLE, t -> {
+                t.setLastMessage(message);
+                t.setNeedClarification(true);
+                t.setClarificationType("INTENT_REQUIRED");
+                t.setClarificationQuestion("Please choose or provide your intent.");
+                t.setAssistantReply("Please choose or provide your intent.");
+                t.setErrorMessage("");
+                t.setActiveTurnCount(0);
+            });
+        }
+
+        return transition(current, LlmAgentState.ACTIVE, t -> {
+            t.setLastMessage(message);
+            t.setIntent(selectedIntent);
+            t.setNeedClarification(false);
+            t.setClarificationType("");
+            t.setClarificationQuestion("");
+            t.setMissingSlots(List.of());
+            t.setErrorMessage("");
+            t.setAssistantReply("Execution plan created, processing now.");
+            t.setActiveTurnCount(0);
+        });
+    }
+
+    private AssistantUserState executeActive(AssistantUserState current,
+                                             AssistantAgentProcessRequest request,
+                                             String message) {
+        List<String> missingSlots = request.getMissingSlots() == null ? List.of() : request.getMissingSlots();
+        boolean answerReady = Boolean.TRUE.equals(request.getAnswerReady());
+
+        if (answerReady) {
+            return transition(current, LlmAgentState.IDLE, t -> {
+                t.setLastMessage(message);
+                t.setIntent("");
+                t.setSkillName("");
+                t.setMissingSlots(List.of());
+                t.setErrorMessage("");
+                t.setNeedClarification(false);
+                t.setClarificationType("");
+                t.setClarificationQuestion("");
+                t.setAssistantReply(safe(message).isBlank() ? "Done." : message);
+                t.setActiveTurnCount(0);
+            });
+        }
+
+        if (!missingSlots.isEmpty()) {
+            return transition(current, LlmAgentState.ACTIVE, t -> {
+                t.setLastMessage(message);
+                t.setMissingSlots(missingSlots);
+                t.setNeedClarification(false);
+                t.setClarificationType("");
+                t.setClarificationQuestion("");
+                t.setAssistantReply("Missing required slots: " + String.join(", ", missingSlots) + ".");
+                t.setErrorMessage("");
+                Integer turns = current.getActiveTurnCount() == null ? 0 : current.getActiveTurnCount();
+                t.setActiveTurnCount(turns + 1);
+            });
+        }
+
+        return transition(current, LlmAgentState.ACTIVE, t -> {
+            t.setLastMessage(message);
+            t.setErrorMessage(safe(request.getErrorMessage()));
+            t.setAssistantReply("Running.");
+            Integer turns = current.getActiveTurnCount() == null ? 0 : current.getActiveTurnCount();
+            t.setActiveTurnCount(turns + 1);
+        });
     }
 
     private AssistantUserState resolveState(AssistantAgentProcessRequest request) {
@@ -70,19 +120,10 @@ public class AssistantAgentOrchestrationService {
         }
         if (!taskId.isBlank()) {
             return stateMachineService.findByTaskId(taskId)
-                    .orElseGet(() -> {
-                        AssistantUserState started = startState(userId, taskId, request);
-                        return toIntentRecognition(started, request.getMessage(), null);
-                    });
+                    .orElseGet(() -> startState(userId, taskId, request));
         }
         return stateMachineService.findByUserId(userId)
-                .orElseGet(() -> {
-                    if (taskId.isBlank()) {
-                        throw new IllegalArgumentException("taskId is required for first request");
-                    }
-                    AssistantUserState started = startState(userId, taskId, request);
-                    return toIntentRecognition(started, request.getMessage(), null);
-                });
+                .orElseThrow(() -> new IllegalArgumentException("taskId is required for first request"));
     }
 
     private AssistantUserState startState(String userId, String taskId, AssistantAgentProcessRequest request) {
@@ -94,39 +135,19 @@ public class AssistantAgentOrchestrationService {
         return stateMachineService.start(start);
     }
 
-    private AssistantUserState toIntentRecognition(AssistantUserState current, String message, Integer embeddingDim) {
-        return stateMachineService.transition(buildTransition(
-                current,
-                LlmAgentState.INTENT_RECOGNITION,
-                message,
-                null,
-                null,
-                null,
-                embeddingDim
-        ));
-    }
-
-    private AssistantStateTransitionRequest buildTransition(
-            AssistantUserState current,
-            LlmAgentState nextState,
-            String message,
-            String toolName,
-            List<String> missingSlots,
-            String errorMessage,
-            Integer embeddingDim) {
-        AssistantStateTransitionRequest transition = new AssistantStateTransitionRequest();
-        transition.setTaskId(current.getTaskId());
-        transition.setUserId(current.getUserId());
-        transition.setNextState(nextState);
-        transition.setLastMessage(message);
-        transition.setLastToolName(toolName);
-        transition.setMissingSlots(missingSlots);
-        transition.setErrorMessage(errorMessage);
-        transition.setLastEmbeddingDim(embeddingDim);
-        return transition;
+    private AssistantUserState transition(AssistantUserState current,
+                                          LlmAgentState nextState,
+                                          java.util.function.Consumer<AssistantStateTransitionRequest> updater) {
+        AssistantStateTransitionRequest t = new AssistantStateTransitionRequest();
+        t.setTaskId(current.getTaskId());
+        t.setUserId(current.getUserId());
+        t.setNextState(nextState);
+        updater.accept(t);
+        return stateMachineService.transition(t);
     }
 
     private String safe(String value) {
         return value == null ? "" : value.trim();
     }
 }
+

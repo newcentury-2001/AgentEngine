@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
@@ -87,12 +87,21 @@
     .send { background: linear-gradient(135deg,#0ea5a0,#0f766e); }
     .back { background: linear-gradient(135deg,#64748b,#475569); }
     .new { background: linear-gradient(135deg,#2563eb,#1d4ed8); }
+    .choice { background: linear-gradient(135deg,#0891b2,#0e7490); }
     .side-body { padding: 14px; display: grid; gap: 10px; }
     .card { border: 1px solid var(--line); border-radius: 10px; padding: 10px; background: #f8fbff; }
     .k { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
     .v { font-size: 13px; font-weight: 700; word-break: break-all; }
     .status { border-left: 4px solid #2563eb; }
     .tips { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    #intentChoices {
+      padding: 0 10px 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-height: 10px;
+      background: #fff;
+    }
     @media (max-width: 980px) {
       .app { grid-template-columns: 1fr; }
       .chat { height: 420px; }
@@ -105,7 +114,7 @@
     <div class="head">
       <div>
         <div class="title">智能助手</div>
-        <div class="sub">前端生成 taskId，后端仅生成 traceId；每次消息触发槽位提取 + embedding</div>
+        <div class="sub">前端生成 taskId，后端管理会话状态与执行计划</div>
       </div>
       <div style="display:flex;gap:8px;">
         <button class="new" id="newTaskBtn">新会话</button>
@@ -117,6 +126,7 @@
       <textarea id="input" placeholder="请输入你的问题..."></textarea>
       <button class="send" id="sendBtn">发送</button>
     </div>
+    <div id="intentChoices"></div>
   </section>
 
   <aside class="side">
@@ -126,11 +136,11 @@
       <div class="card"><div class="k">taskId</div><div id="taskId" class="v">-</div></div>
       <div class="card"><div class="k">traceId</div><div id="traceId" class="v">-</div></div>
       <div class="card"><div class="k">state</div><div id="state" class="v">-</div></div>
+      <div class="card"><div class="k">intent</div><div id="intent" class="v">-</div></div>
+      <div class="card"><div class="k">skill</div><div id="skill" class="v">-</div></div>
       <div class="card"><div class="k">missingSlots</div><div id="missingSlots" class="v">[]</div></div>
-      <div class="card"><div class="k">lastTool</div><div id="lastTool" class="v">-</div></div>
-      <div class="card"><div class="k">embeddingDim</div><div id="embDim" class="v">0</div></div>
       <div class="card status"><div class="k">状态</div><div id="status" class="v">就绪</div></div>
-      <div class="tips">后端 Redis 仅保留最近 3 轮原始对话（6 条消息：user+assistant）。</div>
+      <div class="tips">低置信/歧义时，会展示澄清问题与候选意图按钮。</div>
     </div>
   </aside>
 </div>
@@ -144,25 +154,26 @@ function rid() {
 }
 
 function getOrCreateUserId() {
-  let userId = localStorage.getItem('assistant_user_id');
-  if (!userId) {
-    userId = rid();
-    localStorage.setItem('assistant_user_id', userId);
+  let id = localStorage.getItem('assistant_user_id');
+  if (!id) {
+    id = rid();
+    localStorage.setItem('assistant_user_id', id);
   }
-  return userId;
+  return id;
 }
 
 function getOrCreateTaskId() {
-  let taskId = sessionStorage.getItem('assistant_task_id');
-  if (!taskId) {
-    taskId = rid();
-    sessionStorage.setItem('assistant_task_id', taskId);
+  let id = sessionStorage.getItem('assistant_task_id');
+  if (!id) {
+    id = rid();
+    sessionStorage.setItem('assistant_task_id', id);
   }
-  return taskId;
+  return id;
 }
 
 let userId = getOrCreateUserId();
 let taskId = getOrCreateTaskId();
+let sending = false;
 
 function refreshIds() {
   $('userId').textContent = userId;
@@ -181,52 +192,107 @@ function setStatus(text) {
   $('status').textContent = text;
 }
 
+function clearIntentChoices() {
+  $('intentChoices').innerHTML = '';
+}
+
+function renderIntentChoices(candidates) {
+  clearIntentChoices();
+  if (!Array.isArray(candidates) || candidates.length === 0) return;
+
+  candidates.forEach((c) => {
+    const code = c.intentCode || c.intentLabel || '';
+    const label = c.intentLabel || c.intentCode || 'unknown';
+    const score = Number(c.score || 0).toFixed(3);
+    const btn = document.createElement('button');
+    btn.className = 'choice';
+    btn.textContent = `${label} (${score})`;
+    btn.onclick = () => sendSelectedIntent(code, label);
+    $('intentChoices').appendChild(btn);
+  });
+}
+
 function renderState(s) {
   $('traceId').textContent = s.traceId || '-';
   $('state').textContent = s.state || '-';
+  $('intent').textContent = s.intent || '-';
+  $('skill').textContent = s.skillName || '-';
   $('missingSlots').textContent = JSON.stringify(s.missingSlots || []);
-  $('lastTool').textContent = s.lastToolName || '-';
-  $('embDim').textContent = String(s.lastEmbeddingDim || 0);
+}
+
+function renderAssistantResult(data) {
+  if (data.needClarification) {
+    const q = data.clarificationQuestion || data.assistantReply || '请补充更多信息。';
+    addMsg('assistant', q);
+    renderIntentChoices(data.intentCandidatesTop3 || []);
+    setStatus(`待澄清(${data.clarificationType || 'UNKNOWN'})`);
+    return;
+  }
+
+  clearIntentChoices();
+  if (data.assistantReply) {
+    addMsg('assistant', data.assistantReply);
+  } else {
+    addMsg('assistant', [
+      `state=${data.state || '-'}`,
+      `intent=${data.intent || '-'}`,
+      `skill=${data.skillName || '-'}`,
+      `missingSlots=${JSON.stringify(data.missingSlots || [])}`
+    ].join('\n'));
+  }
+  setStatus('完成');
+}
+
+async function postExecute(payload, userTextForChat) {
+  if (sending) return;
+  sending = true;
+  $('sendBtn').disabled = true;
+  setStatus('处理中...');
+
+  try {
+    const resp = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await resp.json();
+
+    if (userTextForChat) {
+      addMsg('user', userTextForChat);
+    }
+
+    if (!resp.ok) {
+      addMsg('assistant', `请求失败: ${data.error || resp.status}`);
+      setStatus('失败');
+      return;
+    }
+
+    renderState(data);
+    renderAssistantResult(data);
+  } catch (e) {
+    addMsg('assistant', `请求异常: ${e.message || e}`);
+    setStatus('异常');
+  } finally {
+    sending = false;
+    $('sendBtn').disabled = false;
+  }
+}
+
+async function sendSelectedIntent(intentCode, label) {
+  if (!intentCode) return;
+  await postExecute({
+    userId,
+    taskId,
+    selectedIntent: intentCode,
+    message: ''
+  }, `[选择意图] ${label}`);
 }
 
 async function send() {
   const text = $('input').value.trim();
   if (!text) return;
   $('input').value = '';
-  addMsg('user', text);
-  setStatus('处理中...');
-  $('sendBtn').disabled = true;
-  try {
-    const resp = await fetch(API, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        userId,
-        taskId,
-        message: text
-      })
-    });
-    const data = await resp.json();
-    if (!resp.ok) {
-      addMsg('assistant', `请求失败: ${data.error || resp.status}`);
-      setStatus('失败');
-      return;
-    }
-    renderState(data);
-    const desc = [
-      `state=${data.state || '-'}`,
-      `tool=${data.lastToolName || '-'}`,
-      `missingSlots=${JSON.stringify(data.missingSlots || [])}`,
-      `embeddingDim=${data.lastEmbeddingDim || 0}`
-    ].join('\n');
-    addMsg('assistant', desc);
-    setStatus('完成');
-  } catch (e) {
-    addMsg('assistant', `请求异常: ${e.message || e}`);
-    setStatus('异常');
-  } finally {
-    $('sendBtn').disabled = false;
-  }
+  await postExecute({ userId, taskId, message: text }, text);
 }
 
 $('sendBtn').addEventListener('click', send);
@@ -243,11 +309,13 @@ $('newTaskBtn').addEventListener('click', () => {
   refreshIds();
   $('traceId').textContent = '-';
   $('state').textContent = '-';
+  $('intent').textContent = '-';
+  $('skill').textContent = '-';
   $('missingSlots').textContent = '[]';
-  $('lastTool').textContent = '-';
-  $('embDim').textContent = '0';
+  clearIntentChoices();
   $('chatBox').innerHTML = '';
   addMsg('assistant', '已创建新会话，请继续输入。');
+  setStatus('就绪');
 });
 
 refreshIds();

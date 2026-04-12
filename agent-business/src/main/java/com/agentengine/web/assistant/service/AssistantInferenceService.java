@@ -7,8 +7,10 @@ import com.agentcommon.mcp.model.InputSlot;
 import com.agentcommon.mcp.model.McpSkill;
 import com.agentcommon.mcp.model.McpTool;
 import com.agentcommon.mcp.parser.McpJsonParser;
+import com.agentengine.web.assistant.model.AssistantPlannedTool;
 import com.agentengine.web.assistant.model.AssistantInferenceResult;
-import com.agentengine.web.assistant.model.LlmAgentState;
+import com.agentengine.web.assistant.service.retrieval.SkillVectorRecord;
+import com.agentengine.web.assistant.service.stage.AssistantStage;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -33,52 +35,52 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class AssistantInferenceService {
-
     private static final String INTENT_ENTITY_SYSTEM_PROMPT_TEMPLATE = """
-            你是实体提取器。只返回 JSON，不要任何额外文本。
+            You are an entity extractor. Output JSON only.
             JSON schema:
             {
               "entities": [
-                {"name":"槽位名","value":"槽位值"}
+                {"name":"slotKey","value":"slotValue"}
               ]
             }
-            规则:
-            1) 仅抽取结构化实体，不做意图判断。
-            2) name 只能从这个槽位白名单中选择: %s
-            3) 如果用户提到的信息不在白名单里，直接忽略。
-            4) 无实体时返回空数组。
+            Rules:
+            1) Extract structured entities only.
+            2) name must be chosen from whitelist: %s
+            3) Ignore values not in whitelist.
+            4) Return empty array when no entities.
             """;
 
     private static final String INTENT_VOTE_SYSTEM_PROMPT = """
-            你是意图投票器。只返回 JSON，不要任何额外文本。
+            You are an intent vote model. Output JSON only.
             JSON schema:
             {
               "needTool": boolean,
               "answerReady": boolean,
               "toolName": string
             }
-            规则:
-            1) 对用户问题做内部多路判断后给出最终投票结论。
-            2) 需要外部工具查询/计算时，needTool=true。
-            3) 不需要工具可直接回答时，answerReady=true。
-            4) toolName 无法判断时返回空字符串。
+            Rules:
+            1) Decide whether external tool call is required.
+            2) needTool=true when tool call is required.
+            3) answerReady=true when direct answer is possible.
+            4) Return empty toolName when unknown.
             """;
 
     private static final String CLARIFICATION_SLOT_SYSTEM_PROMPT = """
-            你是缺槽补全提取器。只返回 JSON，不要任何额外文本。
+            You are a slot filling extractor. Output JSON only.
             JSON schema:
             {
               "toolName": string,
               "missingSlots": string[],
               "answerReady": boolean,
-              "entities": [{"name":"实体名","value":"实体值"}]
+              "entities": [{"name":"slotKey","value":"slotValue"}]
             }
-            规则:
-            1) 根据用户最新输入，尽量补齐槽位。
-            2) 若还有未补齐槽位，missingSlots 返回剩余项，answerReady=false。
-            3) 若已补齐，missingSlots 返回空数组，answerReady=true。
-            4) entities 仅用于结构化记忆更新。
+            Rules:
+            1) Fill slots using latest user input and expectedMissingSlots.
+            2) entities.name must be chosen strictly from expectedMissingSlots.
+            3) Do not output aliases outside expectedMissingSlots.
+            4) If missing remains: answerReady=false and return missingSlots; else answerReady=true and missingSlots=[].
             """;
+
 
     private final LlmHttpClientRouter llmHttpClientRouter;
     private final HttpRequestClient httpRequestClient;
@@ -109,26 +111,24 @@ public class AssistantInferenceService {
                                                    String userMessage) {
         AssistantInferenceResult entities = doIntentEntityExtraction(userMessage);
         AssistantInferenceResult vote = doIntentVote(recentContext, userMessage);
-        String embeddingInput = buildContext(recentContext, userMessage);
         return AssistantInferenceResult.builder()
                 .needTool(vote.isNeedTool())
                 .answerReady(vote.isAnswerReady())
                 .toolName(vote.getToolName())
                 .missingSlots(List.of())
                 .errorMessage(vote.getErrorMessage())
-                .embeddingDim(doEmbedding(embeddingInput))
                 .entityMemory(entities.getEntityMemory())
                 .build();
     }
 
-    public AssistantInferenceResult inferForSlotFill(LlmAgentState stage,
+    public AssistantInferenceResult inferForSlotFill(AssistantStage stage,
                                                      List<String> expectedMissingSlots,
                                                      String userMessage) {
         return doClarificationSlotExtraction(stage, expectedMissingSlots, userMessage);
     }
 
     private AssistantInferenceResult doIntentEntityExtraction(String userMessage) {
-        // 仅使用当前用户输入抽取实体；并限制在全局槽位白名单内。
+        // Extract entities from current user input, constrained by whitelist.
         try {
             Set<String> slotWhitelist = getGlobalSlotWhitelist();
             String whitelistJson = objectMapper.writeValueAsString(slotWhitelist);
@@ -207,7 +207,7 @@ public class AssistantInferenceService {
         }
     }
 
-    private AssistantInferenceResult doClarificationSlotExtraction(LlmAgentState stage,
+    private AssistantInferenceResult doClarificationSlotExtraction(AssistantStage stage,
                                                                    List<String> expectedMissingSlots,
                                                                    String userMessage) {
         try {
@@ -246,7 +246,6 @@ public class AssistantInferenceService {
                     .answerReady(answerReady)
                     .toolName(toolName)
                     .missingSlots(missingSlots)
-                    .embeddingDim(null)
                     .entityMemory(parseEntities(parsed.path("entities"), Set.of()))
                     .build();
         } catch (Exception e) {
@@ -256,17 +255,16 @@ public class AssistantInferenceService {
                     .answerReady(false)
                     .toolName("")
                     .missingSlots(expectedMissingSlots == null ? List.of("slot_fill_failed") : expectedMissingSlots)
-                    .embeddingDim(null)
                     .entityMemory(Map.of())
                     .build();
         }
     }
 
-    private Integer doEmbedding(String text) {
+    public double[] embedQuery(String text) {
         try {
             String requestBody = objectMapper.createObjectNode()
                     .put("model", embeddingModel)
-                    .put("input", text)
+                    .put("input", text == null ? "" : text)
                     .put("encoding_format", "float")
                     .toString();
             HttpRequest request = ZhipuHttpProtocol.authorizedJsonPostBuilder(
@@ -276,11 +274,232 @@ public class AssistantInferenceService {
             String response = httpRequestClient.send(llmHttpClientRouter.getClient(embeddingModel), request);
             JsonNode root = objectMapper.readTree(response);
             JsonNode embeddingNode = root.path("data").path(0).path("embedding");
-            return embeddingNode.isArray() ? embeddingNode.size() : 0;
+            if (!embeddingNode.isArray() || embeddingNode.isEmpty()) {
+                return new double[0];
+            }
+            double[] result = new double[embeddingNode.size()];
+            for (int i = 0; i < embeddingNode.size(); i++) {
+                result[i] = embeddingNode.get(i).asDouble(0D);
+            }
+            return result;
         } catch (Exception e) {
-            log.warn("embedding failed for assistant input", e);
-            return 0;
+            log.warn("embed query failed", e);
+            return new double[0];
         }
+    }
+
+    public String rerankBestSkill(String context, String intent, List<SkillVectorRecord> candidates) {
+        if (candidates == null || candidates.isEmpty()) {
+            return "";
+        }
+        String fallback = candidates.get(0).getSkillName();
+        try {
+            String candidateJson = objectMapper.writeValueAsString(candidates.stream()
+                    .map(s -> Map.of(
+                            "skillName", s.getSkillName(),
+                            "skillDescription", s.getSkillDescription(),
+                            "intent", s.getIntent()))
+                    .toList());
+            String system = """
+                    You are a skill reranker. Output JSON only.
+                    JSON schema: {"bestSkill":"", "reason":""}
+                    Rules: bestSkill must come from candidates.
+                    """;
+            String user = "intent=" + intent + "\ncontext=" + context + "\ncandidates=" + candidateJson;
+            JsonNode parsed = tryParseJson(chatJson(system, user));
+            String best = parsed.path("bestSkill").asText("").trim();
+            if (best.isEmpty()) {
+                return fallback;
+            }
+            boolean exists = candidates.stream().anyMatch(s -> best.equals(s.getSkillName()));
+            return exists ? best : fallback;
+        } catch (Exception e) {
+            log.warn("rerank skill failed, fallback to top similarity", e);
+            return fallback;
+        }
+    }
+
+    public List<String> selectTools(String context, String intent, String skillName, List<AssistantPlannedTool> candidates) {
+        if (candidates == null || candidates.isEmpty()) {
+            return List.of();
+        }
+        List<String> fallback = List.of(candidates.get(0).getToolName());
+        try {
+            String candidateJson = objectMapper.writeValueAsString(candidates.stream()
+                    .map(t -> Map.of(
+                            "toolName", t.getToolName(),
+                            "toolDescription", t.getToolDescription(),
+                            "simScore", t.getSimScore() == null ? 0D : t.getSimScore(),
+                            "heatWeight", t.getHeatWeight() == null ? 0D : t.getHeatWeight(),
+                            "hardRequiredSlots", resolveHardRequiredSlots(t),
+                            "requiredSlots", resolveHardRequiredSlots(t),
+                            "optionalSlots", resolveOptionalSlots(t)))
+                    .toList());
+            String system = """
+                    You are a tool selector. Output JSON only.
+                    JSON schema: {"selectedTools":["toolA","toolB"],"executionOrder":["toolA"],"reason":""}
+                    Rules: select from candidates only, max 3 tools.
+                    """;
+            String user = "intent=" + intent + "\nskill=" + skillName + "\ncontext=" + context + "\ncandidates=" + candidateJson;
+            JsonNode parsed = tryParseJson(chatJson(system, user));
+            List<String> selected = new ArrayList<>();
+            JsonNode arr = parsed.path("selectedTools");
+            if (arr.isArray()) {
+                for (JsonNode item : arr) {
+                    String name = item.asText("").trim();
+                    if (!name.isEmpty()) {
+                        selected.add(name);
+                    }
+                }
+            }
+            if (selected.isEmpty()) {
+                return fallback;
+            }
+            Set<String> candidateNames = candidates.stream().map(AssistantPlannedTool::getToolName).collect(Collectors.toSet());
+            List<String> filtered = selected.stream().filter(candidateNames::contains).distinct().limit(3).toList();
+            return filtered.isEmpty() ? fallback : filtered;
+        } catch (Exception e) {
+            log.warn("select tools failed, fallback to top similarity", e);
+            return fallback;
+        }
+    }
+
+    public String executePlannedTool(String intent,
+                                     String skillName,
+                                     AssistantPlannedTool tool,
+                                     Map<String, String> entities) {
+        try {
+            if (tool == null || blank(tool.getServerUrl()) || blank(tool.getToolName())) {
+                return "tool execution failed: missing serverUrl/toolName";
+            }
+            String argsJson = objectMapper.writeValueAsString(buildToolArgs(tool, entities));
+            String system = """
+                    You are a strict MCP tool caller.
+                    Call the tool and return output only.
+                    """;
+            String user = "intent=" + text(intent)
+                    + "\nskill=" + text(skillName)
+                    + "\nserverUrl=" + text(tool.getServerUrl())
+                    + "\ntoolName=" + text(tool.getToolName())
+                    + "\narguments=" + argsJson;
+            String content = chatJson(system, user);
+            if (blank(content)) {
+                return "tool execution failed: empty response";
+            }
+            return content.trim();
+        } catch (Exception e) {
+            log.warn("execute planned tool failed. skill={}, tool={}", skillName, tool == null ? "" : tool.getToolName(), e);
+            return "tool execution failed: " + text(e.getMessage());
+        }
+    }
+
+    public String summarizeToolOutput(String intent, String skillName, String toolName, String toolOutput) {
+        try {
+            String system = """
+                    You summarize tool output in one short sentence.
+                    Output plain text only.
+                    """;
+            String user = "intent=" + intent + "\nskill=" + skillName + "\ntool=" + toolName + "\noutput=" + toolOutput;
+            return chatJson(system, user).replace("\n", " ").trim();
+        } catch (Exception e) {
+            log.warn("summarize tool output failed", e);
+            return toolOutput == null ? "" : toolOutput;
+        }
+    }
+
+    public Map<String, String> extractSlotsFromToolSummary(String intent,
+                                                           String skillName,
+                                                           String summary,
+                                                           List<String> missingSlots) {
+        if (missingSlots == null || missingSlots.isEmpty()) {
+            return Map.of();
+        }
+        try {
+            String system = """
+                    You extract slots from tool summary. Output JSON only.
+                    JSON schema: {"entities":[{"name":"slotKey","value":"slotValue"}]}
+                    Rules: name must be from missingSlots only.
+                    """;
+            String missing = objectMapper.writeValueAsString(missingSlots);
+            String user = "intent=" + intent + "\nskill=" + skillName + "\nmissingSlots=" + missing + "\nsummary=" + summary;
+            JsonNode parsed = tryParseJson(chatJson(system, user));
+            return parseEntities(parsed.path("entities"), new LinkedHashSet<>(missingSlots));
+        } catch (Exception e) {
+            log.warn("extract slots from tool summary failed", e);
+            return Map.of();
+        }
+    }
+
+    public String renderFinalAnswer(String intent, String skillName, Map<String, String> toolOutputSummaries) {
+        try {
+            String system = """
+                    You are a final answer generator.
+                    Use executed tool summaries and answer briefly.
+                    Do not fabricate facts.
+                    """;
+            String summaryJson = objectMapper.writeValueAsString(toolOutputSummaries == null ? Map.of() : toolOutputSummaries);
+            String user = "intent=" + intent + "\nskill=" + skillName + "\nexecutedToolSummaries=" + summaryJson;
+            String answer = chatJson(system, user).trim();
+            return answer.isEmpty() ? "Tool execution completed." : answer;
+        } catch (Exception e) {
+            log.warn("render final answer failed", e);
+            return "Tool execution completed.";
+        }
+    }
+
+    private Map<String, String> buildToolArgs(AssistantPlannedTool tool, Map<String, String> entities) {
+        Map<String, String> args = new LinkedHashMap<>();
+        if (tool == null) {
+            return args;
+        }
+        List<InputSlot> slots = tool.getInputSlots() == null ? List.of() : tool.getInputSlots();
+        for (InputSlot slot : slots) {
+            if (slot == null) {
+                continue;
+            }
+            String slotKey = text(slot.getSlotKey());
+            String fieldPath = text(slot.getFieldPath());
+            String value = entities == null ? "" : text(entities.get(slotKey));
+            if (blank(value)) {
+                continue;
+            }
+            args.put(blank(fieldPath) ? slotKey : fieldPath, value);
+        }
+        if (!args.isEmpty()) {
+            return args;
+        }
+        List<String> keys = new ArrayList<>();
+        if (tool.getRequiredSlots() != null) {
+            keys.addAll(tool.getRequiredSlots());
+        }
+        if (tool.getOptionalSlots() != null) {
+            keys.addAll(tool.getOptionalSlots());
+        }
+        for (String key : keys) {
+            String k = text(key);
+            String v = entities == null ? "" : text(entities.get(k));
+            if (!blank(k) && !blank(v)) {
+                args.put(k, v);
+            }
+        }
+        return args;
+    }
+
+    private String chatJson(String systemPrompt, String userPrompt) throws Exception {
+        String requestBody = objectMapper.createObjectNode()
+                .put("model", slotModel)
+                .put("temperature", 0)
+                .set("messages", objectMapper.createArrayNode()
+                        .add(objectMapper.createObjectNode().put("role", "system").put("content", systemPrompt))
+                        .add(objectMapper.createObjectNode().put("role", "user").put("content", userPrompt)))
+                .toString();
+        HttpRequest request = ZhipuHttpProtocol.authorizedJsonPostBuilder(
+                        baseUrl, ZhipuHttpProtocol.CHAT_COMPLETIONS_PATH, apiKey)
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
+        String response = httpRequestClient.send(llmHttpClientRouter.getClient(slotModel), request);
+        JsonNode root = objectMapper.readTree(response);
+        return root.path("choices").path(0).path("message").path("content").asText("");
     }
 
     private String buildContext(List<AssistantDialogueService.DialogueMessage> recentContext, String userMessage) {
@@ -309,6 +528,62 @@ public class AssistantInferenceService {
             }
             return objectMapper.createObjectNode();
         }
+    }
+
+    private String text(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private List<String> resolveHardRequiredSlots(AssistantPlannedTool tool) {
+        if (tool == null) {
+            return List.of();
+        }
+        List<InputSlot> slots = tool.getInputSlots() == null ? List.of() : tool.getInputSlots();
+        if (!slots.isEmpty()) {
+            List<String> out = new ArrayList<>();
+            for (InputSlot slot : slots) {
+                if (slot == null || blank(slot.getSlotKey())) {
+                    continue;
+                }
+                String requirement = text(slot.getRequirement()).toUpperCase();
+                boolean hard = "HARD_REQUIRED".equals(requirement)
+                        || (requirement.isBlank() && slot.isRequired());
+                if (hard && !out.contains(slot.getSlotKey())) {
+                    out.add(slot.getSlotKey());
+                }
+            }
+            if (!out.isEmpty()) {
+                return out;
+            }
+        }
+        return tool.getRequiredSlots() == null ? List.of() : tool.getRequiredSlots();
+    }
+
+    private List<String> resolveOptionalSlots(AssistantPlannedTool tool) {
+        if (tool == null) {
+            return List.of();
+        }
+        List<InputSlot> slots = tool.getInputSlots() == null ? List.of() : tool.getInputSlots();
+        if (!slots.isEmpty()) {
+            List<String> out = new ArrayList<>();
+            for (InputSlot slot : slots) {
+                if (slot == null || blank(slot.getSlotKey())) {
+                    continue;
+                }
+                String requirement = text(slot.getRequirement()).toUpperCase();
+                boolean hard = "HARD_REQUIRED".equals(requirement)
+                        || (requirement.isBlank() && slot.isRequired());
+                if (!hard && !out.contains(slot.getSlotKey())) {
+                    out.add(slot.getSlotKey());
+                }
+            }
+            return out;
+        }
+        return tool.getOptionalSlots() == null ? List.of() : tool.getOptionalSlots();
+    }
+
+    private boolean blank(String value) {
+        return text(value).isEmpty();
     }
 
     private Map<String, String> parseEntities(JsonNode entitiesNode, Set<String> slotWhitelist) {

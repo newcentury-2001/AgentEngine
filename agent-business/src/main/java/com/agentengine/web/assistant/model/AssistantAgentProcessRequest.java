@@ -10,11 +10,11 @@ public class AssistantAgentProcessRequest {
     private String taskId;
     private String traceId;
     private String message;
+    private String selectedIntent;
 
     private Boolean needTool;
     private Boolean answerReady;
     private String toolName;
     private List<String> missingSlots;
     private String errorMessage;
-    private Integer embeddingDim;
 }

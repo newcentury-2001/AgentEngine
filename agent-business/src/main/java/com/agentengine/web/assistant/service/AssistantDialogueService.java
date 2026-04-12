@@ -10,7 +10,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.concurrent.TimeUnit;
 
@@ -53,6 +55,32 @@ public class AssistantDialogueService {
             return Collections.emptyList();
         }
         return items.stream().map(this::parse).collect(Collectors.toList());
+    }
+
+    public String buildThreeTurnContext(String taskId, String currentMessage) {
+        List<DialogueMessage> recent = recentUserMessages(taskId, 2);
+        String history = recent.stream()
+                .map(m -> m.getRole() + ":" + m.getContent())
+                .collect(Collectors.joining("\n"));
+        String current = "user:" + (currentMessage == null ? "" : currentMessage.trim());
+        if (history.isBlank()) {
+            return current;
+        }
+        return history + "\n" + current;
+    }
+
+    public void clearUserMessages(String taskId) {
+        if (blank(taskId)) {
+            return;
+        }
+        stringRedisTemplate.delete(userKey(taskId));
+    }
+
+    public void touch(String taskId) {
+        if (blank(taskId)) {
+            return;
+        }
+        stringRedisTemplate.expire(userKey(taskId), ttlMinutes, TimeUnit.MINUTES);
     }
 
     private String userKey(String taskId) {

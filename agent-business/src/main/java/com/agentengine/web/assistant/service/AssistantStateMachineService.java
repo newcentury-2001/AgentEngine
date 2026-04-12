@@ -13,7 +13,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -54,10 +53,11 @@ public class AssistantStateMachineService {
                 .userId(userId)
                 .taskId(taskId)
                 .traceId(traceId)
-                .state(LlmAgentState.INIT)
+                .state(LlmAgentState.IDLE)
                 .createdAtEpochMs(now)
                 .updatedAtEpochMs(now)
                 .lastMessage(safe(request.getLastMessage()))
+                .activeTurnCount(0)
                 .build();
 
         save(state);
@@ -88,11 +88,31 @@ public class AssistantStateMachineService {
         if (!nextMessage.isBlank()) {
             current.setLastMessage(nextMessage);
         }
-        current.setLastToolName(safe(request.getLastToolName()));
+        if (request.getIntent() != null) {
+            current.setIntent(safe(request.getIntent()));
+        }
+        if (request.getSkillName() != null) {
+            current.setSkillName(safe(request.getSkillName()));
+        }
         current.setMissingSlots(request.getMissingSlots());
         current.setErrorMessage(safe(request.getErrorMessage()));
-        if (request.getLastEmbeddingDim() != null) {
-            current.setLastEmbeddingDim(request.getLastEmbeddingDim());
+        if (request.getNeedClarification() != null) {
+            current.setNeedClarification(request.getNeedClarification());
+        }
+        if (request.getClarificationType() != null) {
+            current.setClarificationType(safe(request.getClarificationType()));
+        }
+        if (request.getClarificationQuestion() != null) {
+            current.setClarificationQuestion(safe(request.getClarificationQuestion()));
+        }
+        if (request.getIntentCandidatesTop3() != null) {
+            current.setIntentCandidatesTop3(request.getIntentCandidatesTop3());
+        }
+        if (request.getAssistantReply() != null) {
+            current.setAssistantReply(safe(request.getAssistantReply()));
+        }
+        if (request.getActiveTurnCount() != null) {
+            current.setActiveTurnCount(request.getActiveTurnCount());
         }
         save(current);
         return current;
@@ -128,44 +148,17 @@ public class AssistantStateMachineService {
         if (current == next) {
             return;
         }
-        if (current == LlmAgentState.FAILED) {
-            throw new IllegalStateException("terminal state cannot transition: " + current);
-        }
-        if (current == LlmAgentState.FINAL_ANSWER) {
-            if (next == LlmAgentState.INTENT_RECOGNITION) {
+        if (current == null) {
+            if (next == LlmAgentState.IDLE || next == LlmAgentState.ACTIVE) {
                 return;
             }
             throw new IllegalStateException("invalid transition: " + current + " -> " + next);
         }
-        if (next == LlmAgentState.FAILED) {
+        if ((current == LlmAgentState.IDLE || current == LlmAgentState.ACTIVE)
+                && (next == LlmAgentState.IDLE || next == LlmAgentState.ACTIVE)) {
             return;
         }
-        if (current == null || current == LlmAgentState.INIT) {
-            if (next == LlmAgentState.INTENT_RECOGNITION) {
-                return;
-            }
-            throw new IllegalStateException("invalid transition: " + current + " -> " + next);
-        }
-
-        boolean allowed = switch (current) {
-            case INTENT_RECOGNITION -> Set.of(
-                    LlmAgentState.TOOL_EXECUTION,
-                    LlmAgentState.SLOT_CLARIFICATION,
-                    LlmAgentState.FINAL_ANSWER
-            ).contains(next);
-            case TOOL_EXECUTION -> Set.of(
-                    LlmAgentState.SLOT_CLARIFICATION,
-                    LlmAgentState.FINAL_ANSWER
-            ).contains(next);
-            case SLOT_CLARIFICATION -> Set.of(
-                    LlmAgentState.TOOL_EXECUTION,
-                    LlmAgentState.FINAL_ANSWER
-            ).contains(next);
-            default -> false;
-        };
-        if (!allowed) {
-            throw new IllegalStateException("invalid transition: " + current + " -> " + next);
-        }
+        throw new IllegalStateException("invalid transition: " + current + " -> " + next);
     }
 
     private void save(AssistantUserState state) {
@@ -176,6 +169,18 @@ public class AssistantStateMachineService {
         } catch (Exception e) {
             log.warn("failed to save assistant state. taskId={}, userId={}",
                     state.getTaskId(), state.getUserId(), e);
+        }
+    }
+
+    public void touch(AssistantUserState state) {
+        if (state == null) {
+            return;
+        }
+        if (!safe(state.getTaskId()).isBlank()) {
+            stringRedisTemplate.expire(taskKey(state.getTaskId()), ttlMinutes, TimeUnit.MINUTES);
+        }
+        if (!safe(state.getUserId()).isBlank()) {
+            stringRedisTemplate.expire(userKey(state.getUserId()), ttlMinutes, TimeUnit.MINUTES);
         }
     }
 

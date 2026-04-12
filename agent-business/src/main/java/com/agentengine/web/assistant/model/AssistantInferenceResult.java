@@ -14,6 +14,5 @@ public class AssistantInferenceResult {
     private String toolName;
     private List<String> missingSlots;
     private String errorMessage;
-    private Integer embeddingDim;
     private Map<String, String> entityMemory;
 }

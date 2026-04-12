@@ -1,4 +1,4 @@
-package com.agentengine.web.controller;
+package com.agentengine.web.assistant.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,3 +11,4 @@ public class AssistantPageController {
         return "forward:/assistant.html";
     }
 }
+
