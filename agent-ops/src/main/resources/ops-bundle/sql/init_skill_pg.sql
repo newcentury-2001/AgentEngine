@@ -1,3 +1,10 @@
+CREATE EXTENSION IF NOT EXISTS vector;
+
+DROP TABLE IF EXISTS mcp_tool_vector CASCADE;
+DROP TABLE IF EXISTS skill_vector_snapshot CASCADE;
+DROP TABLE IF EXISTS skill_semantic_snapshot CASCADE;
+DROP TABLE IF EXISTS mcp_tool_semantic CASCADE;
+
 CREATE TABLE IF NOT EXISTS mcp_tool_semantic (
   skill_name VARCHAR(128) NOT NULL,
   tool_name VARCHAR(200) NOT NULL,
@@ -22,11 +29,33 @@ ALTER TABLE mcp_tool_semantic
 ALTER TABLE mcp_tool_semantic
   DROP COLUMN IF EXISTS output_schema;
 
+-- Normalize input_slots payload to field-only format.
+-- 1) Remove "fieldPath"
+-- 2) If "field" is missing but "fieldPath" exists, copy it to "field"
+UPDATE mcp_tool_semantic s
+SET input_slots = (
+  SELECT COALESCE(
+           jsonb_agg(
+             CASE
+               WHEN elem ? 'field' THEN (elem - 'fieldPath')
+               WHEN elem ? 'fieldPath' THEN ((elem - 'fieldPath') || jsonb_build_object('field', elem->>'fieldPath'))
+               ELSE (elem - 'fieldPath')
+             END
+           ),
+           '[]'::jsonb
+         )::text
+  FROM jsonb_array_elements(
+         COALESCE(NULLIF(s.input_slots, '')::jsonb, '[]'::jsonb)
+       ) elem
+)
+WHERE s.input_slots IS NOT NULL
+  AND s.input_slots <> '';
+
 CREATE TABLE IF NOT EXISTS mcp_tool_vector (
   skill_name VARCHAR(128) NOT NULL,
   tool_name VARCHAR(200) NOT NULL,
   server_url TEXT NOT NULL DEFAULT '',
-  normalized_vector JSONB NOT NULL,
+  normalized_vector VECTOR NOT NULL,
   recent_7d_count BIGINT NOT NULL,
   heat_weight DOUBLE PRECISION NOT NULL,
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -42,7 +71,7 @@ CREATE TABLE IF NOT EXISTS skill_vector_snapshot (
   server_url TEXT NOT NULL DEFAULT '',
   intent VARCHAR(64) NOT NULL DEFAULT '',
   tags JSONB NOT NULL DEFAULT '[]'::jsonb,
-  skill_vector JSONB NOT NULL,
+  skill_vector VECTOR NOT NULL,
   updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 

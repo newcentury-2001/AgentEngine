@@ -118,6 +118,8 @@ agent:
         topic: agent_embedding_tasks
         group-id: agent-ops-embedding-rmq
   mcp-cleaner:
+    debug:
+      enabled: false
     idempotent:
       ttl-hours: 24
     context:

@@ -172,6 +172,8 @@
                       "with_images_summary",
                       "with_links_summary",
                       "year",
+                      "eff_time",
+                      "service_area",
                       "zipcode"
                   ],
     "whitelist":  [
@@ -320,6 +322,8 @@
                       "policy",
                       "item",
                       "search",
+                      "eff_time",
+                      "service_area",
                       "lottery_name",
                       "parent_id"
                   ],

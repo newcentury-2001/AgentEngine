@@ -458,11 +458,7 @@ public class AssistantAgentOrchestrationService {
         }
         List<InputSlot> slots = tool.getInputSlots();
         if (slots == null || slots.isEmpty()) {
-            List<String> legacy = tool.getRequiredSlots();
-            if (legacy == null || legacy.isEmpty()) {
-                return List.of();
-            }
-            return legacy.stream().filter(slot -> !blank(slot)).toList();
+            return List.of();
         }
         LinkedHashSet<String> required = new LinkedHashSet<>();
         for (InputSlot slot : slots) {
@@ -484,10 +480,7 @@ public class AssistantAgentOrchestrationService {
             return false;
         }
         String requirement = text(slot.getRequirement()).toUpperCase();
-        if (!requirement.isEmpty()) {
-            return "HARD_REQUIRED".equals(requirement);
-        }
-        return slot.isRequired();
+        return "HARD_REQUIRED".equals(requirement);
     }
 
     private void cleanupAfterFinish(String taskId) {

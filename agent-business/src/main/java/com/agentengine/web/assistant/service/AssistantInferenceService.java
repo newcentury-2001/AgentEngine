@@ -458,12 +458,12 @@ public class AssistantInferenceService {
                 continue;
             }
             String slotKey = text(slot.getSlotKey());
-            String fieldPath = text(slot.getFieldPath());
+            String field = text(slot.getField());
             String value = entities == null ? "" : text(entities.get(slotKey));
             if (blank(value)) {
                 continue;
             }
-            args.put(blank(fieldPath) ? slotKey : fieldPath, value);
+            args.put(blank(field) ? slotKey : field, value);
         }
         if (!args.isEmpty()) {
             return args;
@@ -539,24 +539,20 @@ public class AssistantInferenceService {
             return List.of();
         }
         List<InputSlot> slots = tool.getInputSlots() == null ? List.of() : tool.getInputSlots();
-        if (!slots.isEmpty()) {
-            List<String> out = new ArrayList<>();
-            for (InputSlot slot : slots) {
-                if (slot == null || blank(slot.getSlotKey())) {
-                    continue;
-                }
-                String requirement = text(slot.getRequirement()).toUpperCase();
-                boolean hard = "HARD_REQUIRED".equals(requirement)
-                        || (requirement.isBlank() && slot.isRequired());
-                if (hard && !out.contains(slot.getSlotKey())) {
-                    out.add(slot.getSlotKey());
-                }
+        if (slots.isEmpty()) {
+            return List.of();
+        }
+        List<String> out = new ArrayList<>();
+        for (InputSlot slot : slots) {
+            if (slot == null || blank(slot.getSlotKey())) {
+                continue;
             }
-            if (!out.isEmpty()) {
-                return out;
+            String requirement = text(slot.getRequirement()).toUpperCase();
+            if ("HARD_REQUIRED".equals(requirement) && !out.contains(slot.getSlotKey())) {
+                out.add(slot.getSlotKey());
             }
         }
-        return tool.getRequiredSlots() == null ? List.of() : tool.getRequiredSlots();
+        return out;
     }
 
     private List<String> resolveOptionalSlots(AssistantPlannedTool tool) {
@@ -571,15 +567,14 @@ public class AssistantInferenceService {
                     continue;
                 }
                 String requirement = text(slot.getRequirement()).toUpperCase();
-                boolean hard = "HARD_REQUIRED".equals(requirement)
-                        || (requirement.isBlank() && slot.isRequired());
+                boolean hard = "HARD_REQUIRED".equals(requirement);
                 if (!hard && !out.contains(slot.getSlotKey())) {
                     out.add(slot.getSlotKey());
                 }
             }
             return out;
         }
-        return tool.getOptionalSlots() == null ? List.of() : tool.getOptionalSlots();
+        return List.of();
     }
 
     private boolean blank(String value) {

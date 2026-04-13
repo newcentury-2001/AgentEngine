@@ -3,7 +3,7 @@
   "actionType" : null,
   "tags" : [ "vision_image" ],
   "skillName" : "recognition",
-  "skillDescription" : "图像植物人物识别。",
+  "skillDescription" : "图像植物人物识别技术。。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/recognition/mcp?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "recognition",
@@ -76,7 +76,7 @@
   }, {
     "skillName" : "recognition",
     "toolName" : "plant_recognition",
-    "toolDescription" : "植物图像识别，输入图片URL。。",
+    "toolDescription" : "识别植物图像，需提供图片URL。。",
     "inputSchema" : {
       "properties" : {
         "img_url" : {
@@ -89,7 +89,7 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "image_url",
+      "slotKey" : "img_url",
       "fieldPath" : "img_url",
       "fieldType" : "string",
       "required" : true
@@ -107,7 +107,7 @@
   "tools" : [ {
     "skillName" : "image-search",
     "toolName" : "web_search",
-    "toolDescription" : "搜索网页文本，关键词与页码。。",
+    "toolDescription" : "搜索网页文本，提取关键词与页码。。",
     "inputSchema" : {
       "properties" : {
         "query" : {
@@ -177,7 +177,7 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "image_url",
+      "slotKey" : "img_url",
       "fieldPath" : "img_url",
       "fieldType" : "string",
       "required" : true
@@ -244,7 +244,7 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "image_url",
+      "slotKey" : "img_url",
       "fieldPath" : "img_url",
       "fieldType" : "string",
       "required" : true
@@ -325,7 +325,7 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "image_url",
+      "slotKey" : "img_url",
       "fieldPath" : "img_url",
       "fieldType" : "string",
       "required" : true
@@ -380,7 +380,7 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "image_url",
+      "slotKey" : "img_url",
       "fieldPath" : "img_url",
       "fieldType" : "string",
       "required" : true
@@ -475,7 +475,7 @@
   "actionType" : null,
   "tags" : [ "policy_compliance" ],
   "skillName" : "trustworthy-search",
-  "skillDescription" : "法规清单快速筛选。",
+  "skillDescription" : "快速筛选法规清单。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/trustworthy-search/sse?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "trustworthy-search",
@@ -514,12 +514,12 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "eff_time",
+      "slotKey" : "date",
       "fieldPath" : "eff_time",
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "service_area",
+      "slotKey" : "area_name",
       "fieldPath" : "service_area",
       "fieldType" : "array",
       "required" : false
@@ -537,7 +537,7 @@
   "actionType" : null,
   "tags" : [ "travel_transport" ],
   "skillName" : "gaode-map",
-  "skillDescription" : "规划骑行路线。。",
+  "skillDescription" : "骑行路线规划。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/gaode-map/mcp?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "gaode-map",
@@ -714,7 +714,7 @@
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "distance_type",
+      "slotKey" : "type",
       "fieldPath" : "type",
       "fieldType" : "string",
       "required" : true
@@ -724,7 +724,7 @@
   }, {
     "skillName" : "gaode-map",
     "toolName" : "maps_geo",
-    "toolDescription" : "解析地址为经纬度。。",
+    "toolDescription" : "解析地址获取经纬度。。",
     "inputSchema" : {
       "properties" : {
         "address" : {
@@ -755,7 +755,7 @@
   }, {
     "skillName" : "gaode-map",
     "toolName" : "maps_regeocode",
-    "toolDescription" : "高德坐标转地址。",
+    "toolDescription" : "高德坐标转地址。。",
     "inputSchema" : {
       "properties" : {
         "location" : {
@@ -799,7 +799,7 @@
   }, {
     "skillName" : "gaode-map",
     "toolName" : "maps_schema_personal_map",
-    "toolDescription" : "高德地图行程规划展示。",
+    "toolDescription" : "高德地图行程规划展示。。",
     "inputSchema" : {
       "properties" : {
         "orgName" : {
@@ -1009,7 +1009,7 @@
   }, {
     "skillName" : "gaode-map",
     "toolName" : "maps_schema_navi",
-    "toolDescription" : "生成客户端唤醒URI导航。。",
+    "toolDescription" : "生成唤醒URI导航。。",
     "inputSchema" : {
       "properties" : {
         "lon" : {
@@ -1107,7 +1107,7 @@
   }, {
     "skillName" : "gaode-map",
     "toolName" : "maps_weather",
-    "toolDescription" : "查询城市天气。。",
+    "toolDescription" : "查询城市天气信息。。",
     "inputSchema" : {
       "properties" : {
         "city" : {
@@ -1132,7 +1132,7 @@
   "actionType" : null,
   "tags" : [ "knowledge_retrieval" ],
   "skillName" : "jina-reader",
-  "skillDescription" : "抓取网页内容提取信息。。",
+  "skillDescription" : "网页内容信息提取。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/jina-reader/mcp?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "jina-reader",
@@ -1236,7 +1236,7 @@
   "actionType" : null,
   "tags" : [ "knowledge_retrieval" ],
   "skillName" : "business-tax-id",
-  "skillDescription" : "查询企业税号信息。。",
+  "skillDescription" : "查询企业税号。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/business-tax-id/mcp?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "business-tax-id",
@@ -1265,12 +1265,12 @@
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "pagenum",
+      "slotKey" : "page_num",
       "fieldPath" : "pageNum",
       "fieldType" : "string",
       "required" : false
     }, {
-      "slotKey" : "pagesize",
+      "slotKey" : "page_size",
       "fieldPath" : "pageSize",
       "fieldType" : "string",
       "required" : false
@@ -1279,11 +1279,11 @@
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/business-tax-id/mcp?Authorization=YOUR_ZHIPU_API_KEY"
   } ]
 }, {
-  "intent" : "travel_transport",
+  "intent" : "knowledge_retrieval",
   "actionType" : null,
-  "tags" : [ "travel_transport" ],
+  "tags" : [ "knowledge_retrieval" ],
   "skillName" : "holiday-inquiry",
-  "skillDescription" : "查询节假日安排信息。。",
+  "skillDescription" : "查询节假日安排。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/holiday-inquiry/mcp?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "holiday-inquiry",
@@ -1309,7 +1309,7 @@
   }, {
     "skillName" : "holiday-inquiry",
     "toolName" : "假日列表",
-    "toolDescription" : "查询节假日列表。。",
+    "toolDescription" : "查询指定年份节假日列表。。",
     "inputSchema" : {
       "properties" : {
         "year" : {
@@ -1333,7 +1333,7 @@
   "actionType" : null,
   "tags" : [ "knowledge_retrieval" ],
   "skillName" : "dream-interpretation",
-  "skillDescription" : "解析梦境象征。",
+  "skillDescription" : "解读梦境象征意义。。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/dream-interpretation/mcp?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "dream-interpretation",
@@ -1557,7 +1557,7 @@
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "needcontent",
+      "slotKey" : "need_content",
       "fieldPath" : "needContent",
       "fieldType" : "string",
       "required" : true
@@ -1570,7 +1570,7 @@
   "actionType" : null,
   "tags" : [ "finance_market" ],
   "skillName" : "exchange-rate",
-  "skillDescription" : "实时查询货币汇率及转换。。",
+  "skillDescription" : "查询实时货币汇率及转换。。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/exchange-rate/mcp?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "exchange-rate",
@@ -1661,7 +1661,7 @@
   "actionType" : null,
   "tags" : [ "logistics_delivery" ],
   "skillName" : "postal-code",
-  "skillDescription" : "查询指定地址邮编。。",
+  "skillDescription" : "查询地址邮编。。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/postal-code/mcp?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "postal-code",
@@ -1723,7 +1723,7 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "postalcode",
+      "slotKey" : "zipcode",
       "fieldPath" : "skillName",
       "fieldType" : "string",
       "required" : true
@@ -1802,12 +1802,12 @@
   "actionType" : null,
   "tags" : [ "knowledge_retrieval" ],
   "skillName" : "knowledge-recall",
-  "skillDescription" : "法规政策库快速查询。。",
+  "skillDescription" : "快速查询法规政策。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/knowledge-recall/sse?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "knowledge-recall",
     "toolName" : "query",
-    "toolDescription" : "法规政策库智能查询。",
+    "toolDescription" : "法规政策库智能查询。。",
     "inputSchema" : {
       "properties" : {
         "policy" : {
@@ -1838,22 +1838,22 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "need_policy",
+      "slotKey" : "policy",
       "fieldPath" : "policy",
       "fieldType" : "boolean",
       "required" : false
     }, {
-      "slotKey" : "need_item",
+      "slotKey" : "item",
       "fieldPath" : "item",
       "fieldType" : "boolean",
       "required" : false
     }, {
-      "slotKey" : "enable_search",
+      "slotKey" : "search",
       "fieldPath" : "search",
       "fieldType" : "boolean",
       "required" : false
     }, {
-      "slotKey" : "question",
+      "slotKey" : "query",
       "fieldPath" : "query",
       "fieldType" : "string",
       "required" : true
@@ -1866,7 +1866,7 @@
   "actionType" : null,
   "tags" : [ "travel_transport" ],
   "skillName" : "tripmatch",
-  "skillDescription" : "航班信息查询与分析。",
+  "skillDescription" : "航班信息查询与分析。。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/tripmatch/mcp?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "tripmatch",
@@ -1930,7 +1930,7 @@
       "fieldType" : "string",
       "required" : false
     }, {
-      "slotKey" : "depcity",
+      "slotKey" : "dep_city",
       "fieldPath" : "depcity",
       "fieldType" : "string",
       "required" : false
@@ -1940,7 +1940,7 @@
       "fieldType" : "string",
       "required" : false
     }, {
-      "slotKey" : "arrcity",
+      "slotKey" : "arr_city",
       "fieldPath" : "arrcity",
       "fieldType" : "string",
       "required" : false
@@ -1950,7 +1950,7 @@
   }, {
     "skillName" : "tripmatch",
     "toolName" : "searchFlightsByNumber",
-    "toolDescription" : "按航班号和日期搜索航班。。",
+    "toolDescription" : "航班号和日期搜索航班。。",
     "inputSchema" : {
       "properties" : {
         "fnum" : {
@@ -2034,17 +2034,17 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "dep_city",
+      "slotKey" : "depcity",
       "fieldPath" : "depcity",
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "arr_city",
+      "slotKey" : "arrcity",
       "fieldPath" : "arrcity",
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "dep_date",
+      "slotKey" : "depdate",
       "fieldPath" : "depdate",
       "fieldType" : "string",
       "required" : true
@@ -2164,7 +2164,7 @@
   }, {
     "skillName" : "tripmatch",
     "toolName" : "searchTrainTickets",
-    "toolDescription" : "查询火车票出发城市、目的地城市和日期。。",
+    "toolDescription" : "查询火车票出发地、目的地和日期。。",
     "inputSchema" : {
       "properties" : {
         "from_city" : {
@@ -2187,17 +2187,17 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "dep_city",
+      "slotKey" : "from_city",
       "fieldPath" : "from_city",
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "arr_city",
+      "slotKey" : "to_city",
       "fieldPath" : "to_city",
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "dep_date",
+      "slotKey" : "date",
       "fieldPath" : "date",
       "fieldType" : "string",
       "required" : true
@@ -2360,7 +2360,7 @@
   }, {
     "skillName" : "aviation",
     "toolName" : "searchFlightsByNumber",
-    "toolDescription" : "搜索航班信息。。",
+    "toolDescription" : "搜索航班号航班信息。。",
     "inputSchema" : {
       "properties" : {
         "fnum" : {
@@ -2396,22 +2396,22 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "flight_number",
+      "slotKey" : "flight_no",
       "fieldPath" : "fnum",
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "flight_date",
+      "slotKey" : "depdate",
       "fieldPath" : "date",
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "departure_airport",
+      "slotKey" : "dep_airport",
       "fieldPath" : "dep",
       "fieldType" : "string",
       "required" : false
     }, {
-      "slotKey" : "arrival_airport",
+      "slotKey" : "arr_airport",
       "fieldPath" : "arr",
       "fieldType" : "string",
       "required" : false
@@ -2620,17 +2620,17 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "depcitycode",
+      "slotKey" : "dep_city_code",
       "fieldPath" : "depCityCode",
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "depdate",
+      "slotKey" : "dep_date",
       "fieldPath" : "depDate",
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "arrcitycode",
+      "slotKey" : "arr_city_code",
       "fieldPath" : "arrCityCode",
       "fieldType" : "string",
       "required" : true
@@ -2643,7 +2643,7 @@
   "actionType" : null,
   "tags" : [ "knowledge_retrieval" ],
   "skillName" : "administrative-divisions",
-  "skillDescription" : "查询全国行政区划信息。",
+  "skillDescription" : "查询全国行政区划。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/administrative-divisions/mcp?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "administrative-divisions",
@@ -2675,27 +2675,27 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "cityid",
+      "slotKey" : "city_id",
       "fieldPath" : "cityId",
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "countyid",
+      "slotKey" : "county_id",
       "fieldPath" : "countyId",
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "provinceid",
+      "slotKey" : "province_id",
       "fieldPath" : "provinceId",
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "townid",
+      "slotKey" : "town_id",
       "fieldPath" : "townId",
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "villageid",
+      "slotKey" : "village_id",
       "fieldPath" : "villageId",
       "fieldType" : "string",
       "required" : true
@@ -2755,7 +2755,7 @@
   }, {
     "skillName" : "precious-metal-price",
     "toolName" : "国内贵金属报价",
-    "toolDescription" : "国内贵金属品种查询。",
+    "toolDescription" : "查询国内贵金属品种报价。。",
     "inputSchema" : {
       "properties" : {
         "symbol" : {
@@ -2878,7 +2878,7 @@
   "actionType" : null,
   "tags" : [ "knowledge_retrieval" ],
   "skillName" : "trustworthy-knowledge",
-  "skillDescription" : "智能筛选法规政策文件。",
+  "skillDescription" : "智能筛选法规文件。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/trustworthy-knowledge/sse?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "trustworthy-knowledge",
@@ -2980,22 +2980,22 @@
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "areaname",
+      "slotKey" : "area_name",
       "fieldPath" : "areaName",
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "cityname",
+      "slotKey" : "city_name",
       "fieldPath" : "cityName",
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "provincename",
+      "slotKey" : "province_name",
       "fieldPath" : "provinceName",
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "shippercode",
+      "slotKey" : "shipper_code",
       "fieldPath" : "shipperCode",
       "fieldType" : "string",
       "required" : true
@@ -3017,7 +3017,7 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "express_no",
+      "slotKey" : "number",
       "fieldPath" : "number",
       "fieldType" : "string",
       "required" : true
@@ -3114,7 +3114,7 @@
   "tools" : [ {
     "skillName" : "lunar-calendar",
     "toolName" : "节假日列表",
-    "toolDescription" : "生成节假日列表。。",
+    "toolDescription" : "生成指定年份节假日列表。",
     "inputSchema" : {
       "properties" : {
         "year" : {
@@ -3136,7 +3136,7 @@
   }, {
     "skillName" : "lunar-calendar",
     "toolName" : "黄历运势_新版_黄历",
-    "toolDescription" : "查询黄历运势日期。。",
+    "toolDescription" : "查询指定日期黄历运势。",
     "inputSchema" : {
       "properties" : {
         "date" : {
@@ -3158,7 +3158,7 @@
   }, {
     "skillName" : "lunar-calendar",
     "toolName" : "节假日详情",
-    "toolDescription" : "查询节假日详情。。",
+    "toolDescription" : "查询节假日详情。",
     "inputSchema" : {
       "properties" : {
         "date" : {
@@ -3179,7 +3179,7 @@
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "needdesc",
+      "slotKey" : "need_desc",
       "fieldPath" : "needDesc",
       "fieldType" : "string",
       "required" : true
@@ -3290,7 +3290,7 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "current_thinking_step",
+      "slotKey" : "thought",
       "fieldPath" : "thought",
       "fieldType" : "string",
       "required" : true
@@ -3300,37 +3300,37 @@
       "fieldType" : "boolean",
       "required" : true
     }, {
-      "slotKey" : "current_thought_number",
+      "slotKey" : "thought_number",
       "fieldPath" : "thoughtNumber",
       "fieldType" : "integer",
       "required" : true
     }, {
-      "slotKey" : "estimated_total_thoughts",
+      "slotKey" : "total_thoughts",
       "fieldPath" : "totalThoughts",
       "fieldType" : "integer",
       "required" : true
     }, {
-      "slotKey" : "revises_previous_thinking",
+      "slotKey" : "is_revision",
       "fieldPath" : "isRevision",
       "fieldType" : "boolean",
       "required" : true
     }, {
-      "slotKey" : "reconsidered_thought",
+      "slotKey" : "revises_thought",
       "fieldPath" : "revisesThought",
       "fieldType" : "integer",
       "required" : true
     }, {
-      "slotKey" : "branching_point_thought_number",
+      "slotKey" : "branch_from_thought",
       "fieldPath" : "branchFromThought",
       "fieldType" : "integer",
       "required" : true
     }, {
-      "slotKey" : "branch_identifier",
+      "slotKey" : "branch_id",
       "fieldPath" : "branchId",
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "more_thoughts_needed",
+      "slotKey" : "needs_more_thoughts",
       "fieldPath" : "needsMoreThoughts",
       "fieldType" : "boolean",
       "required" : true
@@ -3420,7 +3420,7 @@
   "actionType" : null,
   "tags" : [ "finance_market" ],
   "skillName" : "fuel-price",
-  "skillDescription" : "查询今日油价信息。。",
+  "skillDescription" : "查询今日油价。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/fuel-price/mcp?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "fuel-price",
@@ -3449,12 +3449,12 @@
   "actionType" : null,
   "tags" : [ "geo_navigation" ],
   "skillName" : "ip-address",
-  "skillDescription" : "查询IP地理位置。。",
+  "skillDescription" : "定位IP地址位置。。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/ip-address/mcp?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "ip-address",
     "toolName" : "IP定位查询",
-    "toolDescription" : "查询IP地理位置。。",
+    "toolDescription" : "查询IP地理位置信息。。",
     "inputSchema" : {
       "properties" : {
         "ip" : {
@@ -3479,12 +3479,12 @@
   "actionType" : null,
   "tags" : [ "time_calendar" ],
   "skillName" : "time",
-  "skillDescription" : "时区时间转换与查询。",
+  "skillDescription" : "时区时间转换查询。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/time/mcp?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "time",
     "toolName" : "convertTime",
-    "toolDescription" : "转换时区时间。。",
+    "toolDescription" : "转换指定时区时间。。",
     "inputSchema" : {
       "additionalProperties" : false,
       "properties" : {
@@ -3510,12 +3510,12 @@
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "sourcetimezone",
+      "slotKey" : "source_timezone",
       "fieldPath" : "sourceTimezone",
       "fieldType" : "string",
       "required" : true
     }, {
-      "slotKey" : "targettimezone",
+      "slotKey" : "target_timezone",
       "fieldPath" : "targetTimezone",
       "fieldType" : "string",
       "required" : true

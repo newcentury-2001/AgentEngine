@@ -35,6 +35,8 @@ public class McpSummaryCleanTaskConsumer implements RocketMQListener<String> {
     private final StringRedisTemplate stringRedisTemplate;
     @Value("${agent.mcp-cleaner.idempotent.ttl-hours:48}")
     private long idempotentTtlHours;
+    @Value("${agent.mcp-cleaner.debug.enabled:false}")
+    private boolean debugEnabled;
 
     @Override
     public void onMessage(String payload) {
@@ -43,6 +45,11 @@ public class McpSummaryCleanTaskConsumer implements RocketMQListener<String> {
             message = objectMapper.readValue(payload, McpSummaryCleanTaskMessage.class);
             if (message == null || message.getSkillName() == null || message.getSkillName().isBlank()) {
                 return;
+            }
+            if (debugEnabled) {
+                log.info("[mcp-clean-debug] consume message. taskId={}, skill={}, retry={}, skillPending={}, pendingTools={}",
+                        message.getTaskId(), message.getSkillName(), safeRetry(message),
+                        message.getSkillPending(), message.getPendingToolNames());
             }
             if (!tryMarkAttemptStarted(message)) {
                 log.info("skip duplicated mcp clean attempt. taskId={}, skill={}, retry={}",
@@ -91,6 +98,11 @@ public class McpSummaryCleanTaskConsumer implements RocketMQListener<String> {
             String retryReason = buildRetryReason(result);
             log.warn("mcp clean delayed retry scheduled. taskId={}, skill={}, retry={}, reason={}",
                     retry.getTaskId(), retry.getSkillName(), retry.getRetryCount(), retryReason);
+            if (debugEnabled) {
+                log.info("[mcp-clean-debug] retry payload. taskId={}, skill={}, retry={}, pendingTools={}, slotMissHints={}, skillPending={}",
+                        retry.getTaskId(), retry.getSkillName(), retry.getRetryCount(),
+                        retry.getPendingToolNames(), retry.getSlotMissHints(), retry.getSkillPending());
+            }
             taskTracker.markRetrying(
                     retry.getTaskId(),
                     retry.getSkillName(),

@@ -51,7 +51,7 @@ public class EmbeddingDbRepository {
             INSERT INTO mcp_tool_vector (
                 skill_name, tool_name, server_url, normalized_vector, recent_7d_count, heat_weight, updated_at
             )
-            VALUES (?, ?, ?, ?::jsonb, 0, 0.5, NOW())
+            VALUES (?, ?, ?, ?::vector, 0, 0.5, NOW())
             ON CONFLICT (skill_name, tool_name)
             DO UPDATE SET
                 server_url = EXCLUDED.server_url,
@@ -124,7 +124,7 @@ public class EmbeddingDbRepository {
 
         String vectorSql = """
             INSERT INTO skill_vector_snapshot (skill_name, skill_description, server_url, intent, tags, skill_vector, updated_at)
-            VALUES (?, ?, ?, ?, ?::jsonb, ?::jsonb, NOW())
+            VALUES (?, ?, ?, ?, ?::jsonb, ?::vector, NOW())
             ON CONFLICT (skill_name)
             DO UPDATE SET
                 skill_description = EXCLUDED.skill_description,

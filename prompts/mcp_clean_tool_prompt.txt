@@ -16,10 +16,8 @@
   "inputSlots": [
     {
       "field": "原参数名",
-      "fieldPath": "原参数名",
       "slotKey": "归一化槽位名",
       "type": "string|number|integer|boolean|array|object",
-      "required": true,
       "requirement": "HARD_REQUIRED|CONDITIONAL_REQUIRED|OPTIONAL",
       "condition": "当 requirement=CONDITIONAL_REQUIRED 时填写条件，否则空字符串",
       "defaultValueHint": "可选，若有默认值或可自动推断则填写",
@@ -34,8 +32,7 @@
 约束：
 - inputSlots 仅包含输入参数，不要输出无关字段。
 - slotKey 使用小写 snake_case。
-- field/fieldPath 必须对应 inputSchema 中真实存在的参数。
-- required 字段用于向后兼容：仅当 requirement=HARD_REQUIRED 时填 true，其余填 false。
+- field 必须对应 inputSchema 中真实存在的参数。
 - 对“可自动识别/不传也可用/有默认值”的字段，优先标 OPTIONAL。
 - 对“仅某些快递公司/场景需要”的字段，标 CONDITIONAL_REQUIRED 并写 condition。
 - 对“二选一/至少一个”这类关系，写入 requiredGroups，不要把整组都标 HARD_REQUIRED。

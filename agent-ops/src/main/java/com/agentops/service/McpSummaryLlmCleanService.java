@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
+@Slf4j
 public class McpSummaryLlmCleanService {
 
     private static final int DESC_MAX_LEN = 30;
@@ -69,6 +71,8 @@ public class McpSummaryLlmCleanService {
 
     @Value("${agent.mcp-cleaner.context.ttl-hours:24}")
     private long contextTtlHours;
+    @Value("${agent.mcp-cleaner.debug.enabled:false}")
+    private boolean debugEnabled;
 
     public McpSummaryLlmCleanService(
             OpsMcpProperties properties,
@@ -135,8 +139,17 @@ public class McpSummaryLlmCleanService {
     }
 
     public TaskProcessResult processTask(McpSummaryCleanTaskMessage task) {
+        if (debugEnabled) {
+            log.info("[mcp-clean-debug] process start. taskId={}, skill={}, retry={}, skillPending={}, pendingTools={}",
+                    safe(task.getTaskId()), safe(task.getSkillName()),
+                    task.getRetryCount(), task.getSkillPending(), task.getPendingToolNames());
+        }
         McpSkill skill = loadSkillFromTaskContext(task.getTaskId(), task.getSkillName());
         if (skill == null) {
+            if (debugEnabled) {
+                log.info("[mcp-clean-debug] skill not found in context. taskId={}, skill={}",
+                        safe(task.getTaskId()), safe(task.getSkillName()));
+            }
             return TaskProcessResult.done();
         }
 
@@ -148,8 +161,19 @@ public class McpSummaryLlmCleanService {
             if (toolName.isBlank() || !pendingToolNames.contains(toolName)) {
                 continue;
             }
+            if (debugEnabled) {
+                log.info("[mcp-clean-debug] tool clean begin. taskId={}, skill={}, tool={}, previousMisses={}",
+                        safe(task.getTaskId()), safe(task.getSkillName()), toolName, findPreviousMisses(task, toolName));
+            }
             List<String> previousMisses = findPreviousMisses(task, toolName);
             LlmCleanResult toolDesc = cleanToolDescriptionWithLlm(task.getTaskId(), skill, tool, previousMisses);
+            if (debugEnabled) {
+                log.info("[mcp-clean-debug] tool clean result. taskId={}, skill={}, tool={}, retryable={}, invalidSlots={}, slotCount={}, descLen={}",
+                        safe(task.getTaskId()), safe(task.getSkillName()), toolName,
+                        toolDesc.retryable, toolDesc.invalidSlotKeys,
+                        toolDesc.inputSlots == null ? 0 : toolDesc.inputSlots.size(),
+                        toolDesc.description == null ? 0 : toolDesc.description.length());
+            }
             if (toolDesc.retryable) {
                 retryToolNames.add(toolName);
                 if (toolDesc.invalidSlotKeys != null && !toolDesc.invalidSlotKeys.isEmpty()) {
@@ -175,7 +199,17 @@ public class McpSummaryLlmCleanService {
 
         boolean retrySkill = false;
         if (Boolean.TRUE.equals(task.getSkillPending())) {
+            if (debugEnabled) {
+                log.info("[mcp-clean-debug] skill clean begin. taskId={}, skill={}",
+                        safe(task.getTaskId()), safe(task.getSkillName()));
+            }
             LlmCleanResult skillDesc = cleanSkillDescriptionWithLlm(skill);
+            if (debugEnabled) {
+                log.info("[mcp-clean-debug] skill clean result. taskId={}, skill={}, retryable={}, tags={}, descLen={}",
+                        safe(task.getTaskId()), safe(task.getSkillName()),
+                        skillDesc.retryable, skillDesc.tags,
+                        skillDesc.description == null ? 0 : skillDesc.description.length());
+            }
             if (skillDesc.retryable) {
                 retrySkill = true;
             } else {
@@ -190,6 +224,11 @@ public class McpSummaryLlmCleanService {
                     }
                 }
             }
+        }
+        if (debugEnabled) {
+            log.info("[mcp-clean-debug] process done. taskId={}, skill={}, retryTools={}, retrySkill={}, slotMissHints={}",
+                    safe(task.getTaskId()), safe(task.getSkillName()),
+                    retryToolNames, retrySkill, slotMissHints);
         }
         return new TaskProcessResult(retryToolNames, retrySkill, slotMissHints);
     }
@@ -775,7 +814,7 @@ public class McpSummaryLlmCleanService {
             }
             String key = normalizeSlotKey(slot.getSlotKey());
             if (key.isBlank()) {
-                key = normalizeSlotKey(slot.getFieldPath());
+                key = normalizeSlotKey(slot.getField());
             }
             if (key.isBlank()) {
                 continue;
@@ -904,9 +943,6 @@ public class McpSummaryLlmCleanService {
             }
             String field = safe(item.path("field").asText(""));
             if (field.isBlank()) {
-                field = safe(item.path("fieldPath").asText(""));
-            }
-            if (field.isBlank()) {
                 continue;
             }
             String slotKey = normalizeSlotKey(safe(item.path("slotKey").asText("")));
@@ -921,12 +957,11 @@ public class McpSummaryLlmCleanService {
                 type = "string";
             }
             String requirement = normalizeSlotRequirement(item.path("requirement").asText(""));
-            boolean required = item.path("required").asBoolean(false);
             if (requirement.isBlank()) {
-                requirement = required ? "HARD_REQUIRED" : "OPTIONAL";
+                continue;
             }
             InputSlot slot = new InputSlot();
-            slot.setFieldPath(field);
+            slot.setField(field);
             slot.setSlotKey(slotKey);
             slot.setFieldType(type.toLowerCase());
             slot.setRequired("HARD_REQUIRED".equals(requirement));
@@ -1074,7 +1109,7 @@ public class McpSummaryLlmCleanService {
                 }
             }
             InputSlot slot = new InputSlot();
-            slot.setFieldPath(field);
+            slot.setField(field);
             slot.setSlotKey(normalizeSlotKey(field));
             slot.setFieldType(type);
             boolean required = requiredFields.contains(field);

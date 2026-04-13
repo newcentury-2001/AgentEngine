@@ -22,9 +22,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "img_url",
-      "fieldPath" : "img_url",
+      "field" : "img_url",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "输入图像的URL是必须的"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/recognition/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -57,26 +61,38 @@
     },
     "inputSlots" : [ {
       "slotKey" : "img_url",
-      "fieldPath" : "img_url",
+      "field" : "img_url",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "输入图片URL是识别的必要条件"
     }, {
       "slotKey" : "bbox",
-      "fieldPath" : "bbox",
+      "field" : "bbox",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "可选，但提供时用于裁剪识别区域"
     }, {
       "slotKey" : "ref_name",
-      "fieldPath" : "ref_name",
+      "field" : "ref_name",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "可选，用于指定识别对象的名称"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/recognition/mcp?Authorization=YOUR_ZHIPU_API_KEY"
   }, {
     "skillName" : "recognition",
     "toolName" : "plant_recognition",
-    "toolDescription" : "识别植物图像，需提供图片URL。。",
+    "toolDescription" : "识别植物图像，需图片URL。。",
     "inputSchema" : {
       "properties" : {
         "img_url" : {
@@ -90,9 +106,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "img_url",
-      "fieldPath" : "img_url",
+      "field" : "img_url",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "输入图像的URL是识别植物图像的必要条件"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/recognition/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -127,14 +147,22 @@
     },
     "inputSlots" : [ {
       "slotKey" : "query",
-      "fieldPath" : "query",
+      "field" : "query",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "搜索查询字符串，必填"
     }, {
       "slotKey" : "page_num",
-      "fieldPath" : "page_num",
+      "field" : "page_num",
       "fieldType" : "string",
-      "required" : true
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "0",
+      "reason" : "页码起始为0，每页返回5个结果，默认为0"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/image-search/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -155,9 +183,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "query",
-      "fieldPath" : "query",
+      "field" : "query",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "搜索查询必须提供"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/image-search/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -177,10 +209,14 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "img_url",
-      "fieldPath" : "img_url",
+      "slotKey" : "image_url",
+      "field" : "img_url",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "搜索需要目标图像的URL"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/image-search/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -212,19 +248,31 @@
     },
     "inputSlots" : [ {
       "slotKey" : "img_url",
-      "fieldPath" : "img_url",
+      "field" : "img_url",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "搜索图像必须提供图像URL"
     }, {
       "slotKey" : "bbox",
-      "fieldPath" : "bbox",
+      "field" : "bbox",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "可选，如果不提供，将使用整个图像"
     }, {
       "slotKey" : "ref_name",
-      "fieldPath" : "ref_name",
+      "field" : "ref_name",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "可选，如果未指定，将不搜索特定对象"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/image-search/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -244,10 +292,14 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "img_url",
-      "fieldPath" : "img_url",
+      "slotKey" : "image_url",
+      "field" : "img_url",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "图像搜索必须提供目标图像的URL"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/image-search/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -281,14 +333,22 @@
     },
     "inputSlots" : [ {
       "slotKey" : "img_url",
-      "fieldPath" : "img_url",
+      "field" : "img_url",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "图片URL是裁剪图片的必要条件"
     }, {
       "slotKey" : "box",
-      "fieldPath" : "box",
+      "field" : "box",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "裁剪框坐标是裁剪图片的必要条件"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/image-process/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -326,24 +386,40 @@
     },
     "inputSlots" : [ {
       "slotKey" : "img_url",
-      "fieldPath" : "img_url",
+      "field" : "img_url",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "输入图像的URL是绘制矩形框的必要条件"
     }, {
       "slotKey" : "boxes",
-      "fieldPath" : "boxes",
+      "field" : "boxes",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "矩形坐标是绘制矩形框的必要条件"
     }, {
       "slotKey" : "color",
-      "fieldPath" : "color",
+      "field" : "color",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "red",
+      "reason" : "颜色参数有默认值，可选"
     }, {
       "slotKey" : "thickness",
-      "fieldPath" : "thickness",
+      "field" : "thickness",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "3",
+      "reason" : "线条粗细参数有默认值，可选"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/image-process/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -381,24 +457,40 @@
     },
     "inputSlots" : [ {
       "slotKey" : "img_url",
-      "fieldPath" : "img_url",
+      "field" : "img_url",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "绘制点需要图片作为基础"
     }, {
       "slotKey" : "point",
-      "fieldPath" : "point",
+      "field" : "point",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "绘制点需要坐标信息"
     }, {
       "slotKey" : "color",
-      "fieldPath" : "color",
+      "field" : "color",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "red",
+      "reason" : "默认为红色，可省略"
     }, {
       "slotKey" : "radius",
-      "fieldPath" : "radius",
+      "field" : "radius",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "4",
+      "reason" : "默认半径为4像素，可省略"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/image-process/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -419,9 +511,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "image_url",
-      "fieldPath" : "url",
+      "field" : "url",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "图片URL是获取图片的必要条件"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/image-process/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -453,19 +549,31 @@
     },
     "inputSlots" : [ {
       "slotKey" : "img_url",
-      "fieldPath" : "img_url",
+      "field" : "img_url",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "图片URL是必需的"
     }, {
       "slotKey" : "crop_box",
-      "fieldPath" : "crop_box",
+      "field" : "crop_box",
       "fieldType" : "string",
-      "required" : true
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "无默认值",
+      "reason" : "裁剪框是可选的"
     }, {
       "slotKey" : "ref_name",
-      "fieldPath" : "ref_name",
+      "field" : "ref_name",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "无默认值",
+      "reason" : "引用图片名称是可选的"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/image-process/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -475,7 +583,7 @@
   "actionType" : null,
   "tags" : [ "policy_compliance" ],
   "skillName" : "trustworthy-search",
-  "skillDescription" : "快速筛选法规清单。",
+  "skillDescription" : "法规清单快速筛选。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/trustworthy-search/sse?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "trustworthy-search",
@@ -514,20 +622,32 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "date",
-      "fieldPath" : "eff_time",
+      "slotKey" : "eff_time",
+      "field" : "eff_time",
       "fieldType" : "string",
-      "required" : true
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "用户输入文本信息中若明确或隐含表达需要所属生效日期范围内检索材料时",
+      "defaultValueHint" : "",
+      "reason" : "根据描述，此字段在某些情况下是必填的"
     }, {
-      "slotKey" : "area_name",
-      "fieldPath" : "service_area",
+      "slotKey" : "service_area",
+      "field" : "service_area",
       "fieldType" : "array",
-      "required" : false
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "用户输入文本信息属于政务办事类",
+      "defaultValueHint" : "",
+      "reason" : "根据描述，此字段在某些情况下是必填的"
     }, {
       "slotKey" : "query",
-      "fieldPath" : "query",
+      "field" : "query",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "根据描述，此字段是必须的"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/trustworthy-search/sse?Authorization=YOUR_ZHIPU_API_KEY"
@@ -559,14 +679,22 @@
     },
     "inputSlots" : [ {
       "slotKey" : "origin",
-      "fieldPath" : "origin",
+      "field" : "origin",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "起点经纬度是规划路线的必要信息"
     }, {
       "slotKey" : "destination",
-      "fieldPath" : "destination",
+      "field" : "destination",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "目的地经纬度是规划路线的必要信息"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/gaode-map/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -590,14 +718,22 @@
     },
     "inputSlots" : [ {
       "slotKey" : "origin",
-      "fieldPath" : "origin",
+      "field" : "origin",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "起点经纬度是规划路线的必要信息"
     }, {
       "slotKey" : "destination",
-      "fieldPath" : "destination",
+      "field" : "destination",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "终点经纬度是规划路线的必要信息"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/gaode-map/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -629,24 +765,40 @@
     },
     "inputSlots" : [ {
       "slotKey" : "origin",
-      "fieldPath" : "origin",
+      "field" : "origin",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "起点经纬度是必需的"
     }, {
       "slotKey" : "destination",
-      "fieldPath" : "destination",
+      "field" : "destination",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "目的地经纬度是必需的"
     }, {
       "slotKey" : "city",
-      "fieldPath" : "city",
+      "field" : "city",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "起点城市是必需的"
     }, {
       "slotKey" : "cityd",
-      "fieldPath" : "cityd",
+      "field" : "cityd",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "终点城市是必需的"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/gaode-map/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -670,21 +822,29 @@
     },
     "inputSlots" : [ {
       "slotKey" : "origin",
-      "fieldPath" : "origin",
+      "field" : "origin",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "起点信息是规划步行路线的必要条件"
     }, {
       "slotKey" : "destination",
-      "fieldPath" : "destination",
+      "field" : "destination",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "终点信息是规划步行路线的必要条件"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/gaode-map/mcp?Authorization=YOUR_ZHIPU_API_KEY"
   }, {
     "skillName" : "gaode-map",
     "toolName" : "maps_distance",
-    "toolDescription" : "高德地图测距，输入起点、终点和类型。。",
+    "toolDescription" : "高德地图测距，需起点、终点及类型。。",
     "inputSchema" : {
       "properties" : {
         "origins" : {
@@ -705,19 +865,31 @@
     },
     "inputSlots" : [ {
       "slotKey" : "origins",
-      "fieldPath" : "origins",
+      "field" : "origins",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "起点坐标是测距的必要条件"
     }, {
       "slotKey" : "destination",
-      "fieldPath" : "destination",
+      "field" : "destination",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "终点坐标是测距的必要条件"
     }, {
       "slotKey" : "type",
-      "fieldPath" : "type",
+      "field" : "type",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "距离测量类型是确定测量方式的关键"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/gaode-map/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -741,21 +913,29 @@
     },
     "inputSlots" : [ {
       "slotKey" : "address",
-      "fieldPath" : "address",
+      "field" : "address",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "解析地址必须提供地址信息"
     }, {
       "slotKey" : "city",
-      "fieldPath" : "city",
+      "field" : "city",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "默认为当前城市",
+      "reason" : "城市信息可选，默认为当前城市"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/gaode-map/mcp?Authorization=YOUR_ZHIPU_API_KEY"
   }, {
     "skillName" : "gaode-map",
     "toolName" : "maps_regeocode",
-    "toolDescription" : "高德坐标转地址。。",
+    "toolDescription" : "高德坐标转地址。",
     "inputSchema" : {
       "properties" : {
         "location" : {
@@ -768,9 +948,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "location",
-      "fieldPath" : "location",
+      "field" : "location",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "输入参数必须提供"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/gaode-map/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -790,9 +974,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "ip",
-      "fieldPath" : "ip",
+      "field" : "ip",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "IP地址是查询位置所必需的"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/gaode-map/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -852,44 +1040,76 @@
     },
     "inputSlots" : [ {
       "slotKey" : "org_name",
-      "fieldPath" : "orgName",
+      "field" : "orgName",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "行程规划地图小程序名称必填"
     }, {
       "slotKey" : "line_list",
-      "fieldPath" : "lineList",
+      "field" : "lineList",
       "fieldType" : "array",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "行程列表必填"
     }, {
       "slotKey" : "title",
-      "fieldPath" : "title",
+      "field" : "title",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "行程名称描述必填"
     }, {
       "slotKey" : "point_info_list",
-      "fieldPath" : "pointInfoList",
+      "field" : "pointInfoList",
       "fieldType" : "array",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "行程目标位置点描述必填"
     }, {
       "slotKey" : "name",
-      "fieldPath" : "name",
+      "field" : "name",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "行程目标位置点名称必填"
     }, {
       "slotKey" : "lon",
-      "fieldPath" : "lon",
+      "field" : "lon",
       "fieldType" : "number",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "行程目标位置点经度必填"
     }, {
       "slotKey" : "lat",
-      "fieldPath" : "lat",
+      "field" : "lat",
       "fieldType" : "number",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "行程目标位置点纬度必填"
     }, {
       "slotKey" : "poi_id",
-      "fieldPath" : "poiId",
+      "field" : "poiId",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "行程目标位置点POIID必填"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/gaode-map/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -922,24 +1142,40 @@
     },
     "inputSlots" : [ {
       "slotKey" : "keywords",
-      "fieldPath" : "keywords",
+      "field" : "keywords",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "搜索关键词是执行搜索的必要条件"
     }, {
       "slotKey" : "location",
-      "fieldPath" : "location",
+      "field" : "location",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "中心点经纬度是确定搜索位置的关键"
     }, {
       "slotKey" : "radius",
-      "fieldPath" : "radius",
+      "field" : "radius",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "搜索半径是确定搜索范围的关键"
     }, {
       "slotKey" : "strategy",
-      "fieldPath" : "strategy",
+      "field" : "strategy",
       "fieldType" : "integer",
-      "required" : true
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "0",
+      "reason" : "有默认值，可选"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/gaode-map/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -959,9 +1195,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "poi_id",
-      "fieldPath" : "id",
+      "field" : "id",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "查询POI详情必须提供POI ID"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/gaode-map/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -990,19 +1230,31 @@
     },
     "inputSlots" : [ {
       "slotKey" : "keywords",
-      "fieldPath" : "keywords",
+      "field" : "keywords",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "搜索关键字，必填"
     }, {
       "slotKey" : "city",
-      "fieldPath" : "city",
+      "field" : "city",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "默认为当前城市",
+      "reason" : "可选，默认为当前城市"
     }, {
       "slotKey" : "citylimit",
-      "fieldPath" : "citylimit",
+      "field" : "citylimit",
       "fieldType" : "boolean",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "false",
+      "reason" : "可选，默认不限制"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/gaode-map/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -1026,14 +1278,22 @@
     },
     "inputSlots" : [ {
       "slotKey" : "lon",
-      "fieldPath" : "lon",
+      "field" : "lon",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "终点经度是导航的必要信息"
     }, {
       "slotKey" : "lat",
-      "fieldPath" : "lat",
+      "field" : "lat",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "终点纬度是导航的必要信息"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/gaode-map/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -1073,34 +1333,58 @@
     },
     "inputSlots" : [ {
       "slotKey" : "slon",
-      "fieldPath" : "slon",
+      "field" : "slon",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "起点经度是生成链接的必要信息"
     }, {
       "slotKey" : "slat",
-      "fieldPath" : "slat",
+      "field" : "slat",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "起点纬度是生成链接的必要信息"
     }, {
       "slotKey" : "sname",
-      "fieldPath" : "sname",
+      "field" : "sname",
       "fieldType" : "string",
-      "required" : true
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "起点名称不是必须的，但提供可以增强链接的描述性"
     }, {
       "slotKey" : "dlon",
-      "fieldPath" : "dlon",
+      "field" : "dlon",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "终点经度是生成链接的必要信息"
     }, {
       "slotKey" : "dlat",
-      "fieldPath" : "dlat",
+      "field" : "dlat",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "终点纬度是生成链接的必要信息"
     }, {
       "slotKey" : "dname",
-      "fieldPath" : "dname",
+      "field" : "dname",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "终点名称是生成链接的必要信息"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/gaode-map/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -1120,19 +1404,23 @@
     },
     "inputSlots" : [ {
       "slotKey" : "city",
-      "fieldPath" : "city",
+      "field" : "city",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "城市名称或adcode是查询天气的必要条件"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/gaode-map/mcp?Authorization=YOUR_ZHIPU_API_KEY"
   } ]
 }, {
-  "intent" : "knowledge_retrieval",
+  "intent" : "vision_image",
   "actionType" : null,
-  "tags" : [ "knowledge_retrieval" ],
+  "tags" : [ "vision_image" ],
   "skillName" : "jina-reader",
-  "skillDescription" : "网页内容信息提取。",
+  "skillDescription" : "网页内容抓取提取。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/jina-reader/mcp?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "jina-reader",
@@ -1184,49 +1472,85 @@
     },
     "inputSlots" : [ {
       "slotKey" : "url",
-      "fieldPath" : "url",
+      "field" : "url",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "必填参数，用于指定要抓取的网页URL"
     }, {
       "slotKey" : "timeout",
-      "fieldPath" : "timeout",
+      "field" : "timeout",
       "fieldType" : "integer",
-      "required" : true
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "20",
+      "reason" : "可选参数，默认值为20秒"
     }, {
       "slotKey" : "no_cache",
-      "fieldPath" : "no_cache",
+      "field" : "no_cache",
       "fieldType" : "boolean",
-      "required" : true
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "false",
+      "reason" : "可选参数，默认值为false"
     }, {
       "slotKey" : "return_format",
-      "fieldPath" : "return_format",
+      "field" : "return_format",
       "fieldType" : "string",
-      "required" : true
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "markdown",
+      "reason" : "可选参数，默认值为markdown"
     }, {
       "slotKey" : "retain_images",
-      "fieldPath" : "retain_images",
+      "field" : "retain_images",
       "fieldType" : "boolean",
-      "required" : true
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "true",
+      "reason" : "可选参数，默认值为true"
     }, {
       "slotKey" : "no_gfm",
-      "fieldPath" : "no_gfm",
+      "field" : "no_gfm",
       "fieldType" : "boolean",
-      "required" : true
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "false",
+      "reason" : "可选参数，默认值为false"
     }, {
       "slotKey" : "keep_img_data_url",
-      "fieldPath" : "keep_img_data_url",
+      "field" : "keep_img_data_url",
       "fieldType" : "boolean",
-      "required" : true
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "false",
+      "reason" : "可选参数，默认值为false"
     }, {
       "slotKey" : "with_images_summary",
-      "fieldPath" : "with_images_summary",
+      "field" : "with_images_summary",
       "fieldType" : "boolean",
-      "required" : true
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "false",
+      "reason" : "可选参数，默认值为false"
     }, {
       "slotKey" : "with_links_summary",
-      "fieldPath" : "with_links_summary",
+      "field" : "with_links_summary",
       "fieldType" : "boolean",
-      "required" : true
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "false",
+      "reason" : "可选参数，默认值为false"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/jina-reader/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -1261,19 +1585,31 @@
     },
     "inputSlots" : [ {
       "slotKey" : "keyword",
-      "fieldPath" : "keyword",
+      "field" : "keyword",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "查询必须有关键词"
     }, {
       "slotKey" : "page_num",
-      "fieldPath" : "pageNum",
+      "field" : "pageNum",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "默认第1页",
+      "reason" : "可选，默认值为第1页"
     }, {
       "slotKey" : "page_size",
-      "fieldPath" : "pageSize",
+      "field" : "pageSize",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "默认20条",
+      "reason" : "可选，默认值为20条"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/business-tax-id/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -1300,9 +1636,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "day",
-      "fieldPath" : "day",
+      "field" : "day",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "查询放假日期必须提供日期信息"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/holiday-inquiry/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -1321,9 +1661,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "year",
-      "fieldPath" : "year",
+      "field" : "year",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "查询特定年份的节假日列表需要年份信息"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/holiday-inquiry/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -1333,7 +1677,7 @@
   "actionType" : null,
   "tags" : [ "knowledge_retrieval" ],
   "skillName" : "dream-interpretation",
-  "skillDescription" : "解读梦境象征意义。。",
+  "skillDescription" : "解析梦境象征意义。。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/dream-interpretation/mcp?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "dream-interpretation",
@@ -1351,9 +1695,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "keyword",
-      "fieldPath" : "keyword",
+      "field" : "keyword",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "关键词是查询周公解梦释义的必要条件"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/dream-interpretation/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -1375,19 +1723,31 @@
     },
     "inputSlots" : [ {
       "slotKey" : "lottery_id",
-      "fieldPath" : "lottery-id",
+      "field" : null,
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : null,
+      "condition" : null,
+      "defaultValueHint" : null,
+      "reason" : null
     }, {
       "slotKey" : "lottery_name",
-      "fieldPath" : "lottery-name",
+      "field" : null,
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : null,
+      "condition" : null,
+      "defaultValueHint" : null,
+      "reason" : null
     }, {
       "slotKey" : "parent_id",
-      "fieldPath" : "parent-id",
+      "field" : null,
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : null,
+      "condition" : null,
+      "defaultValueHint" : null,
+      "reason" : null
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/lottery-results/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -1410,14 +1770,22 @@
     },
     "inputSlots" : [ {
       "slotKey" : "caipiaoid",
-      "fieldPath" : "caipiaoid",
+      "field" : "caipiaoid",
       "fieldType" : "integer",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "彩票ID是查询的必要参数"
     }, {
       "slotKey" : "issueno",
-      "fieldPath" : "issueno",
+      "field" : "issueno",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "期号是查询的必要参数"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/lottery-results/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -1448,24 +1816,40 @@
     },
     "inputSlots" : [ {
       "slotKey" : "caipiaoid",
-      "fieldPath" : "caipiaoid",
+      "field" : "caipiaoid",
       "fieldType" : "integer",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "彩票ID是查询的必要参数"
     }, {
       "slotKey" : "issueno",
-      "fieldPath" : "issueno",
+      "field" : "issueno",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "默认为当前期",
+      "reason" : "期号可选，默认为当前期"
     }, {
       "slotKey" : "num",
-      "fieldPath" : "num",
+      "field" : "num",
       "fieldType" : "integer",
-      "required" : false
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "获取数量需大于0且小于等于20",
+      "defaultValueHint" : "",
+      "reason" : "获取数量有上限，需满足条件"
     }, {
       "slotKey" : "start",
-      "fieldPath" : "start",
+      "field" : "start",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "默认为0",
+      "reason" : "起始位置可选，默认为0"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/lottery-results/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -1500,29 +1884,49 @@
     },
     "inputSlots" : [ {
       "slotKey" : "caipiaoid",
-      "fieldPath" : "caipiaoid",
+      "field" : "caipiaoid",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "彩票ID是查询中奖情况的必要条件"
     }, {
       "slotKey" : "issueno",
-      "fieldPath" : "issueno",
+      "field" : "issueno",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "默认为最新一期",
+      "reason" : "期号可省略，系统默认为最新一期"
     }, {
       "slotKey" : "number",
-      "fieldPath" : "number",
+      "field" : "number",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "彩票号码（红球）可省略"
     }, {
       "slotKey" : "refernumber",
-      "fieldPath" : "refernumber",
+      "field" : "refernumber",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "彩票剩余号码（蓝球）可省略"
     }, {
       "slotKey" : "type",
-      "fieldPath" : "type",
+      "field" : "type",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "投注类型可省略"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/lottery-results/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -1553,14 +1957,22 @@
     },
     "inputSlots" : [ {
       "slotKey" : "date",
-      "fieldPath" : "date",
+      "field" : "date",
       "fieldType" : "string",
-      "required" : true
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "当前天",
+      "reason" : "有默认值"
     }, {
       "slotKey" : "need_content",
-      "fieldPath" : "needContent",
+      "field" : "needContent",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "必须指定是否需要详细内容"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/this-day-in-history/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -1587,16 +1999,20 @@
     },
     "inputSlots" : [ {
       "slotKey" : "bank",
-      "fieldPath" : "bank",
+      "field" : "bank",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "查询外汇牌价必须指定银行编码"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/exchange-rate/mcp?Authorization=YOUR_ZHIPU_API_KEY"
   }, {
     "skillName" : "exchange-rate",
     "toolName" : "单个货币查询接口",
-    "toolDescription" : "查询货币汇率及更新时间。。",
+    "toolDescription" : "查询特定货币汇率及更新时间。。",
     "inputSchema" : {
       "properties" : {
         "currency" : {
@@ -1609,9 +2025,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "currency",
-      "fieldPath" : "currency",
+      "field" : "currency",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "查询汇率必须指定货币"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/exchange-rate/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -1639,19 +2059,31 @@
     },
     "inputSlots" : [ {
       "slotKey" : "amount",
-      "fieldPath" : "amount",
+      "field" : "amount",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "金额是进行汇率转换的必要参数"
     }, {
       "slotKey" : "from",
-      "fieldPath" : "from",
+      "field" : "from",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "源货币单位是进行汇率转换的必要参数"
     }, {
       "slotKey" : "to",
-      "fieldPath" : "to",
+      "field" : "to",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "目标货币单位是进行汇率转换的必要参数"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/exchange-rate/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -1661,7 +2093,7 @@
   "actionType" : null,
   "tags" : [ "logistics_delivery" ],
   "skillName" : "postal-code",
-  "skillDescription" : "查询地址邮编。。",
+  "skillDescription" : "查询地址邮编信息。。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/postal-code/mcp?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "postal-code",
@@ -1682,14 +2114,22 @@
     },
     "inputSlots" : [ {
       "slotKey" : "address",
-      "fieldPath" : "address",
+      "field" : "address",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "查询邮编需要地址信息"
     }, {
       "slotKey" : "areaid",
-      "fieldPath" : "areaid",
+      "field" : "areaid",
       "fieldType" : "integer",
-      "required" : true
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "当需要查询特定区域邮编时",
+      "defaultValueHint" : "",
+      "reason" : "特定区域邮编需要区域ID"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/postal-code/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -1708,9 +2148,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "zipcode",
-      "fieldPath" : "zipcode",
+      "field" : "zipcode",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "邮编是查询地址的必要条件"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/postal-code/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -1724,9 +2168,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "zipcode",
-      "fieldPath" : "skillName",
+      "field" : "postal-code",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "邮编是查询区域的关键信息"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/postal-code/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -1770,29 +2218,49 @@
     },
     "inputSlots" : [ {
       "slotKey" : "need_month",
-      "fieldPath" : "needMonth",
+      "field" : "needMonth",
       "fieldType" : "string",
-      "required" : true
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "需要本月运势",
+      "defaultValueHint" : "",
+      "reason" : "根据描述，本月运势数据是可选的，但需要时必填"
     }, {
       "slotKey" : "need_tomorrow",
-      "fieldPath" : "needTomorrow",
+      "field" : "needTomorrow",
       "fieldType" : "string",
-      "required" : true
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "需要明天运势",
+      "defaultValueHint" : "",
+      "reason" : "根据描述，明天运势数据是可选的，但需要时必填"
     }, {
       "slotKey" : "need_week",
-      "fieldPath" : "needWeek",
+      "field" : "needWeek",
       "fieldType" : "string",
-      "required" : true
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "需要本周运势",
+      "defaultValueHint" : "",
+      "reason" : "根据描述，本周运势数据是可选的，但需要时必填"
     }, {
       "slotKey" : "need_year",
-      "fieldPath" : "needYear",
+      "field" : "needYear",
       "fieldType" : "string",
-      "required" : true
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "需要本年运势",
+      "defaultValueHint" : "",
+      "reason" : "根据描述，本年运势数据是可选的，但需要时必填"
     }, {
       "slotKey" : "star",
-      "fieldPath" : "star",
+      "field" : "star",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "baiyang,jinniu,shuangzi,juxie,shizi,chunv,tiancheng,tianxie,sheshou,mojie,shuiping,shuangyu",
+      "reason" : "星座是查询运势的必要条件"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/constellation/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -1802,7 +2270,7 @@
   "actionType" : null,
   "tags" : [ "knowledge_retrieval" ],
   "skillName" : "knowledge-recall",
-  "skillDescription" : "快速查询法规政策。",
+  "skillDescription" : "快速检索法规政策。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/knowledge-recall/sse?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "knowledge-recall",
@@ -1839,24 +2307,40 @@
     },
     "inputSlots" : [ {
       "slotKey" : "policy",
-      "fieldPath" : "policy",
+      "field" : "policy",
       "fieldType" : "boolean",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "false",
+      "reason" : "有默认值"
     }, {
       "slotKey" : "item",
-      "fieldPath" : "item",
+      "field" : "item",
       "fieldType" : "boolean",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "false",
+      "reason" : "有默认值"
     }, {
       "slotKey" : "search",
-      "fieldPath" : "search",
+      "field" : "search",
       "fieldType" : "boolean",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "true",
+      "reason" : "有默认值"
     }, {
       "slotKey" : "query",
-      "fieldPath" : "query",
+      "field" : "query",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "必填项"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/knowledge-recall/sse?Authorization=YOUR_ZHIPU_API_KEY"
@@ -1866,7 +2350,7 @@
   "actionType" : null,
   "tags" : [ "travel_transport" ],
   "skillName" : "tripmatch",
-  "skillDescription" : "航班信息查询与分析。。",
+  "skillDescription" : "航班信息查询与分析。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/tripmatch/mcp?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "tripmatch",
@@ -1921,29 +2405,49 @@
     },
     "inputSlots" : [ {
       "slotKey" : "date",
-      "fieldPath" : "date",
+      "field" : "date",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "查询航班信息必须提供日期"
     }, {
       "slotKey" : "dep_airport",
-      "fieldPath" : "dep",
+      "field" : "dep",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "当 depcity 未提供时",
+      "defaultValueHint" : "",
+      "reason" : "起飞机场信息至少通过其中一个提供"
     }, {
       "slotKey" : "dep_city",
-      "fieldPath" : "depcity",
+      "field" : "depcity",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "当 dep 未提供时",
+      "defaultValueHint" : "",
+      "reason" : "起飞城市信息至少通过其中一个提供"
     }, {
       "slotKey" : "arr_airport",
-      "fieldPath" : "arr",
+      "field" : "arr",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "当 arrcity 未提供时",
+      "defaultValueHint" : "",
+      "reason" : "到达机场信息至少通过其中一个提供"
     }, {
       "slotKey" : "arr_city",
-      "fieldPath" : "arrcity",
+      "field" : "arrcity",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "当 arr 未提供时",
+      "defaultValueHint" : "",
+      "reason" : "到达城市信息至少通过其中一个提供"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/tripmatch/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -1986,25 +2490,41 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "flight_no",
-      "fieldPath" : "fnum",
+      "slotKey" : "fnum",
+      "field" : "fnum",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "航班号是搜索航班的基本信息"
     }, {
-      "slotKey" : "depdate",
-      "fieldPath" : "date",
+      "slotKey" : "date",
+      "field" : "date",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "航班日期是搜索航班的基本信息"
     }, {
-      "slotKey" : "dep_airport",
-      "fieldPath" : "dep",
+      "slotKey" : "dep",
+      "field" : "dep",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "当需要指定出发机场时",
+      "defaultValueHint" : "",
+      "reason" : "出发机场是可选的，但某些搜索可能需要它"
     }, {
-      "slotKey" : "arr_airport",
-      "fieldPath" : "arr",
+      "slotKey" : "arr",
+      "field" : "arr",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "当需要指定到达机场时",
+      "defaultValueHint" : "",
+      "reason" : "到达机场是可选的，但某些搜索可能需要它"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/tripmatch/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2035,19 +2555,31 @@
     },
     "inputSlots" : [ {
       "slotKey" : "depcity",
-      "fieldPath" : "depcity",
+      "field" : "depcity",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "出发机场IATA三字母代码是必填项"
     }, {
       "slotKey" : "arrcity",
-      "fieldPath" : "arrcity",
+      "field" : "arrcity",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "到达机场IATA三字母代码是必填项"
     }, {
       "slotKey" : "depdate",
-      "fieldPath" : "depdate",
+      "field" : "depdate",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "航班日期是必填项"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/tripmatch/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2090,25 +2622,41 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "flight_no",
-      "fieldPath" : "fnum",
+      "slotKey" : "fnum",
+      "field" : "fnum",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "航班号是必须的，用于识别航班"
     }, {
-      "slotKey" : "dep_date",
-      "fieldPath" : "date",
+      "slotKey" : "date",
+      "field" : "date",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "航班日期是必须的，用于查询特定日期的航班"
     }, {
-      "slotKey" : "dep_airport",
-      "fieldPath" : "dep",
+      "slotKey" : "dep",
+      "field" : "dep",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "当需要指定出发机场时",
+      "defaultValueHint" : "",
+      "reason" : "出发机场是可选的，但仅在需要指定时为必填"
     }, {
-      "slotKey" : "arr_airport",
-      "fieldPath" : "arr",
+      "slotKey" : "arr",
+      "field" : "arr",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "当需要指定到达机场时",
+      "defaultValueHint" : "",
+      "reason" : "到达机场是可选的，但仅在需要指定时为必填"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/tripmatch/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2132,9 +2680,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "random_string",
-      "fieldPath" : "random_string",
+      "field" : "random_string",
       "fieldType" : "string",
-      "required" : true
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "无",
+      "reason" : "参数为示例，非必需"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/tripmatch/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2155,9 +2707,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "airport",
-      "fieldPath" : "airport",
+      "field" : "airport",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "机场信息是获取天气预报的必要条件"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/tripmatch/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2188,19 +2744,31 @@
     },
     "inputSlots" : [ {
       "slotKey" : "from_city",
-      "fieldPath" : "from_city",
+      "field" : "from_city",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "出发城市是查询火车票的必要信息"
     }, {
       "slotKey" : "to_city",
-      "fieldPath" : "to_city",
+      "field" : "to_city",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "目的地城市是查询火车票的必要信息"
     }, {
       "slotKey" : "date",
-      "fieldPath" : "date",
+      "field" : "date",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "出行日期是查询火车票的必要信息"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/tripmatch/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2231,19 +2799,31 @@
     },
     "inputSlots" : [ {
       "slotKey" : "dep_city",
-      "fieldPath" : "dep_city",
+      "field" : "dep_city",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "出发城市是查询航班价格的基本信息"
     }, {
       "slotKey" : "arr_city",
-      "fieldPath" : "arr_city",
+      "field" : "arr_city",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "到达城市是查询航班价格的基本信息"
     }, {
       "slotKey" : "dep_date",
-      "fieldPath" : "dep_date",
+      "field" : "dep_date",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "出发日期是查询航班价格的基本信息"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/tripmatch/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2264,9 +2844,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "query",
-      "fieldPath" : "query",
+      "field" : "query",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "搜索火车站关键词是必须的"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/tripmatch/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2331,29 +2915,49 @@
     },
     "inputSlots" : [ {
       "slotKey" : "date",
-      "fieldPath" : "date",
+      "field" : "date",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "查询航班信息必须提供日期"
     }, {
       "slotKey" : "dep_airport",
-      "fieldPath" : "dep",
+      "field" : "dep",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "当 depcity 未提供时",
+      "defaultValueHint" : "",
+      "reason" : "如果未提供出发城市代码，则必须提供出发机场代码"
     }, {
       "slotKey" : "dep_city",
-      "fieldPath" : "depcity",
+      "field" : "depcity",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "当 dep 未提供时",
+      "defaultValueHint" : "",
+      "reason" : "如果未提供出发机场代码，则必须提供出发城市代码"
     }, {
       "slotKey" : "arr_airport",
-      "fieldPath" : "arr",
+      "field" : "arr",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "当 arrcity 未提供时",
+      "defaultValueHint" : "",
+      "reason" : "如果未提供到达城市代码，则必须提供到达机场代码"
     }, {
       "slotKey" : "arr_city",
-      "fieldPath" : "arrcity",
+      "field" : "arrcity",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "当 arr 未提供时",
+      "defaultValueHint" : "",
+      "reason" : "如果未提供到达机场代码，则必须提供到达城市代码"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/aviation/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2396,25 +3000,41 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "flight_no",
-      "fieldPath" : "fnum",
+      "slotKey" : "fnum",
+      "field" : "fnum",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "航班号是搜索航班信息的必要条件"
     }, {
-      "slotKey" : "depdate",
-      "fieldPath" : "date",
+      "slotKey" : "date",
+      "field" : "date",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "航班日期是搜索航班信息的必要条件"
     }, {
-      "slotKey" : "dep_airport",
-      "fieldPath" : "dep",
+      "slotKey" : "dep",
+      "field" : "dep",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "当需要指定出发机场时",
+      "defaultValueHint" : "",
+      "reason" : "出发机场是可选的，但仅在需要指定时为必填"
     }, {
-      "slotKey" : "arr_airport",
-      "fieldPath" : "arr",
+      "slotKey" : "arr",
+      "field" : "arr",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "当需要指定到达机场时",
+      "defaultValueHint" : "",
+      "reason" : "到达机场是可选的，但仅在需要指定时为必填"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/aviation/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2445,19 +3065,31 @@
     },
     "inputSlots" : [ {
       "slotKey" : "depdate",
-      "fieldPath" : "depdate",
+      "field" : "depdate",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "航班日期是查询航班中转信息的必要条件。"
     }, {
       "slotKey" : "depcity",
-      "fieldPath" : "depcity",
+      "field" : "depcity",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "出发机场代码是查询航班中转信息的必要条件。"
     }, {
       "slotKey" : "arrcity",
-      "fieldPath" : "arrcity",
+      "field" : "arrcity",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "到达机场代码是查询航班中转信息的必要条件。"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/aviation/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2500,25 +3132,41 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "flight_no",
-      "fieldPath" : "fnum",
+      "slotKey" : "fnum",
+      "field" : "fnum",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "航班号是分析的基础信息，必须提供"
     }, {
-      "slotKey" : "dep_date",
-      "fieldPath" : "date",
+      "slotKey" : "date",
+      "field" : "date",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "日期是分析的基础信息，必须提供"
     }, {
-      "slotKey" : "dep_airport",
-      "fieldPath" : "dep",
+      "slotKey" : "dep",
+      "field" : "dep",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "当提供出发机场时",
+      "defaultValueHint" : "",
+      "reason" : "出发机场信息对于某些分析是必要的"
     }, {
-      "slotKey" : "arr_airport",
-      "fieldPath" : "arr",
+      "slotKey" : "arr",
+      "field" : "arr",
       "fieldType" : "string",
-      "required" : false
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "当提供到达机场时",
+      "defaultValueHint" : "",
+      "reason" : "到达机场信息对于某些分析是必要的"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/aviation/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2539,9 +3187,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "anum",
-      "fieldPath" : "anum",
+      "field" : "anum",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "航班号是获取实时位置所必需的。"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/aviation/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2565,9 +3217,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "random_string",
-      "fieldPath" : "random_string",
+      "field" : "random_string",
       "fieldType" : "string",
-      "required" : true
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "参数为示例，非必填"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/aviation/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2588,9 +3244,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "airport",
-      "fieldPath" : "airport",
+      "field" : "airport",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "机场信息是获取天气预报的必要条件"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/aviation/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2621,19 +3281,31 @@
     },
     "inputSlots" : [ {
       "slotKey" : "dep_city_code",
-      "fieldPath" : "depCityCode",
+      "field" : "depCityCode",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "出发城市代码是查询航班行程的必要信息"
     }, {
       "slotKey" : "dep_date",
-      "fieldPath" : "depDate",
+      "field" : "depDate",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "出发日期是查询航班行程的必要信息"
     }, {
       "slotKey" : "arr_city_code",
-      "fieldPath" : "arrCityCode",
+      "field" : "arrCityCode",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "到达城市代码是查询航班行程的必要信息"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/aviation/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2643,7 +3315,7 @@
   "actionType" : null,
   "tags" : [ "knowledge_retrieval" ],
   "skillName" : "administrative-divisions",
-  "skillDescription" : "查询全国行政区划。",
+  "skillDescription" : "查询全国行政区划详情。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/administrative-divisions/mcp?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "administrative-divisions",
@@ -2676,29 +3348,49 @@
     },
     "inputSlots" : [ {
       "slotKey" : "city_id",
-      "fieldPath" : "cityId",
+      "field" : "cityId",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "获取市级行政区信息必须提供市级行政区ID"
     }, {
       "slotKey" : "county_id",
-      "fieldPath" : "countyId",
+      "field" : "countyId",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "获取区县级行政区信息必须提供区县级行政区ID"
     }, {
       "slotKey" : "province_id",
-      "fieldPath" : "provinceId",
+      "field" : "provinceId",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "获取市级行政区信息必须提供省级行政区ID"
     }, {
       "slotKey" : "town_id",
-      "fieldPath" : "townId",
+      "field" : "townId",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "获取乡镇级行政区信息必须提供乡镇级行政区ID"
     }, {
       "slotKey" : "village_id",
-      "fieldPath" : "villageId",
+      "field" : "villageId",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "获取社区级行政区信息必须提供社区级行政区ID"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/administrative-divisions/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2725,9 +3417,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "symbol",
-      "fieldPath" : "symbol",
+      "field" : "symbol",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "国际贵金属品种是报价的必要信息"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/precious-metal-price/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2746,9 +3442,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "symbol",
-      "fieldPath" : "symbol",
+      "field" : "symbol",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "国内贵金属品种是查询的必要条件"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/precious-metal-price/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2767,9 +3467,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "symbol",
-      "fieldPath" : "symbol",
+      "field" : "symbol",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "查询必需参数"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/precious-metal-price/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2796,19 +3500,31 @@
     },
     "inputSlots" : [ {
       "slotKey" : "limit",
-      "fieldPath" : "limit",
+      "field" : "limit",
       "fieldType" : "string",
-      "required" : true
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "默认10",
+      "reason" : "有默认值"
     }, {
       "slotKey" : "symbol",
-      "fieldPath" : "symbol",
+      "field" : "symbol",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "必须指定品种"
     }, {
       "slotKey" : "type",
-      "fieldPath" : "type",
+      "field" : "type",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "必须指定K线类型"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/precious-metal-price/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2827,9 +3543,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "symbol",
-      "fieldPath" : "symbol",
+      "field" : "symbol",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "国际贵金属品种是查询的必要条件"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/precious-metal-price/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2856,19 +3576,31 @@
     },
     "inputSlots" : [ {
       "slotKey" : "limit",
-      "fieldPath" : "limit",
+      "field" : "limit",
       "fieldType" : "string",
-      "required" : true
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "默认10",
+      "reason" : "有默认值"
     }, {
       "slotKey" : "symbol",
-      "fieldPath" : "symbol",
+      "field" : "symbol",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "必须指定品种"
     }, {
       "slotKey" : "type",
-      "fieldPath" : "type",
+      "field" : "type",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "必须指定K线类型"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/precious-metal-price/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2878,7 +3610,7 @@
   "actionType" : null,
   "tags" : [ "knowledge_retrieval" ],
   "skillName" : "trustworthy-knowledge",
-  "skillDescription" : "智能筛选法规文件。",
+  "skillDescription" : "智能筛选法规政策文件。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/trustworthy-knowledge/sse?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "trustworthy-knowledge",
@@ -2915,24 +3647,40 @@
     },
     "inputSlots" : [ {
       "slotKey" : "policy",
-      "fieldPath" : "policy",
+      "field" : "policy",
       "fieldType" : "boolean",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "false",
+      "reason" : "有默认值"
     }, {
       "slotKey" : "item",
-      "fieldPath" : "item",
+      "field" : "item",
       "fieldType" : "boolean",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "false",
+      "reason" : "有默认值"
     }, {
       "slotKey" : "search",
-      "fieldPath" : "search",
+      "field" : "search",
       "fieldType" : "boolean",
-      "required" : false
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "true",
+      "reason" : "有默认值"
     }, {
       "slotKey" : "query",
-      "fieldPath" : "query",
+      "field" : "query",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "必填参数"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/trustworthy-knowledge/sse?Authorization=YOUR_ZHIPU_API_KEY"
@@ -2976,29 +3724,49 @@
     },
     "inputSlots" : [ {
       "slotKey" : "address",
-      "fieldPath" : "address",
+      "field" : "address",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "必填项，用于查询网点位置"
     }, {
       "slotKey" : "area_name",
-      "fieldPath" : "areaName",
+      "field" : "areaName",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "必填项，用于查询网点所在区县"
     }, {
       "slotKey" : "city_name",
-      "fieldPath" : "cityName",
+      "field" : "cityName",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "必填项，用于查询网点所在城市"
     }, {
       "slotKey" : "province_name",
-      "fieldPath" : "provinceName",
+      "field" : "provinceName",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "必填项，用于查询网点所在省份"
     }, {
       "slotKey" : "shipper_code",
-      "fieldPath" : "shipperCode",
+      "field" : "shipperCode",
       "fieldType" : "string",
-      "required" : true
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "shipperCode为SF、JTSD时必传",
+      "defaultValueHint" : "",
+      "reason" : "条件必填项，特定快递公司编码时必传"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/delivery-inquiry/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -3017,10 +3785,14 @@
       "type" : "object"
     },
     "inputSlots" : [ {
-      "slotKey" : "number",
-      "fieldPath" : "number",
+      "slotKey" : "express_no",
+      "field" : "number",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "运单编号是识别快递信息的基本要素"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/delivery-inquiry/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -3052,24 +3824,40 @@
     },
     "inputSlots" : [ {
       "slotKey" : "express_code",
-      "fieldPath" : "expressCode",
+      "field" : "expressCode",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "快递公司编号是查询必需的"
     }, {
       "slotKey" : "mobile",
-      "fieldPath" : "mobile",
+      "field" : "mobile",
       "fieldType" : "string",
-      "required" : true
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "顺丰速运、中通、跨越速运",
+      "defaultValueHint" : "",
+      "reason" : "特定快递公司需要手机号"
     }, {
       "slotKey" : "number",
-      "fieldPath" : "number",
+      "field" : "number",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "运单编号是查询必需的"
     }, {
       "slotKey" : "sort",
-      "fieldPath" : "sort",
+      "field" : "sort",
       "fieldType" : "string",
-      "required" : true
+      "required" : false,
+      "requirement" : "OPTIONAL",
+      "condition" : "",
+      "defaultValueHint" : "asc",
+      "reason" : "排序参数可选，默认为升序"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/delivery-inquiry/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -3097,9 +3885,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "code",
-      "fieldPath" : "code",
+      "field" : "code",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "商品条码是查询的必要信息"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/product-barcode-query/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -3114,7 +3906,7 @@
   "tools" : [ {
     "skillName" : "lunar-calendar",
     "toolName" : "节假日列表",
-    "toolDescription" : "生成指定年份节假日列表。",
+    "toolDescription" : "生成指定年份节假日列表。。",
     "inputSchema" : {
       "properties" : {
         "year" : {
@@ -3127,16 +3919,20 @@
     },
     "inputSlots" : [ {
       "slotKey" : "year",
-      "fieldPath" : "year",
+      "field" : "year",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "查询节假日列表需要指定年份"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/lunar-calendar/mcp?Authorization=YOUR_ZHIPU_API_KEY"
   }, {
     "skillName" : "lunar-calendar",
     "toolName" : "黄历运势_新版_黄历",
-    "toolDescription" : "查询指定日期黄历运势。",
+    "toolDescription" : "查询指定日期黄历运势。。",
     "inputSchema" : {
       "properties" : {
         "date" : {
@@ -3149,9 +3945,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "date",
-      "fieldPath" : "date",
+      "field" : "date",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "查询黄历运势必须指定日期"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/lunar-calendar/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -3175,14 +3975,22 @@
     },
     "inputSlots" : [ {
       "slotKey" : "date",
-      "fieldPath" : "date",
+      "field" : "date",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "查询的日期是必须的"
     }, {
       "slotKey" : "need_desc",
-      "fieldPath" : "needDesc",
+      "field" : "needDesc",
       "fieldType" : "string",
-      "required" : true
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "需要返回简介",
+      "defaultValueHint" : "",
+      "reason" : "需要返回当日公众日、国际日和我国传统节日的简介时，此参数是必须的"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/lunar-calendar/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -3202,16 +4010,20 @@
     },
     "inputSlots" : [ {
       "slotKey" : "date",
-      "fieldPath" : "date",
+      "field" : "date",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "查询黄历吉神凶煞需要指定日期"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/lunar-calendar/mcp?Authorization=YOUR_ZHIPU_API_KEY"
   }, {
     "skillName" : "lunar-calendar",
     "toolName" : "黄历运势_新版_吉时",
-    "toolDescription" : "查询黄历吉时。。",
+    "toolDescription" : "查询黄历吉时日期。。",
     "inputSchema" : {
       "properties" : {
         "date" : {
@@ -3224,9 +4036,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "date",
-      "fieldPath" : "date",
+      "field" : "date",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "查询黄历吉时必须指定日期"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/lunar-calendar/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -3291,49 +4107,85 @@
     },
     "inputSlots" : [ {
       "slotKey" : "thought",
-      "fieldPath" : "thought",
+      "field" : "thought",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "当前思考步骤，必填"
     }, {
       "slotKey" : "next_thought_needed",
-      "fieldPath" : "nextThoughtNeeded",
+      "field" : "nextThoughtNeeded",
       "fieldType" : "boolean",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "是否需要下一个思考步骤，必填"
     }, {
       "slotKey" : "thought_number",
-      "fieldPath" : "thoughtNumber",
+      "field" : "thoughtNumber",
       "fieldType" : "integer",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "当前思考步骤编号，必填"
     }, {
       "slotKey" : "total_thoughts",
-      "fieldPath" : "totalThoughts",
+      "field" : "totalThoughts",
       "fieldType" : "integer",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "预计所需总思考步骤数，必填"
     }, {
       "slotKey" : "is_revision",
-      "fieldPath" : "isRevision",
+      "field" : "isRevision",
       "fieldType" : "boolean",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "是否为修订之前的思考，必填"
     }, {
       "slotKey" : "revises_thought",
-      "fieldPath" : "revisesThought",
+      "field" : "revisesThought",
       "fieldType" : "integer",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "被重新考虑的思考步骤编号，必填"
     }, {
       "slotKey" : "branch_from_thought",
-      "fieldPath" : "branchFromThought",
+      "field" : "branchFromThought",
       "fieldType" : "integer",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "分支点思考步骤编号，必填"
     }, {
       "slotKey" : "branch_id",
-      "fieldPath" : "branchId",
+      "field" : "branchId",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "分支标识符，必填"
     }, {
       "slotKey" : "needs_more_thoughts",
-      "fieldPath" : "needsMoreThoughts",
+      "field" : "needsMoreThoughts",
       "fieldType" : "boolean",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "是否需要更多思考，必填"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/sequential-thinking/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -3360,9 +4212,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "url",
-      "fieldPath" : "target",
+      "field" : "target",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "短链接生成需要目标URL"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/short-link-generator/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -3393,24 +4249,40 @@
     },
     "inputSlots" : [ {
       "slotKey" : "begin",
-      "fieldPath" : "begin",
+      "field" : "begin",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "起始时间必须提供"
     }, {
       "slotKey" : "end",
-      "fieldPath" : "end",
+      "field" : "end",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "截止时间必须提供"
     }, {
       "slotKey" : "link",
-      "fieldPath" : "link",
+      "field" : "link",
       "fieldType" : "string",
-      "required" : true
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "当 target 未提供时",
+      "defaultValueHint" : "",
+      "reason" : "短链接或原始链接至少提供一个"
     }, {
       "slotKey" : "target",
-      "fieldPath" : "target",
+      "field" : "target",
       "fieldType" : "string",
-      "required" : true
+      "required" : false,
+      "requirement" : "CONDITIONAL_REQUIRED",
+      "condition" : "当 link 未提供时",
+      "defaultValueHint" : "",
+      "reason" : "短链接或原始链接至少提供一个"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/short-link-generator/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -3437,9 +4309,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "province",
-      "fieldPath" : "province",
+      "field" : "province",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "查询油价需要指定省份"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/fuel-price/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -3449,7 +4325,7 @@
   "actionType" : null,
   "tags" : [ "geo_navigation" ],
   "skillName" : "ip-address",
-  "skillDescription" : "定位IP地址位置。。",
+  "skillDescription" : "查询IP位置信息。。",
   "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/ip-address/mcp?Authorization=YOUR_ZHIPU_API_KEY",
   "tools" : [ {
     "skillName" : "ip-address",
@@ -3467,9 +4343,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "ip",
-      "fieldPath" : "ip",
+      "field" : "ip",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "IP地址是查询地理位置的必要条件"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/ip-address/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -3506,19 +4386,31 @@
     },
     "inputSlots" : [ {
       "slotKey" : "time",
-      "fieldPath" : "time",
+      "field" : "time",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "转换时间必须提供"
     }, {
       "slotKey" : "source_timezone",
-      "fieldPath" : "sourceTimezone",
+      "field" : "sourceTimezone",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "源时区信息是转换的必要条件"
     }, {
       "slotKey" : "target_timezone",
-      "fieldPath" : "targetTimezone",
+      "field" : "targetTimezone",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "目标时区信息是转换的必要条件"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/time/mcp?Authorization=YOUR_ZHIPU_API_KEY"
@@ -3539,9 +4431,13 @@
     },
     "inputSlots" : [ {
       "slotKey" : "timezone",
-      "fieldPath" : "timezone",
+      "field" : "timezone",
       "fieldType" : "string",
-      "required" : true
+      "required" : true,
+      "requirement" : "HARD_REQUIRED",
+      "condition" : "",
+      "defaultValueHint" : "",
+      "reason" : "获取当前时间需要指定时区"
     } ],
     "outputSlotsInferred" : null,
     "serverUrl" : "https://open.bigmodel.cn/api/mcp-broker/proxy/time/mcp?Authorization=YOUR_ZHIPU_API_KEY"

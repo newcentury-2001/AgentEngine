@@ -7,8 +7,8 @@ public class InputSlot {
     @JsonProperty("slotKey")
     private String slotKey;
 
-    @JsonProperty("fieldPath")
-    private String fieldPath;
+    @JsonProperty("field")
+    private String field;
 
     @JsonProperty("fieldType")
     private String fieldType;
@@ -36,12 +36,12 @@ public class InputSlot {
         this.slotKey = slotKey;
     }
 
-    public String getFieldPath() {
-        return fieldPath;
+    public String getField() {
+        return field;
     }
 
-    public void setFieldPath(String fieldPath) {
-        this.fieldPath = fieldPath;
+    public void setField(String field) {
+        this.field = field;
     }
 
     public String getFieldType() {
