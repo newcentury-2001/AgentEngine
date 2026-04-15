@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.net.http.HttpRequest;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -135,6 +136,15 @@ public class AssistantInferenceService {
     @Value("${agent.assistant.prompt.tool-output-analyze.path:classpath:prompt/assistant_tool_output_analyze_system_prompt.txt}")
     private String toolOutputAnalyzePromptPath;
 
+    @Value("${agent.assistant.mcp-auth.default-mode:header}")
+    private String mcpAuthDefaultMode;
+
+    @Value("${agent.assistant.mcp-auth.query-mode-skill-names:dream-interpretation}")
+    private String mcpQueryModeSkillNames;
+
+    @Value("${agent.assistant.mcp-auth.query-param-name:Authorization}")
+    private String mcpAuthQueryParamName;
+
     @Value("${agent.assistant.tool-http.timeout-ms:30000}")
     private long toolHttpTimeoutMs;
 
@@ -143,6 +153,7 @@ public class AssistantInferenceService {
 
     private volatile Set<String> globalSlotWhitelistCache;
     private volatile String toolOutputAnalyzeSystemPromptCache;
+    private volatile Set<String> mcpQueryModeSkillCache;
 
     public AssistantInferenceResult inferForIntent(List<AssistantDialogueService.DialogueMessage> recentContext,
                                                    String userMessage) {
@@ -520,7 +531,8 @@ public class AssistantInferenceService {
                                      String skillName,
                                      AssistantPlannedTool tool,
                                      String argsJson) throws Exception {
-        String serverUrl = normalizeMcpServerUrl(text(tool.getServerUrl()));
+        AuthMode authMode = resolveAuthMode(skillName);
+        String serverUrl = normalizeMcpServerUrl(text(tool.getServerUrl()), authMode);
 
         JsonNode argsNode;
         try {
@@ -541,7 +553,9 @@ public class AssistantInferenceService {
         Map<String, String> headers = new LinkedHashMap<>();
         headers.put("Content-Type", "application/json");
         headers.put("Accept", "application/json");
-        headers.put("Authorization", ZhipuHttpProtocol.bearerValue(apiKey));
+        if (authMode == AuthMode.HEADER || authMode == AuthMode.BOTH) {
+            headers.put("Authorization", ZhipuHttpProtocol.bearerValue(apiKey));
+        }
 
         String responseBody = httpRequestClient.post(serverUrl, objectMapper.writeValueAsString(req), headers);
         JsonNode root = objectMapper.readTree(responseBody);
@@ -719,7 +733,7 @@ public class AssistantInferenceService {
         return "";
     }
 
-    private String normalizeMcpServerUrl(String serverUrl) {
+    private String normalizeMcpServerUrl(String serverUrl, AuthMode authMode) {
         if (blank(serverUrl)) {
             return "";
         }
@@ -727,7 +741,52 @@ public class AssistantInferenceService {
                 .replace("YOUR_ZHIPU_API_KEY", text(apiKey))
                 .replace("${ZHIPU_API_KEY}", text(apiKey))
                 .replace("{ZHIPU_API_KEY}", text(apiKey));
-        return stripQueryParam(resolved, "Authorization");
+        if (authMode == AuthMode.QUERY || authMode == AuthMode.BOTH) {
+            return ensureQueryParam(resolved, mcpAuthQueryParamName, text(apiKey));
+        }
+        return stripQueryParam(resolved, mcpAuthQueryParamName);
+    }
+
+    private AuthMode resolveAuthMode(String skillName) {
+        if (queryModeSkills().contains(text(skillName))) {
+            return AuthMode.QUERY;
+        }
+        String mode = text(mcpAuthDefaultMode).toLowerCase();
+        return switch (mode) {
+            case "query" -> AuthMode.QUERY;
+            case "both" -> AuthMode.BOTH;
+            default -> AuthMode.HEADER;
+        };
+    }
+
+    private Set<String> queryModeSkills() {
+        Set<String> cache = mcpQueryModeSkillCache;
+        if (cache != null) {
+            return cache;
+        }
+        synchronized (this) {
+            if (mcpQueryModeSkillCache != null) {
+                return mcpQueryModeSkillCache;
+            }
+            Set<String> out = java.util.Arrays.stream(text(mcpQueryModeSkillNames).split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            mcpQueryModeSkillCache = out;
+            return out;
+        }
+    }
+
+    private String ensureQueryParam(String url, String key, String value) {
+        if (blank(url) || blank(key) || blank(value)) {
+            return url;
+        }
+        String stripped = stripQueryParam(url, key);
+        String encoded = URLEncoder.encode(value, StandardCharsets.UTF_8);
+        if (!stripped.contains("?")) {
+            return stripped + "?" + key + "=" + encoded;
+        }
+        return stripped + "&" + key + "=" + encoded;
     }
 
     private String stripQueryParam(String url, String key) {
@@ -754,6 +813,12 @@ public class AssistantInferenceService {
             return base;
         }
         return base + "?" + String.join("&", kept);
+    }
+
+    private enum AuthMode {
+        HEADER,
+        QUERY,
+        BOTH
     }
     public String summarizeToolOutput(String intent, String skillName, String toolName, String toolOutput) {
         try {

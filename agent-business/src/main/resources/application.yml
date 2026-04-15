@@ -97,6 +97,10 @@ agent:
           retry-delay-levels: 1,2,3
           publish-retry-max-attempts: 3
           publish-retry-sleep-ms: 200
+    mcp-auth:
+      default-mode: header
+      query-mode-skill-names: dream-interpretation
+      query-param-name: Authorization
 
 rocketmq:
   name-server: ${app.network.wg-host}:9876
