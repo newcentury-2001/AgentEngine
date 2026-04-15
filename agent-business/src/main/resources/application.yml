@@ -77,3 +77,26 @@ agent:
   assistant:
     intent-slot-whitelist:
       path: dataset/assistant_intent_slot_whitelist.json
+    tool-http:
+      timeout-ms: 30000
+      executor:
+        size: 16
+      flow:
+        rate-limit-enabled: true
+        qps: 120
+        circuit-breaker-enabled: true
+        failure-rate-threshold: 0.5
+      retry:
+        max-retry: 3
+        topic: assistant_tool_retry_tasks
+        consumer:
+          topic: assistant_tool_retry_tasks
+          group: assistant-tool-retry-consumer
+        producer:
+          send-timeout-ms: 3000
+          retry-delay-levels: 1,2,3
+          publish-retry-max-attempts: 3
+          publish-retry-sleep-ms: 200
+
+rocketmq:
+  name-server: ${app.network.wg-host}:9876

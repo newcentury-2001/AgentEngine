@@ -11,5 +11,5 @@ public class SkillVectorRecord {
     private String skillName;
     private String skillDescription;
     private String intent;
-    private double[] vector;
+    private double simScore;
 }

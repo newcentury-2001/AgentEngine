@@ -17,6 +17,6 @@ public class ToolVectorRecord {
     private String serverUrl;
     private String toolUrl;
     private List<InputSlot> inputSlots;
-    private double[] vector;
     private double heatWeight;
+    private double simScore;
 }

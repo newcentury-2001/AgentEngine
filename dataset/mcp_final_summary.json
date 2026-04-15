@@ -3841,7 +3841,7 @@
       "defaultValueHint" : "",
       "reason" : "特定快递公司需要手机号"
     }, {
-      "slotKey" : "number",
+      "slotKey" : "express_no",
       "field" : "number",
       "fieldType" : "string",
       "required" : true,
